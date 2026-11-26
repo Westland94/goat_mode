@@ -349,3 +349,12 @@ button.btn.opt[aria-pressed="true"] { animation: pick 160ms ease-out; }
 .sp-cell.added .sp-val { animation: sp-pop-in var(--motion-dur) var(--motion-ease); }
 .sp-cell.gone { animation: sp-shrink-out var(--motion-dur) var(--motion-ease) forwards; transform-origin: center; }
 .sp-cell.write .sp-val { animation: sp-pulse var(--motion-dur) var(--motion-ease); }
+/* ==== anim-4: dict + graph motion on the shared tokens. Dict cards speak the anim-3 list language: a new card pops
+   in, an updated value pulses, a deleted card shrinks out in its own slot while the rest close the gap. Graph: one
+   token ring travels along edges; visited fills deepen per visit and animate. Reduced motion: 0ms, instant. ==== */
+@keyframes sp-card-out { from { opacity: 1; max-width: 160px; transform: none; } to { opacity: 0; max-width: 0; min-width: 0; margin: 0 -8px 0 0; padding: 0; border-width: 0; transform: scale(0); } }   /* -8px cancels the grid's 8px gap */
+.sp-card.added { animation: sp-pop-in var(--motion-dur) var(--motion-ease); }
+.sp-card.updated .sp-cv { animation: sp-pulse var(--motion-dur) var(--motion-ease); }
+.sp-card.gone { animation: sp-card-out var(--motion-dur) var(--motion-ease) forwards; }
+.sp-graph-live .sp-fill { fill: var(--match); pointer-events: none; }
+.sp-graph-live .sp-token { fill: none; stroke: var(--vesper); stroke-width: 3; pointer-events: none; }

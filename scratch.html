@@ -510,7 +510,7 @@
           if (!after) return f;
           const B = new Map(before || []), A = new Map(after);
           for (const [k, v] of after) { if (!B.has(k)) f.added.push(k); else if (B.get(k) !== v) f.updated.push(k); }
-          for (const [k, v] of before || []) if (!A.has(k)) f.removed.push([k, v]);
+          (before || []).forEach(([k, v], i) => { if (!A.has(k)) f.removed.push([k, v, i]); });   // anim-4: + its slot in the old order
           const n = f.added.length + f.updated.length + f.removed.length;
           if (!capped && events + n <= EVENT_CAP) { events += n; f.animate = n > 0; } else if (n) capped = true;
           f.cappedFrom = capped;
@@ -532,7 +532,8 @@
         const a = f.animate;
         const card = (key, val, cls) => { const c = el('div', 'sp-card' + cls); c.dataset.key = key; if (!cls.includes('gone')) c.dataset.motion = `card:${key}`; c.append(el('div', 'sp-key', key), el('div', 'sp-cv', val)); return c; };
         for (const [key, val] of f.entries) grid.append(card(key, val, (a && f.added.includes(key) ? ' added' : '') + (a && f.updated.includes(key) ? ' updated' : '')));
-        if (a) for (const [key, val] of f.removed) { const g = card(key, val, ' gone'); g.setAttribute('aria-hidden', 'true'); grid.append(g); }
+        // anim-4: the deleted card's ghost sits in its OLD slot and shrinks out there, so the cards after it close the gap
+        if (a) for (const [key, val, at] of f.removed) { const g = card(key, val, ' gone'); g.setAttribute('aria-hidden', 'true'); grid.insertBefore(g, grid.children[at] || null); }
         sec.append(head, grid); box.append(sec);
       }
       // ---- Scratch S12: the graph device — assembly + traversal, from the stored stream only. Roles (all from the
@@ -648,9 +649,14 @@
           const cls = ['sp-node', present.has(n) ? '' : 'pending', visited.has(n) ? 'visited' : '', isCur ? 'current' : '', c >= 2 ? 'revisited' : '', isCur && an && f.arrival && c >= 2 ? 'revisit-now' : '', an && f.newNodes.includes(n) ? 'added' : ''].filter(Boolean).join(' ');
           const [x, y] = pos[n]; const g = mk('g', { class: cls, 'data-node': nodeLabel(n), 'data-visits': c, 'data-motion': `node:${nodeLabel(n)}` }, gN);
           mk('circle', { cx: x, cy: y, r: R }, g);
+          // anim-4: the visited fill, deepening with each visit (1 → .48, 2 → .66, 3+ → .84); animated, never snapped
+          if (visited.has(n)) mk('circle', { cx: x, cy: y, r: R - 2, class: 'sp-fill', 'fill-opacity': fillLevel(c), 'data-fill': nodeLabel(n) }, g);
           const t = mk('text', { x, y: y + R + 14, 'text-anchor': 'middle', class: 'sp-label' }, g); t.textContent = nodeLabel(n);
           if (c >= 2) { const b = mk('text', { x: x + R + 2, y: y - R + 2, class: 'sp-badge' }, g); b.textContent = `×${c}`; }
         }
+        // anim-4: the traversal token — one ring on the current node, which TRAVELS between steps (below)
+        const gT = mk('g', { class: 'sp-tokens' });
+        if (f.cur && pos[f.cur]) mk('circle', { cx: pos[f.cur][0], cy: pos[f.cur][1], r: R + 5, class: 'sp-token', 'data-token': nodeLabel(f.cur) }, gT);
         if (f.present.length > NODE_CAP) {   // S14: run-time cap
           const h = el('p', 'muted'); h.id = 'scratch-graph-head'; overCap(h, Gr.name, f.present.length, NODE_CAP, 'node');
           const keep = $('scratch-dict'); box.replaceChildren(h); if (keep) box.append(keep); return;
@@ -661,6 +667,40 @@
         const prev = $('scratch-dict');
         box.replaceChildren(head, svg);
         if (prev) box.append(prev);
+        graphMotion(Gr, f, pos, svg);   // anim-4
+      }
+      // anim-4: graph motion between two drawn steps (any direction / distance), on the shared tokens.
+      //  - The token travels ALONG EDGES from the node it was on to the node it's on now: the shortest path over the map's
+      //    edges (either direction — a return walks back down the edge it came up), never a straight cut across the map.
+      //    Keyframes sit on the path's nodes, offsets split by distance (even speed); transforms are SVG user units.
+      //  - Each visited fill animates from its previous level to the new one (appearing from 0 the first time).
+      const fillLevel = (c) => Math.min(0.84, 0.3 + 0.18 * Math.max(1, c));
+      function graphPath(Gr, pos, a, b) {
+        const adj = new Map();
+        for (const [x, y] of Gr.edgeOrder) if (pos[x] && pos[y]) { (adj.get(x) || adj.set(x, []).get(x)).push(y); (adj.get(y) || adj.set(y, []).get(y)).push(x); }
+        const prev = new Map([[a, null]]), q = [a];
+        while (q.length) { const u = q.shift(); if (u === b) break; for (const v of adj.get(u) || []) if (!prev.has(v)) { prev.set(v, u); q.push(v); } }
+        if (!prev.has(b)) return [a, b];   // no route on the map: the direct move (only possible on a disconnected map)
+        const path = []; for (let u = b; u !== null; u = prev.get(u)) path.unshift(u); return path;
+      }
+      function graphMotion(Gr, f, pos, svg) {
+        const last = Gr.lastDrawn, dur = motionMs(), easing = motionToken('--motion-ease') || 'ease';
+        const levels = {}; for (const n of f.visited) levels[n] = fillLevel(f.counts[n] || 0);
+        Gr.lastDrawn = { tok: f.cur, levels };
+        if (!last || dur <= 0) return;
+        const tok = svg.querySelector('.sp-token');
+        if (tok && last.tok && last.tok !== f.cur && pos[last.tok]) {
+          const path = graphPath(Gr, pos, last.tok, f.cur).map((n) => pos[n]), [fx, fy] = pos[f.cur];
+          const seg = path.slice(1).map((p, i) => Math.hypot(p[0] - path[i][0], p[1] - path[i][1])), total = seg.reduce((x, y) => x + y, 0) || 1;
+          let acc = 0;
+          const frames = path.map((p, i) => { if (i) acc += seg[i - 1]; return { transform: `translate(${p[0] - fx}px, ${p[1] - fy}px)`, offset: i === path.length - 1 ? 1 : acc / total }; });
+          tok.animate(frames, { duration: dur, easing, id: 'sp-motion' });
+          tok.dataset.path = path.length;
+        }
+        for (const c of svg.querySelectorAll('.sp-fill')) {
+          const n = Gr.order.find((m) => nodeLabel(m) === c.dataset.fill), from = (last.levels && last.levels[n]) || 0, to = levels[n];
+          if (Math.abs(from - to) > 0.001) c.animate([{ fillOpacity: from }, { fillOpacity: to }], { duration: dur, easing, id: 'sp-motion' });
+        }
       }
       // ---- Scratch S13: the call-stack strip. The worker records the stack at every step (routes.py _stack_recorder:
       // run.stacks[k] = {depth, frames: innermost first}) and the calls that RETURN after step k (run.returns[k],
