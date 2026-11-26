@@ -1,0 +1,219 @@
+{
+  "id": "086",
+  "skill": "conditionals",
+  "title": "Parcel sizes",
+  "scenario": "Size each parcel: 10 kg or more is 'large', 5 kg or more is 'medium', else 'small'.",
+  "data": {
+    "name": "weights",
+    "value": [
+      12,
+      7,
+      3
+    ]
+  },
+  "intro": {
+    "job": "Size each parcel: 10 kg or more is 'large', 5 kg or more is 'medium', else 'small'.",
+    "idea": {
+      "rule": "elif is a waterfall — the first true branch catches everything flowing past it, so test the strictest first.",
+      "detail": "Python checks an if/elif chain top to bottom and runs only the first branch that's true; everything below it is skipped. So a loose test like >= 5 placed first swallows every heavy parcel before >= 10 ever gets a look. Strictest test on top; the looser ones catch what falls through."
+    },
+    "watch": {
+      "code": "if weight >= 10:\n    size = 'large'\nelif weight >= 5:\n    size = 'medium'\nelse:\n    size = 'small'\nprint(size)",
+      "data": {
+        "name": "weight",
+        "value": 12
+      },
+      "trace_watch": [
+        "size"
+      ]
+    }
+  },
+  "model_restatement": "Turn each weight into its size — large, medium or small — in the same order as the parcels.",
+  "clarify": [
+    {
+      "keywords": [
+        "exactly",
+        "boundary",
+        "edge",
+        "inclusive",
+        "equal",
+        "equals"
+      ],
+      "question": "Does exactly 10 kg count as large?",
+      "answer": "Yes — 10 is large, 5 is medium."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no parcels",
+        "none",
+        "nothing"
+      ],
+      "question": "What if there are no parcels?",
+      "answer": "Then an empty list."
+    },
+    {
+      "keywords": [
+        "over 100",
+        "above 100",
+        "negative",
+        "invalid",
+        "range"
+      ],
+      "question": "Can a parcel weigh over 100 kg?",
+      "answer": "No — parcels are always 0 to 100 kg."
+    },
+    {
+      "keywords": [
+        "format",
+        "same order",
+        "in order",
+        "output order",
+        "list",
+        "shape"
+      ],
+      "question": "What shape should the answer be?",
+      "answer": "A list of sizes, in the same order as the parcels."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each parcel: if it weighs at least 10 kg it's large; otherwise, if it weighs at least 5 kg it's medium; otherwise it's small. Print the sizes.",
+  "draft_code": "sizes = []\nfor w in weights:\n    if w >= 5:\n        sizes.append('medium')\n    elif w >= 10:\n        sizes.append('large')\n    else:\n        sizes.append('small')\nprint(sizes)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "After the 12's append, what is sizes?",
+      "kind": "value",
+      "var": "sizes"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after the 12's append, what is sizes?",
+      "kind": "value",
+      "var": "sizes"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "12 >= 5 is already true, so the first branch catches it as 'medium' — the elif w >= 10 below it never even gets checked.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "An if/elif chain is a waterfall: 12 lands in the first bucket that says yes — and 'at least 5' says yes before 'at least 10' gets a turn.",
+    "bridge": "So which test has to come first for 12 to land in 'large'?",
+    "fix": {
+      "rule": "Strictest test on top: 12 hits '>= 10' before it ever reaches '>= 5'.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the sizes."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next parcel."
+        },
+        {
+          "line": 3,
+          "gloss": "Check the strict size first: is it at least 10 kg?"
+        },
+        {
+          "line": 4,
+          "gloss": "Yes for 12 — it goes in as 'large', and the rest of the chain is skipped."
+        }
+      ],
+      "contrast": {
+        "wrong": "if w >= 5:",
+        "wrong_note": "catches 12 first",
+        "right": "if w >= 10:",
+        "right_note": "lets 12 reach 'large'"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "sizes = []\nfor w in weights:\n    if w >= 10:\n        sizes.append('large')\n    elif w >= 5:\n        sizes.append('medium')\n    else:\n        sizes.append('small')\nprint(sizes)",
+    "alternatives": [
+      {
+        "code": "sizes = []\nfor w in weights:\n    if w < 5:\n        sizes.append('small')\n    elif w < 10:\n        sizes.append('medium')\n    else:\n        sizes.append('large')\nprint(sizes)",
+        "note": "The same waterfall, tested from the bottom up — also fine."
+      }
+    ],
+    "hints": [
+      "Follow 12 through the ifs. Which test does it hit first?",
+      "elif only runs if everything above it was false — and 12 >= 5 is already true.",
+      "Test w >= 10 first, then w >= 5."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "weights": [
+          12,
+          7,
+          3
+        ]
+      },
+      "expected": "['large', 'medium', 'small']"
+    },
+    {
+      "input": {
+        "weights": [
+          10,
+          5,
+          4
+        ]
+      },
+      "expected": "['large', 'medium', 'small']"
+    },
+    {
+      "input": {
+        "weights": []
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A new size: 20 kg or more is 'huge'. Where does it slot in?",
+    "data": {
+      "name": "weights",
+      "value": [
+        25,
+        12,
+        7
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With weights [25, 12, 7], what does your code print?"
+    },
+    "recommended": "sizes = []\nfor w in weights:\n    if w >= 20:\n        sizes.append('huge')\n    elif w >= 10:\n        sizes.append('large')\n    elif w >= 5:\n        sizes.append('medium')\n    else:\n        sizes.append('small')\nprint(sizes)",
+    "fix_hint": "Strictest first: 20, then 10, then 5."
+  },
+  "one_liner": "elif is a waterfall — the first true branch catches everything flowing past it, so test the strictest first.",
+  "trace_watch": [
+    "w",
+    "sizes"
+  ]
+}

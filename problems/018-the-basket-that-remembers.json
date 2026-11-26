@@ -1,0 +1,203 @@
+{
+  "id": "018",
+  "skill": "functions-mutable-default",
+  "title": "The basket that remembers",
+  "scenario": "A helper adds an item to a basket. A fresh basket should start EMPTY every call.",
+  "data": {
+    "name": "items",
+    "value": [
+      "pen",
+      "mug"
+    ]
+  },
+  "intro": {
+    "job": "A helper adds an item to a basket. A fresh basket should start EMPTY every call.",
+    "idea": {
+      "rule": "A default list is built ONCE and shared forever — defaults should be things that never change.",
+      "detail": "Python builds a function's default values one time, when the def line runs — not each call. A default list is therefore the same list on every call, and append keeps adding to it. The safe pattern: default to None, and build a new list inside the function."
+    },
+    "watch": {
+      "code": "def tally(x, seen=[]):\n    seen.append(x)\n    return len(seen)\ncounts = []\nfor w in words:\n    counts.append(tally(w))\nprint(counts)",
+      "data": {
+        "name": "words",
+        "value": [
+          "a",
+          "b"
+        ]
+      },
+      "trace_watch": [
+        "w",
+        "counts"
+      ]
+    }
+  },
+  "model_restatement": "Call add once per item, each time with a brand-new empty basket, and print the baskets.",
+  "clarify": [
+    {
+      "keywords": [
+        "pass a basket",
+        "own basket",
+        "existing basket",
+        "basket argument"
+      ],
+      "question": "Will callers ever pass their own basket?",
+      "answer": "Sometimes — but today every call uses the default."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no items",
+        "nothing"
+      ],
+      "question": "What if there are no items?",
+      "answer": "Then no baskets: an empty list."
+    },
+    {
+      "keywords": [
+        "format",
+        "print",
+        "printed",
+        "output",
+        "list of lists"
+      ],
+      "question": "What should be printed?",
+      "answer": "The list of baskets the calls handed back."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Write add(item, basket) with an empty basket as the default; put the item in and hand the basket back. Call it once per item and print the baskets.",
+  "draft_code": "def add(item, basket=[]):\n    basket.append(item)\n    return basket\nresults = []\nfor it in items:\n    results.append(add(it))\nprint(results)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2 starts (it = 'mug'). What is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": "after"
+      },
+      "prompt": "After both calls — what is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 9,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — after both calls, what is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "basket=[] was built once, when def ran — both calls append to that same list, so both entries in results are the one list ['pen', 'mug'].",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The default basket is a single shared basket by the door — the second shopper picks up the one with the pen still in it, and both receipts point at the same basket.",
+    "bridge": "So how could each call get a brand-new basket instead of the one by the door?",
+    "fix": {
+      "rule": "Default to None and build the list inside: basket = [] then runs on every call, so every call gets its own.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "No basket given? The default is None — nothing shared."
+        },
+        {
+          "line": 2,
+          "gloss": "Check whether a basket was passed in."
+        },
+        {
+          "line": 3,
+          "gloss": "If not, build a brand-new empty one — this runs every call."
+        },
+        {
+          "line": 4,
+          "gloss": "Add the item to this call's own basket."
+        }
+      ],
+      "contrast": {
+        "wrong": "def add(item, basket=[]):",
+        "wrong_note": "one list, shared forever",
+        "right": "def add(item, basket=None):",
+        "right_note": "a new list each call"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def add(item, basket=None):\n    if basket is None:\n        basket = []\n    basket.append(item)\n    return basket\nresults = []\nfor it in items:\n    results.append(add(it))\nprint(results)",
+    "alternatives": [],
+    "hints": [
+      "After the second call, look at results[0]. Did it change?",
+      "The [] in the def line is built once, not once per call.",
+      "Use basket=None, then basket = [] inside when it's None."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "items": [
+          "pen",
+          "mug"
+        ]
+      },
+      "expected": "[['pen'], ['mug']]"
+    },
+    {
+      "input": {
+        "items": [
+          "pen"
+        ]
+      },
+      "expected": "[['pen']]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Two items: ['a', 'a'] — what's printed?",
+    "data": {
+      "name": "items",
+      "value": [
+        "a",
+        "a"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With items = ['a', 'a'], what gets printed?"
+    },
+    "recommended": "def add(item, basket=None):\n    if basket is None:\n        basket = []\n    basket.append(item)\n    return basket\nresults = []\nfor it in items:\n    results.append(add(it))\nprint(results)",
+    "fix_hint": "The baskets should stay separate — if both lists show ['a', 'a'], the calls shared one basket."
+  },
+  "one_liner": "A default list is built ONCE and shared forever — defaults should be things that never change.",
+  "trace_watch": [
+    "it",
+    "results"
+  ]
+}

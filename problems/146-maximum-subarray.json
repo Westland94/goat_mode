@@ -1,0 +1,250 @@
+{
+  "id": "146",
+  "skill": "kadane",
+  "title": "Maximum Subarray",
+  "section": "leetcode",
+  "lc": {
+    "number": 53,
+    "title": "Maximum Subarray",
+    "difficulty": "Medium",
+    "slug": "maximum-subarray"
+  },
+  "scenario": "Given a list of integers nums, find the contiguous stretch (at least one number long) with the largest sum, and return that sum.\n\nExample 1:\nInput: nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]\nOutput: 6\nWhy: the stretch [4, -1, 2, 1] adds up to 6.\n\nExample 2:\nInput: nums = [1]\nOutput: 1\n\nExample 3:\nInput: nums = [5, 4, -1, 7, 8]\nOutput: 23\n\nConstraints:\n1 <= len(nums) <= 10^5\n-10^4 <= nums[i] <= 10^4\n\nWrite: def max_sub_array(nums) — the driver calls it on nums = [-2, -3, -1] (every number negative) and prints the result.",
+  "data": {
+    "name": "nums",
+    "value": [
+      -2,
+      -3,
+      -1
+    ]
+  },
+  "intro": {
+    "job": "Given a list of integers nums, find the contiguous stretch (at least one number long) with the largest sum, and return that sum.\n\nExample 1:\nInput: nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]\nOutput: 6\nWhy: the stretch [4, -1, 2, 1] adds up to 6.\n\nExample 2:\nInput: nums = [1]\nOutput: 1\n\nExample 3:\nInput: nums = [5, 4, -1, 7, 8]\nOutput: 23\n\nConstraints:\n1 <= len(nums) <= 10^5\n-10^4 <= nums[i] <= 10^4\n\nWrite: def max_sub_array(nums) — the driver calls it on nums = [-2, -3, -1] (every number negative) and prints the result.",
+    "idea": {
+      "rule": "A stretch must hold at least one real number — restart at the current number, never at an empty 0.",
+      "detail": "This is problem 046 (Least-bad stretch) in interview format: Kadane's algorithm. Walk once, keeping cur — the best stretch that ENDS at this number — and best, the best seen anywhere. At each number, either extend (cur + x) or start fresh at this number alone (x), whichever is bigger. Start both at the first number: 0 is the sum of an EMPTY stretch, and an empty stretch isn't allowed."
+    },
+    "watch": {
+      "code": "def max_sub_array(nums):\n    best = nums[0]\n    cur = nums[0]\n    for x in nums[1:]:\n        cur = max(x, cur + x)\n        best = max(best, cur)\n    return best\n\nprint(max_sub_array(nums))",
+      "data": {
+        "name": "nums",
+        "value": [
+          -3,
+          2,
+          -1,
+          4
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "cur",
+        "best"
+      ]
+    }
+  },
+  "model_restatement": "Find the largest sum of any non-empty run of consecutive numbers.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no numbers",
+        "zero length"
+      ],
+      "question": "Can the stretch be empty?",
+      "answer": "No — it has at least one number."
+    },
+    {
+      "keywords": [
+        "negative",
+        "negatives",
+        "all negative"
+      ],
+      "question": "What if every number is negative?",
+      "answer": "Then the answer is the least-negative single number."
+    },
+    {
+      "keywords": [
+        "which",
+        "where",
+        "indices",
+        "positions",
+        "stretch or its sum",
+        "sum"
+      ],
+      "question": "Do I return the stretch or its sum?",
+      "answer": "Just the sum."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start best and the running sum at 0. For each number, add it to the running sum, but never let the running sum go below 0. Keep the best. Return it.",
+  "draft_code": "def max_sub_array(nums):\n    best = 0\n    cur = 0\n    for x in nums:\n        cur = max(0, cur + x)\n        best = max(best, cur)\n    return best\n\nprint(max_sub_array(nums))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "x is -2. After line 5, what is cur?",
+      "kind": "value",
+      "var": "cur"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": "after"
+      },
+      "prompt": "The loop is done. What is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 2
+      },
+      "prompt": "With the fix — after the last number, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max(0, cur + x) lets the running sum fall back to 0 — the sum of an EMPTY stretch. With every number negative, that empty 0 beats every real stretch, so best never leaves 0.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Resetting to 0 lets the code answer 'pick nothing' — but the job says pick at least one number. On an all-negative list, nothing beats everything.",
+    "bridge": "x is -2 and cur becomes 0. Which stretch of numbers adds up to 0 here?",
+    "fix": {
+      "rule": "Start at the first number and choose cur = max(x, cur + x): start fresh at a real number, or extend — never an empty 0.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "The best stretch so far: just the first number."
+        },
+        {
+          "line": 4,
+          "gloss": "Walk the rest of the numbers."
+        },
+        {
+          "line": 5,
+          "gloss": "Best stretch ending here: start fresh at x, or extend."
+        },
+        {
+          "line": 6,
+          "gloss": "Keep the best stretch seen anywhere."
+        }
+      ],
+      "contrast": {
+        "wrong": "cur = max(0, cur + x)",
+        "wrong_note": "0 means 'no stretch'",
+        "right": "cur = max(x, cur + x)",
+        "right_note": "always a real stretch"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def max_sub_array(nums):\n    best = nums[0]\n    cur = nums[0]\n    for x in nums[1:]:\n        cur = max(x, cur + x)\n        best = max(best, cur)\n    return best\n\nprint(max_sub_array(nums))",
+    "alternatives": [
+      {
+        "code": "def max_sub_array(nums):\n    best = nums[0]\n    for i in range(len(nums)):\n        total = 0\n        for j in range(i, len(nums)):\n            total += nums[j]\n            best = max(best, total)\n    return best\n\nprint(max_sub_array(nums))",
+        "note": "Try every stretch — correct, but slow for 10^5 numbers."
+      }
+    ],
+    "hints": [
+      "After line 5 on the first number, is cur the sum of a real stretch?",
+      "max(0, ...) lets the answer be 'nothing'.",
+      "Start best and cur at nums[0]; use cur = max(x, cur + x)."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          -2,
+          1,
+          -3,
+          4,
+          -1,
+          2,
+          1,
+          -5,
+          4
+        ]
+      },
+      "expected": "6"
+    },
+    {
+      "input": {
+        "nums": [
+          1
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "nums": [
+          5,
+          4,
+          -1,
+          7,
+          8
+        ]
+      },
+      "expected": "23"
+    },
+    {
+      "input": {
+        "nums": [
+          -2,
+          -3,
+          -1
+        ]
+      },
+      "expected": "-1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [-5, -1, -4] — largest stretch sum?",
+    "data": {
+      "name": "nums",
+      "value": [
+        -5,
+        -1,
+        -4
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def max_sub_array(nums):\n    best = nums[0]\n    cur = nums[0]\n    for x in nums[1:]:\n        cur = max(x, cur + x)\n        best = max(best, cur)\n    return best\n\nprint(max_sub_array(nums))",
+    "fix_hint": "Nothing to change — the -1 on its own is the best real stretch."
+  },
+  "one_liner": "A stretch must hold at least one real number — restart at the current number, never at an empty 0.",
+  "trace_watch": [
+    "x",
+    "cur",
+    "best"
+  ]
+}

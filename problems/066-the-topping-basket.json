@@ -1,0 +1,202 @@
+{
+  "id": "066",
+  "skill": "functions-mutable-default",
+  "title": "The topping basket",
+  "scenario": "A helper adds a topping to a pizza. A fresh pizza should start with NO toppings every call.",
+  "data": {
+    "name": "toppings",
+    "value": [
+      "pepperoni",
+      "mushroom"
+    ]
+  },
+  "intro": {
+    "job": "A helper adds a topping to a pizza. A fresh pizza should start with NO toppings every call.",
+    "idea": {
+      "rule": "A default list is built ONCE and shared forever — defaults should be things that never change.",
+      "detail": "Python builds a function's default values one time, when the def line runs — not each call. A default list is therefore the same list on every call, and append keeps adding to it. The safe pattern: default to None, and build a new list inside the function."
+    },
+    "watch": {
+      "code": "def log(x, seen=[]):\n    seen.append(x)\n    return len(seen)\ncounts = []\nfor w in words:\n    counts.append(log(w))\nprint(counts)",
+      "data": {
+        "name": "words",
+        "value": [
+          "a",
+          "b"
+        ]
+      },
+      "trace_watch": [
+        "w",
+        "counts"
+      ]
+    }
+  },
+  "model_restatement": "Call add once per topping, each time with a brand-new empty tray, and print the trays.",
+  "clarify": [
+    {
+      "keywords": [
+        "pass a tray",
+        "own tray",
+        "existing tray",
+        "tray argument"
+      ],
+      "question": "Will callers ever pass their own tray?",
+      "answer": "Sometimes — but today every call uses the default."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no toppings",
+        "nothing"
+      ],
+      "question": "What if there are no toppings?",
+      "answer": "Then no trays: an empty list."
+    },
+    {
+      "keywords": [
+        "format",
+        "print",
+        "printed",
+        "output",
+        "list of lists"
+      ],
+      "question": "What should be printed?",
+      "answer": "The list of trays the calls handed back."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Write add(item, tray) with an empty tray as the default; put the topping in and hand the tray back. Call it once per topping and print the trays.",
+  "draft_code": "def add(item, tray=[]):\n    tray.append(item)\n    return tray\nresults = []\nfor it in toppings:\n    results.append(add(it))\nprint(results)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2 starts (it = 'mushroom'). What is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": "after"
+      },
+      "prompt": "After both calls — what is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 9,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — after both calls, what is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "tray=[] was built once, when def ran — both calls append to that same list, so both entries in results are the one list ['pepperoni', 'mushroom'].",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The default tray is a single shared tray by the counter — the second pizza picks up the one with the pepperoni still on it, and both receipts point at the same tray.",
+    "bridge": "So how could each call get a brand-new tray instead of the one by the counter?",
+    "fix": {
+      "rule": "Default to None and build the list inside: tray = [] then runs on every call, so every call gets its own.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "No tray given? The default is None — nothing shared."
+        },
+        {
+          "line": 2,
+          "gloss": "Check whether a tray was passed in."
+        },
+        {
+          "line": 3,
+          "gloss": "If not, build a brand-new empty one — this runs every call."
+        },
+        {
+          "line": 4,
+          "gloss": "Add the topping to this call's own tray."
+        }
+      ],
+      "contrast": {
+        "wrong": "def add(item, tray=[]):",
+        "wrong_note": "one list, shared forever",
+        "right": "def add(item, tray=None):",
+        "right_note": "a new list each call"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def add(item, tray=None):\n    if tray is None:\n        tray = []\n    tray.append(item)\n    return tray\nresults = []\nfor it in toppings:\n    results.append(add(it))\nprint(results)",
+    "alternatives": [],
+    "hints": [
+      "After the second call, look at results[0]. Did it change?",
+      "The [] in the def line is built once, not once per call.",
+      "Use tray=None, then tray = [] inside when it's None."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "toppings": [
+          "pepperoni",
+          "mushroom"
+        ]
+      },
+      "expected": "[['pepperoni'], ['mushroom']]"
+    },
+    {
+      "input": {
+        "toppings": [
+          "pepperoni"
+        ]
+      },
+      "expected": "[['pepperoni']]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One topping: ['olive'] — what's printed?",
+    "data": {
+      "name": "toppings",
+      "value": [
+        "olive"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With toppings = ['olive'], what gets printed?"
+    },
+    "recommended": "def add(item, tray=None):\n    if tray is None:\n        tray = []\n    tray.append(item)\n    return tray\nresults = []\nfor it in toppings:\n    results.append(add(it))\nprint(results)",
+    "fix_hint": "Nothing to change — one call can't share a tray, so the answer is a single-item list."
+  },
+  "one_liner": "A default list is built ONCE and shared forever — defaults should be things that never change.",
+  "trace_watch": [
+    "it",
+    "results"
+  ]
+}

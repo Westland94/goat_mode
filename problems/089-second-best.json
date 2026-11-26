@@ -1,0 +1,220 @@
+{
+  "id": "089",
+  "skill": "lists-sorting",
+  "title": "Second best",
+  "scenario": "Announce the second-best score.",
+  "data": {
+    "name": "scores",
+    "value": [
+      42,
+      87,
+      65
+    ]
+  },
+  "intro": {
+    "job": "Announce the second-best score.",
+    "idea": {
+      "rule": "sorted() hands you a NEW list — the old one stays exactly as it was.",
+      "detail": "sorted(scores) returns a fresh list in order and leaves scores untouched — but here the returned list is never caught: it is built, then thrown away. scores still sits in shelf order. If you read [-2] off scores, you're reading the unsorted order: the second-to-last score on the shelf, not the second-best score. Catch the sorted list and read the answer off it."
+    },
+    "watch": {
+      "code": "ranked = sorted(vals)\nsecond = ranked[-2]\nprint(second)",
+      "data": {
+        "name": "vals",
+        "value": [
+          8,
+          3,
+          5
+        ]
+      },
+      "trace_watch": [
+        "ranked",
+        "second"
+      ]
+    }
+  },
+  "model_restatement": "Sort the scores, take the second-best one, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "tie",
+        "ties",
+        "tied",
+        "same",
+        "equal"
+      ],
+      "question": "What if two scores tie for second-best?",
+      "answer": "Then that score — once."
+    },
+    {
+      "keywords": [
+        "two",
+        "only two",
+        "few",
+        "short"
+      ],
+      "question": "What if there are only two scores?",
+      "answer": "Then the lower one is second-best."
+    },
+    {
+      "keywords": [
+        "change",
+        "reorder",
+        "sort in place",
+        "mutate",
+        "original"
+      ],
+      "question": "Can I change the order of the list?",
+      "answer": "Yes — sorting a copy leaves the original alone."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no scores",
+        "none",
+        "nothing"
+      ],
+      "question": "What if there are no scores?",
+      "answer": "Today there are always at least two scores."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Sort the scores, take the second-to-last one from the scores, and announce it.",
+  "draft_code": "sorted(scores)\nsecond = scores[-2]\nprint(second)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is second?",
+      "kind": "value",
+      "var": "second"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is second?",
+      "kind": "value",
+      "var": "second"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "scores[-2] reads the ORIGINAL list — still in shelf order [42, 87, 65] — so the second-to-last score on the shelf is 87, the best, not the second-best.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "sorted() hands you a new list in order — but second is read off scores, which never moved: [-2] of the shelf order is 87.",
+    "bridge": "After line 1, where did the sorted list go — and which list does line 2 read?",
+    "fix": {
+      "rule": "Read [-2] off ordered: the sorted copy's second-to-last is the second-best score.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Catch the sorted list in ordered — scores itself stays in shelf order."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the second-to-last of the SORTED copy."
+        },
+        {
+          "line": 3,
+          "gloss": "Announce it."
+        }
+      ],
+      "contrast": {
+        "wrong": "sorted(scores)",
+        "wrong_note": "built, then thrown away",
+        "right": "ordered = sorted(scores)",
+        "right_note": "caught — read the answer off it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "ordered = sorted(scores)\nsecond = ordered[-2]\nprint(second)",
+    "alternatives": [
+      {
+        "code": "scores.sort()\nsecond = scores[-2]\nprint(second)",
+        "note": "Sort in place instead — then the original IS the sorted list."
+      }
+    ],
+    "hints": [
+      "After line 1, where did the sorted list go?",
+      "sorted() returns a new list; scores never moves.",
+      "second = ordered[-2]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "scores": [
+          42,
+          87,
+          65
+        ]
+      },
+      "expected": "65"
+    },
+    {
+      "input": {
+        "scores": [
+          10,
+          20,
+          30,
+          40
+        ]
+      },
+      "expected": "30"
+    },
+    {
+      "input": {
+        "scores": [
+          5,
+          9
+        ]
+      },
+      "expected": "5"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Just two scores: [7, 3] — what's second-best?",
+    "data": {
+      "name": "scores",
+      "value": [
+        7,
+        3
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With scores = [7, 3], what gets printed?"
+    },
+    "recommended": "ordered = sorted(scores)\nsecond = ordered[-2]\nprint(second)",
+    "fix_hint": "Nothing to change — sorted, [3, 7], second-to-last is 3."
+  },
+  "one_liner": "sorted() hands you a NEW list — the old one stays exactly as it was.",
+  "trace_watch": [
+    "ordered",
+    "second"
+  ]
+}

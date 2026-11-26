@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GOAT Mode</title>
+  <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body data-beat="home">
+  <header class="top">
+    <button id="home-btn" class="brand" type="button">GOAT Mode</button>
+    <span id="beat-label" class="beat-label"></span>
+    <span id="timer" class="timer" hidden></span>
+  </header>
+  <div id="dots" class="dots" aria-hidden="true"></div>
+
+  <main>
+    <section class="stage" aria-label="Stage">
+      <div class="char vesper" id="char-vesper">
+        <div class="avatar" aria-hidden="true">📐</div>
+        <div class="who">Vesper <small>architect</small></div>
+        <div class="bubble" id="bubble-vesper" aria-live="polite"></div>
+      </div>
+      <div class="char claude" id="char-claude">
+        <div class="avatar" aria-hidden="true">🔧</div>
+        <div class="who">Claude <small>executor</small></div>
+        <div class="bubble" id="bubble-claude" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="trail" class="trail" aria-label="Done so far"></section>
+    <section id="work" class="work" aria-live="polite"></section>
+  </main>
+
+  <script type="module" src="shim/goat-shim.mjs"></script>
+  <script defer src="app.js"></script>
+</body>
+</html>

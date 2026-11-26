@@ -1,0 +1,203 @@
+{
+  "id": "064",
+  "skill": "sets",
+  "title": "Count the flavors",
+  "scenario": "The ice-cream counter took five scoops. How many DIFFERENT flavors were ordered?",
+  "data": {
+    "name": "flavors",
+    "value": [
+      "mint",
+      "vanilla",
+      "mint",
+      "choc",
+      "mint"
+    ]
+  },
+  "intro": {
+    "job": "The ice-cream counter took five scoops. How many DIFFERENT flavors were ordered?",
+    "idea": {
+      "rule": "len(flavors) counts every copy — len(set(flavors)) counts each one once.",
+      "detail": "set(some_list) builds a set: every value goes in, but a value that's already there is quietly dropped. So len(set(...)) counts how many DIFFERENT values there are. len(some_list) counts every entry, twins included."
+    },
+    "watch": {
+      "code": "kinds = len(set(tags))\nprint(kinds)",
+      "data": {
+        "name": "tags",
+        "value": [
+          "red",
+          "red",
+          "blue"
+        ]
+      },
+      "trace_watch": [
+        "kinds"
+      ]
+    }
+  },
+  "model_restatement": "Count how many different flavors are on the list, ignoring repeats.",
+  "clarify": [
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase",
+        "lowercase",
+        "spelling",
+        "spelled"
+      ],
+      "question": "Could the same flavor be spelled differently?",
+      "answer": "No — today the flavors are clean and lowercase."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no scoops",
+        "nobody",
+        "none"
+      ],
+      "question": "What if nobody orders?",
+      "answer": "Then 0."
+    },
+    {
+      "keywords": [
+        "flavors",
+        "which",
+        "list them",
+        "names"
+      ],
+      "question": "Do you want the flavors, or just how many?",
+      "answer": "Just how many."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count the flavors on the list and print the number.",
+  "draft_code": "kinds = len(flavors)\nprint(kinds)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is kinds?",
+      "kind": "value",
+      "var": "kinds"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is kinds?",
+      "kind": "value",
+      "var": "kinds"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "len(flavors) counts every scoop, so mint is counted three times — 5, not 3.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "len(flavors) is a headcount at the counter that counts mint every time it appears — three mints, three ticks.",
+    "bridge": "So what could you put the flavors into that keeps only one of each?",
+    "fix": {
+      "rule": "set(flavors) throws out the twins first; len then counts what's left — one per flavor.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Drop the duplicates, then count."
+        },
+        {
+          "line": 2,
+          "gloss": "Show the number."
+        }
+      ],
+      "contrast": {
+        "wrong": "len(flavors)",
+        "wrong_note": "counts every scoop",
+        "right": "len(set(flavors))",
+        "right_note": "counts every flavor once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "kinds = len(set(flavors))\nprint(kinds)",
+    "alternatives": [
+      {
+        "code": "seen = []\nfor f in flavors:\n    if f not in seen:\n        seen.append(f)\nprint(len(seen))",
+        "note": "The long way, with a list — slower on big lists, same answer."
+      }
+    ],
+    "hints": [
+      "How many times does mint appear?",
+      "len counts every entry. You want each flavor once.",
+      "len(set(flavors))"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "flavors": [
+          "mint",
+          "vanilla",
+          "mint",
+          "choc",
+          "mint"
+        ]
+      },
+      "expected": "3"
+    },
+    {
+      "input": {
+        "flavors": [
+          "x"
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "flavors": []
+      },
+      "expected": "0"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Three scoops, one flavor: ['choc', 'choc', 'choc'] — how many kinds?",
+    "data": {
+      "name": "flavors",
+      "value": [
+        "choc",
+        "choc",
+        "choc"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With ['choc', 'choc', 'choc'], what gets printed?"
+    },
+    "recommended": "kinds = len(set(flavors))\nprint(kinds)",
+    "fix_hint": "Nothing to change — three chocs are still one flavor."
+  },
+  "one_liner": "len(flavors) counts every copy — len(set(flavors)) counts each one once.",
+  "trace_watch": [
+    "kinds"
+  ]
+}

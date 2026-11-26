@@ -1,0 +1,216 @@
+{
+  "id": "145",
+  "skill": "stack-parentheses",
+  "title": "Valid Parentheses",
+  "section": "leetcode",
+  "lc": {
+    "number": 20,
+    "title": "Valid Parentheses",
+    "difficulty": "Easy",
+    "slug": "valid-parentheses"
+  },
+  "scenario": "Given a string s made only of the characters ( ) [ ] { }, return True if every opener is closed by the same kind of bracket, closers come in the right order (the most recent opener closes first), and nothing is left open. Otherwise return False.\n\nExample 1:\nInput: s = \"()\"\nOutput: True\n\nExample 2:\nInput: s = \"()[]{}\"\nOutput: True\n\nExample 3:\nInput: s = \"(]\"\nOutput: False\n\nExample 4:\nInput: s = \"([)]\"\nOutput: False\n\nConstraints:\n1 <= len(s) <= 10^4\ns contains only ( ) [ ] { }\n\nWrite: def is_valid(s) — the driver calls it on Example 4 and prints the result.",
+  "data": {
+    "name": "s",
+    "value": "([)]"
+  },
+  "intro": {
+    "job": "Given a string s made only of the characters ( ) [ ] { }, return True if every opener is closed by the same kind of bracket, closers come in the right order (the most recent opener closes first), and nothing is left open. Otherwise return False.\n\nExample 1:\nInput: s = \"()\"\nOutput: True\n\nExample 2:\nInput: s = \"()[]{}\"\nOutput: True\n\nExample 3:\nInput: s = \"(]\"\nOutput: False\n\nExample 4:\nInput: s = \"([)]\"\nOutput: False\n\nConstraints:\n1 <= len(s) <= 10^4\ns contains only ( ) [ ] { }\n\nWrite: def is_valid(s) — the driver calls it on Example 4 and prints the result.",
+    "idea": {
+      "rule": "A closer has to match the most recent opener — counting opens and closes can't see kind or order.",
+      "detail": "This is problem 049 (Match the brackets) in interview format. A counter only knows how many brackets are open, not which ones. Use a stack: push every opener; when a closer arrives, the opener on top is the most recent one still open, and it must be the same kind. At the end, the stack must be empty."
+    },
+    "watch": {
+      "code": "def is_valid(s):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in s:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif not stack or stack.pop() != pairs[ch]:\n            return False\n    return not stack\n\nprint(is_valid(s))",
+      "data": {
+        "name": "s",
+        "value": "{[]}"
+      },
+      "trace_watch": [
+        "ch",
+        "stack"
+      ]
+    }
+  },
+  "model_restatement": "Say whether every bracket is closed by its own kind, in the right order, with none left open.",
+  "clarify": [
+    {
+      "keywords": [
+        "other characters",
+        "letters",
+        "spaces"
+      ],
+      "question": "Could there be other characters?",
+      "answer": "Not today — only the six bracket characters."
+    },
+    {
+      "keywords": [
+        "count",
+        "same number",
+        "balanced",
+        "counts",
+        "balance"
+      ],
+      "question": "Isn't it enough for the counts to balance?",
+      "answer": "No — the kinds have to match and close in the right order."
+    },
+    {
+      "keywords": [
+        "empty",
+        "nothing"
+      ],
+      "question": "What about an empty string?",
+      "answer": "Not today — at least one character."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Keep a counter of open brackets. Add one for each opener, subtract one for each closer. At the end, return whether the counter is zero.",
+  "draft_code": "def is_valid(s):\n    opens = 0\n    for ch in s:\n        if ch in \"([{\":\n            opens += 1\n        else:\n            opens -= 1\n    return opens == 0\n\nprint(is_valid(s))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "After the second character, what is opens?",
+      "kind": "value",
+      "var": "opens"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": 3
+      },
+      "prompt": "The third character is ')'. After line 7, what is opens?",
+      "kind": "value",
+      "var": "opens"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": 3
+      },
+      "prompt": "With the fix — the third character is ')'. After line 7, what is stack?",
+      "kind": "value",
+      "var": "stack"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The counter goes 1, 2, 1, 0 and ends at zero, so the draft says True — but the ')' closed while '[' was the most recent opener. Counting can't see which bracket is open.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A counter is a coat check that only counts coats — when ')' arrives it hands back whatever's on top, and never notices it gave away the '['.",
+    "bridge": "When ')' arrives, the most recent opener is '['. What should happen — and can a counter notice?",
+    "fix": {
+      "rule": "Push openers on a stack; each closer must pop the same kind. Anything else, or leftovers at the end, is invalid.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Which opener each closer needs."
+        },
+        {
+          "line": 3,
+          "gloss": "An empty stack."
+        },
+        {
+          "line": 6,
+          "gloss": "Opener? Push it."
+        },
+        {
+          "line": 7,
+          "gloss": "Closer? The stack must have its own kind on top."
+        },
+        {
+          "line": 9,
+          "gloss": "Valid only if nothing is left open."
+        }
+      ],
+      "contrast": {
+        "wrong": "opens += 1 / opens -= 1",
+        "wrong_note": "counts, can't see kind or order",
+        "right": "stack.pop() != pairs[ch]",
+        "right_note": "the right kind, the right order"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def is_valid(s):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in s:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif not stack or stack.pop() != pairs[ch]:\n            return False\n    return not stack\n\nprint(is_valid(s))",
+    "alternatives": [
+      {
+        "code": "def is_valid(s):\n    t = s\n    while True:\n        shorter = t.replace(\"()\", \"\").replace(\"[]\", \"\").replace(\"{}\", \"\")\n        if shorter == t:\n            break\n        t = shorter\n    return t == \"\"\n\nprint(is_valid(s))",
+        "note": "Peel off matching neighbours until none are left — correct, but it re-scans again and again."
+      }
+    ],
+    "hints": [
+      "When ')' arrives, which opener is most recent?",
+      "A count can't tell '(' from '['.",
+      "Use a stack: push openers; on a closer, pop and compare with pairs[ch]."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "s": "()"
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "s": "()[]{}"
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "s": "(]"
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "s": "([)]"
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: s = \"{[}]\" — valid?",
+    "data": {
+      "name": "s",
+      "value": "{[}]"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def is_valid(s):\n    pairs = {\")\": \"(\", \"]\": \"[\", \"}\": \"{\"}\n    stack = []\n    for ch in s:\n        if ch in \"([{\":\n            stack.append(ch)\n        elif not stack or stack.pop() != pairs[ch]:\n            return False\n    return not stack\n\nprint(is_valid(s))",
+    "fix_hint": "Nothing to change — '}' finds '[' on top, and that's not its pair."
+  },
+  "one_liner": "A closer has to match the most recent opener — counting opens and closes can't see kind or order.",
+  "trace_watch": [
+    "ch",
+    "opens",
+    "stack"
+  ]
+}

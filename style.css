@@ -1,0 +1,291 @@
+/* Task 111 theme — from mockup.html: dark navy panels, gold accent, green/red semantics, Montserrat.
+   The token names are kept so every existing rule picks the theme up. One theme (dark), no light variant. */
+:root {
+  --bg: #0c1220;
+  --card: #151d2e;
+  --ink: #f4f1ea;
+  --soft: #93a1bb;
+  --line: #26314a;
+  --vesper: #e9a13b;          /* the accent (gold): primary buttons, links, Vesper */
+  --vesper-bg: #2a2214;
+  --on-accent: #14100a;
+  --claude: #8fb4ff;
+  --claude-bg: #18233a;
+  --match: #43b581;
+  --match-bg: #12291f;
+  --split: #e5534b;
+  --split-bg: #2b1414;
+  --hl: rgba(233, 161, 59, .18);
+  --code-bg: #0a0f1c;
+  --code-ink: #ffd88a;
+  /* radius scale (Task 179, idea 10): every border-radius is one of these (50% circles and 0 resets aside) */
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-pill: 999px;
+  /* type scale (Task 178, idea 10): every font-size is one of these; body's 16px base stays */
+  --fs-xs: 12px; --fs-sm: 14px; --fs-base: 15px; --fs-lg: 19px; --fs-xl: 22px;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.5 "Montserrat", "Avenir Next", system-ui, sans-serif;
+}
+a { color: var(--vesper); }
+main { max-width: 920px; margin: 0 auto; padding: 0 16px 64px; }
+
+.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; max-width: 920px; margin: 0 auto; padding: 14px 16px 8px; }
+.brand { font-family: inherit; font-weight: 800; font-size: var(--fs-lg); background: none; border: 0; color: var(--ink); cursor: pointer; padding: 0; min-height: 44px; display: inline-flex; align-items: center; }  /* 44 px: Task 165 */
+.beat-label { color: var(--soft); font-size: var(--fs-sm); }
+.timer { margin-left: auto; font-family: var(--mono); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 2px 12px; font-size: var(--fs-sm); }
+.timer.over { color: var(--split); }
+
+/* ---- stage: one slim speaker line per character; a character with nothing to say takes no space ---- */
+.stage { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 12px; }
+.char { display: grid; grid-template-columns: 30px 1fr; column-gap: 10px; align-items: center; }
+.char:has(.bubble:empty) { display: none; }
+.char .who { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.char .avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: var(--fs-base); }
+.vesper .avatar { background: var(--vesper-bg); border: 2px solid var(--vesper); }
+.claude .avatar { background: var(--claude-bg); border: 2px solid var(--claude); }
+.who { font-weight: 700; font-size: var(--fs-sm); }
+.who small { font-weight: 400; color: var(--soft); }
+.bubble { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-sm) var(--r-lg) var(--r-lg) var(--r-lg); padding: 8px 12px; font-size: var(--fs-base); }
+.bubble:empty { visibility: hidden; }
+.char.quiet { opacity: .6; }
+
+/* ---- work area ---- */
+.work > * + * { margin-top: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px 18px; }
+.card h3 { margin: 0 0 8px; font-size: var(--fs-base); color: var(--soft); font-weight: 600; letter-spacing: .02em; overflow-wrap: anywhere; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.mt { margin-top: 12px; }  /* Task 180 (H1c, idea 10): the one vertical gap above a row / block; was 11 inline margin-tops (10 or 12 px) */
+.split2 { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; }
+.split2 > * { min-width: 0; }  /* grid children may shrink below their content: long lines wrap instead of widening the page */
+@media (max-width: 700px) { .stage, .split2 { grid-template-columns: 1fr; } }
+
+button.btn { font: inherit; font-weight: 700; border-radius: var(--r-lg); padding: 10px 18px; border: 2px solid var(--vesper); background: var(--vesper); color: var(--on-accent); cursor: pointer; }
+button.btn.ghost { background: transparent; color: var(--vesper); }
+button.btn:disabled { opacity: .4; cursor: default; }
+textarea, input[type=text] { font: inherit; width: 100%; border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 12px; background: var(--bg); color: var(--ink); }
+textarea { min-height: 70px; resize: vertical; }
+.muted { color: var(--soft); font-size: var(--fs-base); }
+.link { background: none; border: 0; color: var(--vesper); text-decoration: underline; cursor: pointer; font: inherit; padding: 0; min-height: 44px; display: inline-flex; align-items: center; }  /* 44 px: Task 165 */
+
+/* ---- data ---- */
+.data-literal { font-family: var(--mono); font-size: var(--fs-base); background: var(--code-bg); border-radius: var(--r-md); padding: 10px 12px 10px calc(12px + 2ch); text-indent: -2ch; white-space: pre-wrap; overflow-wrap: anywhere; }
+/* Task 181 (slice I1a, #5 variant B): the compact data card — one ellipsized literal line, the table one tap away.
+   The 44 px summary floor is the global `summary` rule (Task 167). */
+details.card.data-compact { padding: 6px 18px; }
+.data-compact > summary { font-family: var(--mono); font-size: var(--fs-base); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+table.data { border-collapse: collapse; margin-top: 10px; font-family: var(--mono); font-size: var(--fs-base); }
+table.data th, table.data td { border-bottom: 1px solid var(--line); padding: 4px 14px 4px 0; text-align: left; overflow-wrap: anywhere; }
+table.data th { color: var(--soft); font-weight: 500; font-family: inherit; font-size: var(--fs-sm); }
+
+/* ---- code ---- */
+/* Task 110: every code surface WRAPS (no horizontal clipping); continuation rows get a hanging indent */
+.code { font-family: var(--mono); font-size: var(--fs-base); background: var(--code-bg); border-radius: var(--r-md); padding: 8px 0; }
+.code .ln { display: flex; padding: 1px 12px 1px 0; border-left: 4px solid transparent; }
+.code .ln .t { color: var(--ink); flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 2ch; text-indent: -2ch; }
+.code .ln .n { width: 34px; text-align: right; padding-right: 12px; color: var(--soft); user-select: none; flex: none; }
+.code .ln.cur { background: var(--hl); border-left-color: var(--claude); }
+.code .ln.stop { background: var(--split-bg); border-left-color: var(--split); }
+
+.editor { position: relative; display: flex; font-family: var(--mono); font-size: var(--fs-base); background: var(--code-bg); border-radius: var(--r-md); overflow: hidden; }
+.editor .gutter { padding: 10px 10px 10px 0; width: 44px; text-align: right; color: var(--soft); white-space: pre; line-height: 1.5; user-select: none; overflow: hidden; }
+.editor textarea { font-family: var(--mono); font-size: var(--fs-base); line-height: 1.5; border: 0; border-radius: 0; background: transparent; min-height: 180px; padding: 10px 12px 10px 4px; white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: hidden; min-width: 0; flex: 1; }
+.editor .editor-mirror { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; box-sizing: border-box; font-family: var(--mono); font-size: var(--fs-base); line-height: 1.5; padding: 0 12px 0 4px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* ---- vars / trace ---- */
+.vars table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: var(--fs-base); }
+.vars td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; word-break: break-word; }
+.vars td:first-child { color: var(--soft); width: 90px; }
+.vars tr.changed td:last-child { background: var(--hl); border-radius: var(--r-sm); }
+.vars tr.stale td:last-child { color: var(--soft); opacity: .7; }  /* Task 131: carried from an earlier step (inside a call) */
+.where { font-weight: 700; margin-bottom: 8px; }
+.where .iter { display: inline-block; background: var(--claude-bg); color: var(--claude); border-radius: var(--r-pill); padding: 0 10px; font-size: var(--fs-sm); margin-right: 6px; }
+.printed { font-family: var(--mono); font-size: var(--fs-sm); white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 8px; }
+.stopnote { margin-top: 8px; background: var(--split-bg); color: var(--ink); border-radius: var(--r-md); padding: 8px 12px; font-family: var(--mono); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+
+/* ---- predictions & reveals ---- */
+.pred .prompt { font-weight: 600; margin-bottom: 8px; }
+.choices label { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 0; cursor: pointer; font-family: var(--mono); font-size: var(--fs-base); }  /* 44 px: Task 165 */
+.choices input[type=radio] { width: 20px; height: 20px; flex: none; margin: 0; }
+.locked { font-size: var(--fs-base); }
+.locked li { margin: 4px 0; }
+.locked code, .reveal code { font-family: var(--mono); background: var(--code-bg); border-radius: var(--r-sm); padding: 1px 6px; overflow-wrap: anywhere; }
+.opts code, .choices label { overflow-wrap: anywhere; }
+.reveal { border-radius: var(--r-lg); padding: 10px 14px; margin-top: 8px; }
+.reveal.match { background: var(--match-bg); }
+.reveal.split { background: var(--split-bg); }
+.reveal .tag { font-weight: 700; font-size: var(--fs-sm); }
+.reveal.match .tag { color: var(--match); }
+.reveal.split .tag { color: var(--split); }
+.side { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; font-size: var(--fs-base); }
+.side > * { min-width: 0; }
+.side div { background: var(--card); border-radius: var(--r-md); padding: 6px 10px; overflow-wrap: anywhere; }
+.side b { display: block; font-size: var(--fs-xs); color: var(--soft); font-weight: 600; }
+
+/* ---- checks ---- */
+/* Task 110: check results are rows inside a card, not a bare bullet list */
+.checks { list-style: none; margin: 0; padding: 0; }
+.checks li { margin: 6px 0; font-size: var(--fs-base); padding: 8px 12px; border-radius: var(--r-md); border-left: 4px solid transparent; overflow-wrap: anywhere; }
+.checks li.pass { background: var(--match-bg); border-left-color: var(--match); }
+.checks li.fail { background: var(--split-bg); border-left-color: var(--split); }
+.checks code { font-family: var(--mono); background: var(--card); border-radius: var(--r-sm); padding: 1px 6px; }
+.checks .ok { color: var(--match); font-weight: 700; }
+.checks .notyet { color: var(--split); font-weight: 700; }
+.hint { background: var(--vesper-bg); border-radius: var(--r-md); padding: 8px 12px; margin-top: 8px; }
+.hint code { font-family: var(--mono); }
+
+/* ---- verdict / one-liner card ---- */
+.oneliner { position: relative; border: 2px dashed var(--vesper); background: var(--vesper-bg); border-radius: var(--r-lg); padding: 16px 18px; font-size: var(--fs-lg); font-weight: 700; }
+.oneliner .stamp { position: absolute; right: 12px; top: -12px; background: var(--match); color: #fff; font-size: var(--fs-xs); padding: 2px 10px; border-radius: var(--r-pill); transform: rotate(4deg); }
+.oneliner small { display: block; font-size: var(--fs-sm); font-weight: 400; color: var(--soft); margin-top: 6px; }
+.verdict-title { font-size: var(--fs-xl); font-weight: 800; margin: 0 0 4px; }
+
+/* ---- home ---- */
+/* Task 112: one row design for every problem and every state — a fixed grid, so no row ever
+   reflows differently from its neighbours. Wide: main | state | actions. Narrow: main | state, then actions. */
+.groups > * + * { margin-top: 12px; }
+.group { padding: 0; }
+/* 44 px: Task 167 (#28) — every <details> summary. Stays display: list-item so the native disclosure marker
+   is kept; 10 px top/bottom padding centres a 24 px line in 44. `.group > summary` (below) is more specific
+   and keeps its own 14px 18px padding and ▸/▾ (it already measured 52 px). */
+summary { min-height: 44px; box-sizing: border-box; padding-block: 10px; }
+.group > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; font-weight: 800; }
+.group > summary::-webkit-details-marker { display: none; }
+.group > summary::after { content: "▸"; color: var(--soft); margin-left: 4px; }
+.group[open] > summary::after { content: "▾"; }
+.group > summary .g-title { flex: 1; }
+.group > summary .g-count { font-size: var(--fs-sm); font-weight: 700; color: var(--soft); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 1px 10px; }
+.problem { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "main state actions"; align-items: center; gap: 4px 12px; padding: 10px 18px; border-top: 1px solid var(--line); }
+@media (max-width: 560px) { .problem { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "main state" "actions actions"; } }
+.problem .p-main { grid-area: main; min-width: 0; display: flex; flex-direction: column; }
+.problem .title { font-weight: 700; overflow-wrap: anywhere; }
+.problem .tag { font-size: var(--fs-xs); color: var(--soft); text-transform: lowercase; }
+.problem .state { grid-area: state; font-size: var(--fs-xs); font-weight: 700; border-radius: var(--r-pill); padding: 2px 10px; border: 1px solid var(--line); color: var(--soft); white-space: nowrap; justify-self: end; }
+.problem .state-in-progress { color: var(--vesper); border-color: var(--vesper); }
+.problem .state-due { color: var(--split); border-color: var(--split); }
+.problem .state-done { color: var(--match); border-color: var(--match); }
+.problem .p-actions { grid-area: actions; display: flex; align-items: center; gap: 12px; justify-self: end; }
+.problem .p-actions .btn { padding: 6px 14px; font-size: var(--fs-sm); min-height: 44px; }  /* 44 px: Task 165 */
+.link.cold { font-size: var(--fs-sm); color: var(--soft); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; padding: 0 8px; }  /* 44 px: Task 165 */
+.link.cold:hover { color: var(--vesper); }
+.upnext .upnext-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.upnext .upnext-row .title { font-weight: 700; }
+.shelf { display: grid; gap: 12px; }
+
+/* ---- explainer (divergence only) ---- */
+.explainer .ex-part { border-left: 4px solid var(--vesper); padding: 4px 0 4px 14px; margin-top: 14px; }
+.explainer .ex-part > b { font-size: var(--fs-sm); text-transform: uppercase; letter-spacing: .06em; color: var(--vesper); }
+.explainer .ex-part p { margin: 4px 0; }
+.explainer .vars td:first-child { width: 90px; }
+
+/* ---- intro (teaching only) ---- */
+.intro-part .idea-rule { font-size: var(--fs-lg); font-weight: 700; }
+#intro-watch .vars { margin-top: 10px; }
+
+/* ---- fix-pattern explainer ---- */
+.fixpattern summary { cursor: pointer; font-weight: 700; }
+.fixpattern .fx-row { margin-top: 10px; }
+.fixpattern .fx-row p { margin: 4px 0; }
+.fixpattern .fx-vals code { font-family: var(--mono); background: var(--code-bg); border-radius: var(--r-sm); padding: 1px 6px; overflow-wrap: anywhere; }
+
+/* ---- shell (Task 111): progress dots, the done-so-far trail, the stage link as a chip ---- */
+.dots { display: flex; gap: 6px; max-width: 920px; margin: 0 auto; padding: 0 16px 8px; }
+.dots:empty { display: none; }
+.dots .dot { width: 22px; height: 4px; border-radius: var(--r-sm); background: var(--line); }
+.dots .dot.done { background: var(--match); }
+.dots .dot.on { background: var(--vesper); }
+.trail { display: flex; gap: 6px; margin: 0 0 10px; min-height: 26px; }  /* exactly one pill (Task 115) */
+.trail:empty { display: none; }
+.trail-chip { font-size: var(--fs-xs); font-weight: 700; color: var(--vesper); background: var(--card); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px 10px; }
+.stage-link { font-size: var(--fs-xs); font-weight: 700; text-decoration: none; color: var(--vesper); border: 1.5px solid var(--line); border-radius: var(--r-pill); padding: 4px 12px; min-height: 44px; display: inline-flex; align-items: center; }  /* 44 px: Task 166 (#7); 13px → --fs-xs, not -sm: Task 178 — -sm wraps the lesson header at 390 */
+.code, .data-literal, .editor { color: var(--ink); }
+.locked code, .reveal code, .checks code, .hint code { color: var(--code-ink); }
+
+/* ==== MOTION (Task 111) — the one place every transition/animation lives. Paint-only: no handler
+   waits on any of it, and prefers-reduced-motion switches all of it off. ==== */
+@keyframes beat-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes chip-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+@keyframes pick { 0% { transform: scale(.98); } 60% { transform: scale(1.02); } 100% { transform: none; } }
+#work > * { animation: beat-enter 180ms ease-out both; }
+.trail-chip.swap { animation: chip-in 180ms ease-out both; }  /* replayed on every stage-name swap */
+button.btn, .stage-link { transition: transform 100ms ease, background-color 100ms ease, border-color 100ms ease, color 100ms ease, opacity 150ms ease; }
+button.btn:active:not(:disabled), .stage-link:active { transform: scale(.98); background-color: var(--vesper-bg); color: var(--vesper); }
+button.btn.opt[aria-pressed="true"] { animation: pick 160ms ease-out; }
+.dots .dot { transition: background-color 300ms ease; }
+.char { transition: opacity 250ms ease; }
+/* Task 162 (slice C1, idea 6): the execute motion. The rules at :84 / :96 set the resting --hl background;
+   these only animate into it. .ln.cur is rebuilt every step by codePanel(), so cur-in is a fade, not a glide. */
+@keyframes cur-in { from { background-color: transparent; } to { background-color: var(--hl); } }
+@keyframes var-flash { from { background-color: rgba(233, 161, 59, .55); } to { background-color: var(--hl); } }
+.code .ln.cur { animation: cur-in 140ms ease-out; }
+.vars tr.changed td:last-child { animation: var-flash 450ms ease-out; }
+.reveal { animation: beat-enter 180ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ==== Scratch Pad (S4): the input row and the structure render. Existing tokens only. ==== */
+#scratch-code { font-family: var(--mono); font-size: var(--fs-base); }
+.sp-input-row { display: flex; gap: 10px; align-items: center; }
+.sp-input-row input[type=text] { flex: 1; min-width: 0; font-family: var(--mono); }
+.sp-fixit { margin-top: 10px; background: var(--split-bg); color: var(--ink); border-left: 4px solid var(--split); border-radius: var(--r-sm); padding: 8px 12px; }
+.sp-cells { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.sp-cell { display: flex; flex-direction: column; align-items: center; min-width: 40px; }
+.sp-cell .sp-val { min-width: 40px; min-height: 40px; padding: 0 8px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: var(--fs-base); color: var(--code-ink); background: var(--code-bg); border: 1px solid var(--line); border-radius: var(--r-sm); white-space: pre; }
+.sp-cell .sp-idx { font-family: var(--mono); font-size: var(--fs-xs); color: var(--soft); margin-top: 2px; }
+/* Scratch Pad (S5): the graph map — the kit-132 device's circle layout, drawn on existing tokens only */
+.sp-graph { display: block; width: 100%; height: auto; margin-top: 8px; background: var(--code-bg); border-radius: var(--r-md); }
+.sp-graph .sp-node circle { fill: var(--card); stroke: var(--line); stroke-width: 2; }
+.sp-graph .sp-node text { fill: var(--ink); font-family: var(--mono); font-size: var(--fs-xs); }
+.sp-graph .sp-edge { stroke: var(--soft); stroke-width: 2; fill: none; }
+.sp-graph .sp-head { fill: var(--soft); }
+/* Scratch Pad (S6 → S8): the variables panel is the lesson .vars table (rules at :101-104, the C2 var-flash in the
+   MOTION block); this only spaces it inside the card. Existing tokens only. */
+.sp-vars { margin-top: 8px; }
+/* Scratch Pad (S7): the run listing (the existing .code lines, scrollable) and the scrubber. Existing tokens only. */
+.sp-listing { max-height: 280px; overflow-y: auto; position: relative; }
+.sp-scrub { display: flex; gap: 12px; align-items: center; }
+.sp-scrub input[type=range] { flex: 1; min-width: 0; accent-color: var(--claude); }
+.sp-scrub #scratch-stepno { font-family: var(--mono); flex: none; }
+/* Scratch Pad (S9): the live list device. Write = the C2 var-flash into --hl; read = a brief --claude ring;
+   added boxes pop in; a removed box fades out where it was. All paint-only; reduced motion turns the motion off
+   (and hides the removed ghost, which otherwise only exists to fade). Existing tokens only. */
+@keyframes sp-read { from { box-shadow: 0 0 0 3px var(--claude); } to { box-shadow: 0 0 0 0 transparent; } }
+@keyframes sp-add { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes sp-out { from { opacity: 1; max-width: 80px; } to { opacity: 0; max-width: 0; min-width: 0; margin: 0; padding: 0; } }
+.sp-cell.write .sp-val { background: var(--hl); border-color: var(--vesper); animation: var-flash 450ms ease-out; }
+.sp-cell.read .sp-val { animation: sp-read 600ms ease-out; }
+.sp-cell.added .sp-val { border-color: var(--vesper); animation: sp-add 220ms ease-out; }
+.sp-cell.gone { overflow: hidden; animation: sp-out 400ms ease-out forwards; }
+.sp-cell.gone .sp-val { color: var(--soft); border-style: dashed; }
+@media (prefers-reduced-motion: reduce) { .sp-cell.gone { display: none; } }
+/* Scratch Pad (S10): pointer markers under the boxes, the window band, the per-pointer toggles. Hinted names at
+   full strength, others lighter (SCRATCHPAD-POINTERS Rule 1). Existing tokens only. */
+.sp-ptrs { display: flex; flex-direction: column; align-items: center; min-height: 0; margin-top: 2px; }
+.sp-ptr { font-family: var(--mono); font-size: var(--fs-xs); color: var(--soft); white-space: nowrap; line-height: 1.3; }
+.sp-ptr.hinted { color: var(--claude); font-weight: 700; }
+.sp-live .sp-cell { padding: 4px 0 4px; border-radius: 0; }
+.sp-cell.in-window { background: var(--claude-bg); }
+.sp-cell.in-window:not(.win-lo) { box-shadow: -6px 0 0 var(--claude-bg); }
+.sp-cell.win-lo { border-top-left-radius: var(--r-sm); border-bottom-left-radius: var(--r-sm); }
+.sp-cell.win-hi { border-top-right-radius: var(--r-sm); border-bottom-right-radius: var(--r-sm); }
+.sp-ptr-toggles { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.sp-ptr-toggle { min-height: 44px; font-family: var(--mono); }
+.sp-ptr-toggle.off { color: var(--soft); border-color: var(--line); text-decoration: line-through; }
+/* Scratch Pad (S11): the dict device — key/value cards (kit-jar semantics). New card pops in (S9 sp-add), an
+   updated card flashes (the C2 var-flash into --hl), a deleted card fades out (S9 sp-out). Existing tokens only. */
+.sp-dict { margin-top: 14px; }
+.sp-cards { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.sp-card { min-width: 72px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--code-bg); font-family: var(--mono); font-size: var(--fs-base); overflow: hidden; }
+.sp-card .sp-key { padding: 4px 10px; color: var(--soft); border-bottom: 1px solid var(--line); font-size: var(--fs-xs); white-space: pre; }
+.sp-card .sp-cv { padding: 6px 10px; color: var(--code-ink); overflow-wrap: anywhere; }
+.sp-card.added { border-color: var(--vesper); animation: sp-add 220ms ease-out; }
+.sp-card.updated { border-color: var(--vesper); }
+.sp-card.updated .sp-cv { background: var(--hl); animation: var-flash 450ms ease-out; }
+.sp-card.gone { animation: sp-out 400ms ease-out forwards; border-style: dashed; }
+.sp-card.gone .sp-cv, .sp-card.gone .sp-key { color: var(--soft); }
+@media (prefers-reduced-motion: reduce) { .sp-card.gone { display: none; } }

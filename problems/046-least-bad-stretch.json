@@ -1,0 +1,229 @@
+{
+  "id": "046",
+  "skill": "kadane",
+  "title": "Least-bad stretch",
+  "scenario": "A week where every day lost money. Find the stretch that lost the least.",
+  "data": {
+    "name": "nums",
+    "value": [
+      -5,
+      -2,
+      -8,
+      -1,
+      -4
+    ]
+  },
+  "intro": {
+    "job": "A week where every day lost money. Find the stretch that lost the least.",
+    "idea": {
+      "rule": "Start from the first number, not from zero — zero isn't a stretch, and on a losing week the best answer is the least-bad day.",
+      "detail": "Kadane's idea: walk once, keeping cur — the best stretch that ENDS today — and best, the best stretch seen anywhere. Each day, either extend yesterday's stretch (cur + x) or start fresh with today alone (x), whichever is bigger. Start both at the first day: a stretch has to contain at least one real day, so 0 is never an option."
+    },
+    "watch": {
+      "code": "best = nums[0]\ncur = nums[0]\nfor x in nums[1:]:\n    cur = max(x, cur + x)\n    best = max(best, cur)\nprint(best)",
+      "data": {
+        "name": "nums",
+        "value": [
+          -3,
+          -1
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "cur",
+        "best"
+      ]
+    }
+  },
+  "model_restatement": "Find the biggest total of any run of consecutive days — even if every total is negative.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no days",
+        "zero days",
+        "nothing"
+      ],
+      "question": "Can the stretch be empty?",
+      "answer": "No — a stretch is at least one day."
+    },
+    {
+      "keywords": [
+        "which days",
+        "where",
+        "start",
+        "position"
+      ],
+      "question": "The total, or which days?",
+      "answer": "Just the total."
+    },
+    {
+      "keywords": [
+        "positive",
+        "mixed",
+        "gain",
+        "winning"
+      ],
+      "question": "Will there be any winning days?",
+      "answer": "Not this week — every day lost money. Your code should still work if there were."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start best and the running total at 0. For each day, add it to the running total, but never let the running total go below 0. Keep the best. Print it.",
+  "draft_code": "best = 0\ncur = 0\nfor x in nums:\n    cur = max(0, cur + x)\n    best = max(best, cur)\nprint(best)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 (x = -5): after line 4, what is cur?",
+      "kind": "value",
+      "var": "cur"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "The loop is done. What is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — iteration 1 (x = -2): after line 4, what is cur?",
+      "kind": "value",
+      "var": "cur"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max(0, cur + x) lets the running total reset to 0 — an 'empty stretch'. On a week where every day is negative, 0 beats every real stretch, so best never leaves 0.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Starting at 0 lets the code answer 'don't play' — but the job asked which stretch to pick, and an empty stretch isn't one. On a losing week, 0 beats every real answer.",
+    "bridge": "So what should best and cur start as, so that every answer is a real stretch of days?",
+    "fix": {
+      "rule": "Start at the first day, and each day pick the better of 'start fresh here' (x) or 'extend' (cur + x).",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The best stretch so far: just day one."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk the remaining days."
+        },
+        {
+          "line": 4,
+          "gloss": "Best stretch ending today: start fresh with today, or extend yesterday's — whichever is bigger."
+        },
+        {
+          "line": 5,
+          "gloss": "Keep the best stretch seen anywhere."
+        }
+      ],
+      "contrast": {
+        "wrong": "best = 0 / cur = max(0, cur + x)",
+        "wrong_note": "0 means 'no stretch'",
+        "right": "best = nums[0] / cur = max(x, cur + x)",
+        "right_note": "always a real stretch"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "best = nums[0]\ncur = nums[0]\nfor x in nums[1:]:\n    cur = max(x, cur + x)\n    best = max(best, cur)\nprint(best)",
+    "alternatives": [
+      {
+        "code": "best = nums[0]\nfor i in range(len(nums)):\n    total = 0\n    for j in range(i, len(nums)):\n        total += nums[j]\n        best = max(best, total)\nprint(best)",
+        "note": "Try every stretch — correct, but slow on long lists."
+      }
+    ],
+    "hints": [
+      "After iteration 1, cur is 0. Is 0 a stretch of real days?",
+      "max(0, ...) lets the answer be 'nothing' — and nothing beats every losing day.",
+      "Start best and cur at nums[0]; use cur = max(x, cur + x)."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          -5,
+          -2,
+          -8,
+          -1,
+          -4
+        ]
+      },
+      "expected": "-1"
+    },
+    {
+      "input": {
+        "nums": [
+          -3,
+          -1
+        ]
+      },
+      "expected": "-1"
+    },
+    {
+      "input": {
+        "nums": [
+          2,
+          -1,
+          3
+        ]
+      },
+      "expected": "4"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Another losing week: [-4, -2, -9, -3] — the least-bad stretch?",
+    "data": {
+      "name": "nums",
+      "value": [
+        -4,
+        -2,
+        -9,
+        -3
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new week, what gets printed?"
+    },
+    "recommended": "best = nums[0]\ncur = nums[0]\nfor x in nums[1:]:\n    cur = max(x, cur + x)\n    best = max(best, cur)\nprint(best)",
+    "fix_hint": "Nothing to change — the -2 day on its own is the least-bad stretch."
+  },
+  "one_liner": "Start from the first number, not from zero — zero isn't a stretch, and on a losing week the best answer is the least-bad day.",
+  "trace_watch": [
+    "x",
+    "cur",
+    "best"
+  ]
+}

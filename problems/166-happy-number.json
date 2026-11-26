@@ -1,0 +1,207 @@
+{
+  "id": "166",
+  "skill": "numbers-operators",
+  "title": "Happy Number",
+  "section": "leetcode",
+  "lc": {
+    "number": 202,
+    "title": "Happy Number",
+    "difficulty": "Easy",
+    "slug": "happy-number"
+  },
+  "scenario": "Take a positive integer n and replace it with the sum of the squares of its digits. Keep doing that. If you eventually reach 1, n is happy; if instead the numbers start repeating in a loop that never includes 1, it isn't. Return True if n is happy, False otherwise.\n\nExample 1:\nInput: n = 19\nOutput: True\nWhy: 1² + 9² = 82, 8² + 2² = 68, 6² + 8² = 100, 1² + 0² + 0² = 1.\n\nExample 2:\nInput: n = 2\nOutput: False\nWhy: 2 → 4 → 16 → 37 → 58 → 89 → 145 → 42 → 20 → 4 — back to 4, a loop without 1.\n\nConstraints:\n1 <= n <= 2^31 - 1\n\nWrite: def is_happy(n) — the driver calls it on n = 19 and prints the result.",
+  "data": {
+    "name": "n",
+    "value": 19
+  },
+  "intro": {
+    "job": "Take a positive integer n and replace it with the sum of the squares of its digits. Keep doing that. If you eventually reach 1, n is happy; if instead the numbers start repeating in a loop that never includes 1, it isn't. Return True if n is happy, False otherwise.\n\nExample 1:\nInput: n = 19\nOutput: True\nWhy: 1² + 9² = 82, 8² + 2² = 68, 6² + 8² = 100, 1² + 0² + 0² = 1.\n\nExample 2:\nInput: n = 2\nOutput: False\nWhy: 2 → 4 → 16 → 37 → 58 → 89 → 145 → 42 → 20 → 4 — back to 4, a loop without 1.\n\nConstraints:\n1 <= n <= 2^31 - 1\n\nWrite: def is_happy(n) — the driver calls it on n = 19 and prints the result.",
+    "idea": {
+      "rule": "Repeat the step until you hit 1 or a number you've already seen — that's the only way to know it loops.",
+      "detail": "Like problem 005 (Split the candies), the step is plain arithmetic: square each digit and add them up. But one step tells you almost nothing — 19 needs four steps to reach 1. And a number that isn't happy never reaches 1, it just goes round a loop. So repeat the step, and keep a seen set the way 141 (Contains Duplicate) does: the moment a number comes back, it's a loop, and n isn't happy."
+    },
+    "watch": {
+      "code": "def is_happy(n):\n    seen = set()\n    while n != 1 and n not in seen:\n        seen.add(n)\n        total = 0\n        for d in str(n):\n            total += int(d) ** 2\n        n = total\n    return n == 1\n\nprint(is_happy(n))",
+      "data": {
+        "name": "n",
+        "value": 7
+      },
+      "trace_watch": [
+        "n",
+        "seen"
+      ]
+    }
+  },
+  "model_restatement": "Say whether repeatedly replacing n with the sum of its digits' squares eventually reaches 1.",
+  "clarify": [
+    {
+      "keywords": [
+        "loop",
+        "forever",
+        "never"
+      ],
+      "question": "What if it never reaches 1?",
+      "answer": "Then the numbers fall into a loop — and n isn't happy: return False."
+    },
+    {
+      "keywords": [
+        "one step",
+        "once"
+      ],
+      "question": "Is one step enough to decide?",
+      "answer": "No — keep going: 19 takes four steps to reach 1."
+    },
+    {
+      "keywords": [
+        "zero",
+        "negative"
+      ],
+      "question": "Can n be zero or negative?",
+      "answer": "No — n is a positive integer."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Add up the squares of n's digits, and check whether the total is 1.",
+  "draft_code": "def is_happy(n):\n    total = 0\n    for d in str(n):\n        total += int(d) ** 2\n    return total == 1\n\nprint(is_happy(n))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after adding, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 1
+      },
+      "prompt": "With the fix — pass 1: after line 8, what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 2
+      },
+      "prompt": "Pass 2: after line 8, what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft takes one step — 19 becomes 82 — and gives up because 82 isn't 1. But 82 → 68 → 100 → 1: 19 is happy, three more steps down the road.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Checking after one step is judging a walk by its first stride — happy numbers can take several steps to reach 1.",
+    "bridge": "19 became 82. What does 82 become, and the number after that?",
+    "fix": {
+      "rule": "Repeat the digit-square sum until n is 1 or a number comes back; remember every n in a seen set.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Every number visited so far."
+        },
+        {
+          "line": 3,
+          "gloss": "Keep going until 1 — or a repeat."
+        },
+        {
+          "line": 4,
+          "gloss": "Remember this number."
+        },
+        {
+          "line": 8,
+          "gloss": "Take the step: n becomes its digit-square sum."
+        },
+        {
+          "line": 9,
+          "gloss": "Happy only if the walk ended on 1."
+        }
+      ],
+      "contrast": {
+        "wrong": "return total == 1  (after one step)",
+        "wrong_note": "one step decides nothing",
+        "right": "while n != 1 and n not in seen: step",
+        "right_note": "repeat until 1 or a loop"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def is_happy(n):\n    seen = set()\n    while n != 1 and n not in seen:\n        seen.add(n)\n        total = 0\n        for d in str(n):\n            total += int(d) ** 2\n        n = total\n    return n == 1\n\nprint(is_happy(n))",
+    "alternatives": [
+      {
+        "code": "def step(n):\n    total = 0\n    for d in str(n):\n        total += int(d) ** 2\n    return total\n\ndef is_happy(n):\n    slow, fast = n, step(n)\n    while fast != 1 and slow != fast:\n        slow = step(slow)\n        fast = step(step(fast))\n    return fast == 1\n\nprint(is_happy(n))",
+        "note": "Floyd's tortoise and hare: step a slow pointer once and a fast one twice — if they meet anywhere but 1, it's a loop. No seen set needed."
+      }
+    ],
+    "hints": [
+      "What does 19 become after one step — and after that?",
+      "One step isn't the end: keep stepping until you reach 1 or come back to a number you've seen.",
+      "seen = set(); while n != 1 and n not in seen: seen.add(n); n = sum of squared digits; return n == 1"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 19
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "n": 2
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "n": 1
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: n = 7 — what does your code print?",
+    "data": {
+      "name": "n",
+      "value": 7
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def is_happy(n):\n    seen = set()\n    while n != 1 and n not in seen:\n        seen.add(n)\n        total = 0\n        for d in str(n):\n            total += int(d) ** 2\n        n = total\n    return n == 1\n\nprint(is_happy(n))",
+    "fix_hint": "7 → 49 → 97 → 130 → 10 → 1 — happy, after five steps."
+  },
+  "one_liner": "Repeat the step until you hit 1 or a number you've already seen — that's the only way to know it loops.",
+  "trace_watch": [
+    "n",
+    "total",
+    "seen"
+  ]
+}

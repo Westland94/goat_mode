@@ -1,0 +1,251 @@
+{
+  "id": "075",
+  "skill": "booleans-logic",
+  "title": "The library door",
+  "scenario": "Let a reader into the library if they have a card OR a day pass.",
+  "data": {
+    "name": "readers",
+    "value": [
+      [
+        "ana",
+        true,
+        false
+      ],
+      [
+        "ben",
+        false,
+        true
+      ],
+      [
+        "cy",
+        false,
+        false
+      ],
+      [
+        "di",
+        true,
+        true
+      ]
+    ]
+  },
+  "intro": {
+    "job": "Let a reader into the library if they have a card OR a day pass.",
+    "idea": {
+      "rule": "and needs both keys; or needs either one — read the condition out loud as English.",
+      "detail": "and is True only when BOTH sides are True; or is True when EITHER side is True. Read the condition out loud as English: 'card and daypass' means the reader needs both; 'card or daypass' means one is enough."
+    },
+    "watch": {
+      "code": "card, daypass = flags\nif card or daypass:\n    door = 'in'\nelse:\n    door = 'out'\nprint(door)",
+      "data": {
+        "name": "flags",
+        "value": [
+          false,
+          true
+        ]
+      },
+      "trace_watch": [
+        "card",
+        "daypass",
+        "door"
+      ]
+    }
+  },
+  "model_restatement": "Let in every reader who has a card or a day pass.",
+  "clarify": [
+    {
+      "keywords": [
+        "has both",
+        "two",
+        "card and pass"
+      ],
+      "question": "What if someone has BOTH a card and a day pass?",
+      "answer": "They're in — or is True when both sides are True too."
+    },
+    {
+      "keywords": [
+        "neither",
+        "none",
+        "nothing",
+        "no card"
+      ],
+      "question": "What if someone has neither?",
+      "answer": "Then they stay outside."
+    },
+    {
+      "keywords": [
+        "show",
+        "prove",
+        "need both"
+      ],
+      "question": "Do they need to show both?",
+      "answer": "No — one is enough. A card or a day pass opens the door."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each reader, let them in if they have a card or a day pass. Print who's inside.",
+  "draft_code": "inside = []\nfor name, card, daypass in readers:\n    if card and daypass:\n        inside.append(name)\nprint(inside)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 2
+      },
+      "prompt": "Ana (card, no day pass) has been checked. As the loop picks up ben, what is inside?",
+      "kind": "value",
+      "var": "inside"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 2
+      },
+      "prompt": "With the fix — as the loop picks up ben, what is inside?",
+      "kind": "value",
+      "var": "inside"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "card and daypass needs BOTH — so ana (card only) and ben (pass only) stay outside, and only di, who has both, gets in.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "and needs both keys; or needs either one — the door should open for a card OR a day pass.",
+    "bridge": "So which word lets ana in on her card alone?",
+    "fix": {
+      "rule": "or is True when either side is True — card or daypass opens the door for ana, ben, and di.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for who's inside."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next reader."
+        },
+        {
+          "line": 3,
+          "gloss": "Card or pass — either one opens the door."
+        },
+        {
+          "line": 4,
+          "gloss": "Let them in."
+        }
+      ],
+      "contrast": {
+        "wrong": "if card and daypass:",
+        "wrong_note": "needs both",
+        "right": "if card or daypass:",
+        "right_note": "needs either one"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "inside = []\nfor name, card, daypass in readers:\n    if card or daypass:\n        inside.append(name)\nprint(inside)",
+    "alternatives": [
+      {
+        "code": "inside = [name for name, card, daypass in readers if card or daypass]\nprint(inside)",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "Read the condition out loud: 'card AND daypass' — who does that let in?",
+      "and needs both keys. The door needs either one.",
+      "if card or daypass:"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "readers": [
+          [
+            "ana",
+            true,
+            false
+          ],
+          [
+            "ben",
+            false,
+            true
+          ],
+          [
+            "cy",
+            false,
+            false
+          ],
+          [
+            "di",
+            true,
+            true
+          ]
+        ]
+      },
+      "expected": "['ana', 'ben', 'di']"
+    },
+    {
+      "input": {
+        "readers": [
+          [
+            "dee",
+            false,
+            false
+          ],
+          [
+            "eve",
+            false,
+            false
+          ]
+        ]
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Just two readers: al has a card, bo has neither — who's in?",
+    "data": {
+      "name": "readers",
+      "value": [
+        [
+          "al",
+          true,
+          false
+        ],
+        [
+          "bo",
+          false,
+          false
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With al and bo, what gets printed?"
+    },
+    "recommended": "inside = []\nfor name, card, daypass in readers:\n    if card or daypass:\n        inside.append(name)\nprint(inside)",
+    "fix_hint": "Nothing to change — or lets al in on the card alone."
+  },
+  "one_liner": "and needs both keys; or needs either one — read the condition out loud as English.",
+  "trace_watch": [
+    "name",
+    "card",
+    "daypass",
+    "inside"
+  ]
+}

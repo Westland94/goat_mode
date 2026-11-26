@@ -1,0 +1,199 @@
+{
+  "id": "057",
+  "skill": "strings-last-word",
+  "title": "How long is the last word?",
+  "scenario": "A sign painter leaves two spaces after the last word on a label. How long is the last word?",
+  "data": {
+    "name": "s",
+    "value": "pack the tent by noon  "
+  },
+  "intro": {
+    "job": "A sign painter leaves two spaces after the last word on a label. How long is the last word?",
+    "idea": {
+      "rule": "Skip the trailing spaces first — the last word starts after them.",
+      "detail": "Walk backwards from the end with a finger, i. First, step over any spaces hanging off the end — they aren't part of any word. Only then start counting letters, and stop at the next space (or the start of the string). Two small loops, one after the other: skip, then count."
+    },
+    "watch": {
+      "code": "i = len(s) - 1\nwhile i >= 0 and s[i] == \" \":\n    i -= 1\ncount = 0\nwhile i >= 0 and s[i] != \" \":\n    count += 1\n    i -= 1\nprint(count)",
+      "data": {
+        "name": "s",
+        "value": "hello world "
+      },
+      "trace_watch": [
+        "i",
+        "count"
+      ]
+    }
+  },
+  "model_restatement": "Find the last real word on the label — ignoring spaces at the end — and print how many letters it has.",
+  "clarify": [
+    {
+      "keywords": [
+        "no words",
+        "all spaces",
+        "empty",
+        "blank"
+      ],
+      "question": "What if the label is all spaces?",
+      "answer": "Not today — there's always at least one word."
+    },
+    {
+      "keywords": [
+        "punctuation",
+        "comma",
+        "full stop",
+        "period"
+      ],
+      "question": "Punctuation?",
+      "answer": "None today — letters and spaces only."
+    },
+    {
+      "keywords": [
+        "strip",
+        "split",
+        "library"
+      ],
+      "question": "Can I use strip() and split()?",
+      "answer": "In real work, yes. Here, walk the string by hand — that's the pattern."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start at the last character. Count characters going backwards until you hit a space. Print the count.",
+  "draft_code": "i = len(s) - 1\ncount = 0\nwhile i >= 0 and s[i] != \" \":\n    count += 1\n    i -= 1\nprint(count)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "On the print line, what is count?",
+      "kind": "value",
+      "var": "count"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "With the fix — after the second skipped space, what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The label ends in a space, so s[i] != ' ' is False on the very first check — the counting loop never runs and count stays 0.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Counting back from the end without skipping the gap is measuring a parked car from the curb — the first thing you touch is empty space, so you stop at zero.",
+    "bridge": "What's at the very end of the label — and what has to happen before you can start counting letters?",
+    "fix": {
+      "rule": "Two walks back: first step over the trailing spaces, then count letters until the next space.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Still on a space at the end?"
+        },
+        {
+          "line": 3,
+          "gloss": "Step back over it."
+        },
+        {
+          "line": 5,
+          "gloss": "Now on a letter: keep going while it's not a space..."
+        },
+        {
+          "line": 6,
+          "gloss": "...counting each letter of the last word."
+        }
+      ],
+      "contrast": {
+        "wrong": "count straight from the end",
+        "wrong_note": "stops on the trailing space",
+        "right": "skip spaces, then count",
+        "right_note": "starts on the last letter"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "i = len(s) - 1\nwhile i >= 0 and s[i] == \" \":\n    i -= 1\ncount = 0\nwhile i >= 0 and s[i] != \" \":\n    count += 1\n    i -= 1\nprint(count)",
+    "alternatives": [
+      {
+        "code": "print(len(s.strip().split()[-1]))",
+        "note": "Strip the ends and split on any whitespace — correct, and the shortest way to say it."
+      }
+    ],
+    "hints": [
+      "What character is s[i] on the first check?",
+      "The label ends with spaces — skip those before counting.",
+      "Add a loop before counting: while s[i] == ' ': i -= 1"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "s": "pack the tent by noon  "
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "s": "hello world "
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "s": "a "
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Three trailing spaces: 'the cat sat   ' — how long is the last word?",
+    "data": {
+      "name": "s",
+      "value": "the cat sat   "
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new label, what gets printed?"
+    },
+    "recommended": "i = len(s) - 1\nwhile i >= 0 and s[i] == \" \":\n    i -= 1\ncount = 0\nwhile i >= 0 and s[i] != \" \":\n    count += 1\n    i -= 1\nprint(count)",
+    "fix_hint": "Nothing to change — the skip loop steps over all three spaces."
+  },
+  "one_liner": "Skip the trailing spaces first — the last word starts after them.",
+  "trace_watch": [
+    "i",
+    "count"
+  ]
+}

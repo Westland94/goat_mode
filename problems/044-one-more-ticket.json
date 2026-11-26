@@ -1,0 +1,211 @@
+{
+  "id": "044",
+  "skill": "one-pass-plus-one",
+  "title": "One more ticket",
+  "scenario": "Add one to the number on these digit tiles.",
+  "data": {
+    "name": "digits",
+    "value": [
+      1,
+      2,
+      9
+    ]
+  },
+  "intro": {
+    "job": "Add one to the number on these digit tiles.",
+    "idea": {
+      "rule": "A 9 can't take one more — it rolls to 0 and the one carries left.",
+      "detail": "Adding one is what you did on paper: start at the last digit. If it's not a 9, add 1 and you're done. If it IS a 9, it rolls over to 0 and the 1 carries to the digit on its left — which might be a 9 too. If every digit rolls over, a new 1 goes on the front."
+    },
+    "watch": {
+      "code": "i = len(digits) - 1\nwhile i >= 0 and digits[i] == 9:\n    digits[i] = 0\n    i -= 1\nif i >= 0:\n    digits[i] += 1\nelse:\n    digits.insert(0, 1)\nprint(digits)",
+      "data": {
+        "name": "digits",
+        "value": [
+          9,
+          9
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "digits"
+      ]
+    }
+  },
+  "model_restatement": "Treat the tiles as one number, add one, and print the new tiles.",
+  "clarify": [
+    {
+      "keywords": [
+        "int",
+        "convert",
+        "join",
+        "number"
+      ],
+      "question": "Can I turn the tiles into an int and back?",
+      "answer": "In real work, maybe. Here, work on the tiles — carry like you would on paper."
+    },
+    {
+      "keywords": [
+        "leading zero",
+        "zeros",
+        "empty"
+      ],
+      "question": "Leading zeros, or no tiles?",
+      "answer": "Neither today."
+    },
+    {
+      "keywords": [
+        "all nines",
+        "every digit",
+        "longer",
+        "new tile",
+        "every tile"
+      ],
+      "question": "What if every tile is a 9?",
+      "answer": "Then you need one more tile at the front."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Add one to the last tile. Print the tiles.",
+  "draft_code": "digits[-1] += 1\nprint(digits)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is digits?",
+      "kind": "value",
+      "var": "digits"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 3 the first time, what is digits?",
+      "kind": "value",
+      "var": "digits"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "digits[-1] += 1 turns the 9 into 10 — but a tile holds one digit. The 9 should roll to 0 and carry 1 into the 2.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "A tile is a one-digit odometer wheel — push a 9 one more click and it doesn't become 10, it rolls to 0 and nudges the wheel on its left.",
+    "bridge": "So what should happen to the 9 — and to the tile on its left?",
+    "fix": {
+      "rule": "From the back: every 9 rolls to 0 and the carry moves left; the first non-9 takes the +1. All 9s? A new 1 in front.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Start at the last tile."
+        },
+        {
+          "line": 2,
+          "gloss": "While the tile is a 9..."
+        },
+        {
+          "line": 3,
+          "gloss": "...it rolls over to 0..."
+        },
+        {
+          "line": 6,
+          "gloss": "...and the first tile that isn't a 9 takes the +1."
+        }
+      ],
+      "contrast": {
+        "wrong": "digits[-1] += 1",
+        "wrong_note": "9 becomes 10",
+        "right": "9 → 0, carry 1 left",
+        "right_note": "every tile stays a digit"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "i = len(digits) - 1\nwhile i >= 0 and digits[i] == 9:\n    digits[i] = 0\n    i -= 1\nif i >= 0:\n    digits[i] += 1\nelse:\n    digits.insert(0, 1)\nprint(digits)",
+    "alternatives": [
+      {
+        "code": "n = int(''.join(str(d) for d in digits)) + 1\nprint([int(c) for c in str(n)])",
+        "note": "Turn the tiles into a number and back — short, but skips the carrying we're practising."
+      }
+    ],
+    "hints": [
+      "After line 1, is every tile still a single digit?",
+      "A 9 plus one rolls to 0 and carries 1 to the left.",
+      "Walk from the back: 9s become 0, the first non-9 gets +1."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "digits": [
+          1,
+          2,
+          9
+        ]
+      },
+      "expected": "[1, 3, 0]"
+    },
+    {
+      "input": {
+        "digits": [
+          9,
+          9
+        ]
+      },
+      "expected": "[1, 0, 0]"
+    },
+    {
+      "input": {
+        "digits": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected": "[1, 2, 4]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New tiles: [1, 9, 9] — plus one?",
+    "data": {
+      "name": "digits",
+      "value": [
+        1,
+        9,
+        9
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With digits = [1, 9, 9], what gets printed?"
+    },
+    "recommended": "i = len(digits) - 1\nwhile i >= 0 and digits[i] == 9:\n    digits[i] = 0\n    i -= 1\nif i >= 0:\n    digits[i] += 1\nelse:\n    digits.insert(0, 1)\nprint(digits)",
+    "fix_hint": "Nothing to change — both 9s roll over and the 1 becomes 2."
+  },
+  "one_liner": "A 9 can't take one more — it rolls to 0 and the one carries left.",
+  "trace_watch": [
+    "i",
+    "digits"
+  ]
+}

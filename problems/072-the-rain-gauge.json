@@ -1,0 +1,220 @@
+{
+  "id": "072",
+  "skill": "variables-assignment",
+  "title": "The rain gauge",
+  "scenario": "Add up the rain from each day into one total.",
+  "data": {
+    "name": "days",
+    "value": [
+      3,
+      7,
+      2
+    ]
+  },
+  "intro": {
+    "job": "Add up the rain from each day into one total.",
+    "idea": {
+      "rule": "Assignment replaces; += adds — a gauge that forgets is just the last day.",
+      "detail": "A variable is a box that holds one value. total = rain empties the box and drops the new value in — the old total is gone. total += rain reads what's in the box, adds to it, and puts the sum back, so the total keeps growing."
+    },
+    "watch": {
+      "code": "total = 0\nfor r in demo:\n    total += r\nprint(total)",
+      "data": {
+        "name": "demo",
+        "value": [
+          5,
+          1
+        ]
+      },
+      "trace_watch": [
+        "r",
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Add up every day's rain into one total.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no days",
+        "none"
+      ],
+      "question": "What if there are no days?",
+      "answer": "Then the total is 0."
+    },
+    {
+      "keywords": [
+        "zero",
+        "dry day",
+        "no rain that day",
+        "a day has no rain"
+      ],
+      "question": "What if a day has no rain?",
+      "answer": "Then that day adds 0 — the total doesn't move."
+    },
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "begin",
+        "initial"
+      ],
+      "question": "What does the total start at?",
+      "answer": "0 — an empty gauge."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start the total at 0. For each day, add its rain to the total. Print the total.",
+  "draft_code": "total = 0\nfor rain in days:\n    total = rain\nprint(total)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "After iteration 2 (a 7mm day), what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "With the fix — after iteration 2, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "total = rain throws the old total away and keeps only this day's rain — so the 3 vanishes when the 7 arrives.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A gauge you rewrite every day only ever shows the last day — total = rain wipes the board and writes 7.",
+    "bridge": "So what would add the 7 to the 3 that's already counted?",
+    "fix": {
+      "rule": "total += rain means total = total + rain: read the gauge, add the day, write the sum back.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The gauge starts at 0."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next day's rain."
+        },
+        {
+          "line": 3,
+          "gloss": "Read the gauge, add the rain, write the new total back."
+        },
+        {
+          "line": 4,
+          "gloss": "Show the total."
+        }
+      ],
+      "contrast": {
+        "wrong": "total = rain",
+        "wrong_note": "keeps only today",
+        "right": "total += rain",
+        "right_note": "keeps every day"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "total = 0\nfor rain in days:\n    total += rain\nprint(total)",
+    "alternatives": [
+      {
+        "code": "total = 0\nfor rain in days:\n    total = total + rain\nprint(total)",
+        "note": "The long way to write += — same result."
+      },
+      {
+        "code": "print(sum(days))",
+        "note": "The shortcut — once you can trace the loop."
+      }
+    ],
+    "hints": [
+      "After iteration 2, what is total — and where did the 3 go?",
+      "total = rain throws the old total away.",
+      "total += rain"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "days": [
+          3,
+          7,
+          2
+        ]
+      },
+      "expected": "12"
+    },
+    {
+      "input": {
+        "days": []
+      },
+      "expected": "0"
+    },
+    {
+      "input": {
+        "days": [
+          9
+        ]
+      },
+      "expected": "9"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A dry day: [3, 0, 7] — what's in the gauge?",
+    "data": {
+      "name": "days",
+      "value": [
+        3,
+        0,
+        7
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With [3, 0, 7], what gets printed?"
+    },
+    "recommended": "total = 0\nfor rain in days:\n    total += rain\nprint(total)",
+    "fix_hint": "Nothing structural — adding 0 changes nothing, and the draft still forgets the 3."
+  },
+  "one_liner": "Assignment replaces; += adds — a gauge that forgets is just the last day.",
+  "trace_watch": [
+    "rain",
+    "total"
+  ]
+}

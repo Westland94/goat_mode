@@ -1,0 +1,240 @@
+{
+  "id": "141",
+  "skill": "hashset-duplicates",
+  "title": "Contains Duplicate",
+  "section": "leetcode",
+  "lc": {
+    "number": 217,
+    "title": "Contains Duplicate",
+    "difficulty": "Easy",
+    "slug": "contains-duplicate"
+  },
+  "scenario": "Given a list of integers nums, return True if some value shows up at least twice anywhere in the list, and False if every value is different.\n\nExample 1:\nInput: nums = [1, 2, 3, 1]\nOutput: True\nWhy: 1 appears at positions 0 and 3.\n\nExample 2:\nInput: nums = [1, 2, 3, 4]\nOutput: False\n\nExample 3:\nInput: nums = [1, 1, 1, 3, 3, 4, 3, 2, 4, 2]\nOutput: True\n\nConstraints:\n1 <= len(nums) <= 10^5\n-10^9 <= nums[i] <= 10^9\n\nWrite: def contains_duplicate(nums) — the driver calls it on Example 1 and prints the result.",
+  "data": {
+    "name": "nums",
+    "value": [
+      1,
+      2,
+      3,
+      1
+    ]
+  },
+  "intro": {
+    "job": "Given a list of integers nums, return True if some value shows up at least twice anywhere in the list, and False if every value is different.\n\nExample 1:\nInput: nums = [1, 2, 3, 1]\nOutput: True\nWhy: 1 appears at positions 0 and 3.\n\nExample 2:\nInput: nums = [1, 2, 3, 4]\nOutput: False\n\nExample 3:\nInput: nums = [1, 1, 1, 3, 3, 4, 3, 2, 4, 2]\nOutput: True\n\nConstraints:\n1 <= len(nums) <= 10^5\n-10^9 <= nums[i] <= 10^9\n\nWrite: def contains_duplicate(nums) — the driver calls it on Example 1 and prints the result.",
+    "idea": {
+      "rule": "A twin can sit anywhere in the list — check every value against ALL the ones before it, not just its neighbour.",
+      "detail": "This is problem 033 (Same badge twice) in interview format. Comparing each value with the one next door only catches twins that happen to sit together. Walk the list once with a set of everything you've seen so far: if the current value is already in the set, that's a duplicate, wherever its twin was. A set lookup is instant, so one pass is enough."
+    },
+    "watch": {
+      "code": "def contains_duplicate(nums):\n    seen = set()\n    for x in nums:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n\nprint(contains_duplicate(nums))",
+      "data": {
+        "name": "nums",
+        "value": [
+          4,
+          7,
+          4
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "seen"
+      ]
+    }
+  },
+  "model_restatement": "Say whether any value appears more than once in the list.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "one number",
+        "single"
+      ],
+      "question": "What if the list has just one number?",
+      "answer": "Then nothing can repeat — False."
+    },
+    {
+      "keywords": [
+        "sort",
+        "sorted",
+        "order"
+      ],
+      "question": "Can I sort it first?",
+      "answer": "You could, but here keep it one pass with a set — order doesn't matter."
+    },
+    {
+      "keywords": [
+        "how many",
+        "count",
+        "which value"
+      ],
+      "question": "Do I return which value repeats, or how many times?",
+      "answer": "Neither — just True or False."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each position, compare the value with the next one. If they're equal, return True. Otherwise return False.",
+  "draft_code": "def contains_duplicate(nums):\n    for i in range(len(nums) - 1):\n        if nums[i] == nums[i + 1]:\n            return True\n    return False\n\nprint(contains_duplicate(nums))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "Third comparison: which i is checked against i + 1?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 3
+      },
+      "prompt": "With the fix — after the third value is filed, what is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 4
+      },
+      "prompt": "With the fix — the fourth value triggers line 5. What is x?",
+      "kind": "value",
+      "var": "x"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft only compares neighbours: 1–2, 2–3, 3–1. The two 1s are three positions apart, so no neighbour pair ever matches and it returns False.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Checking only the person next to you in line misses a twin standing three places back — the duplicate is real, it just isn't adjacent.",
+    "bridge": "The two 1s are at positions 0 and 3. Which comparison would ever bring them together?",
+    "fix": {
+      "rule": "One pass with a set: before filing each value, ask whether it's already in the set — that compares it with everything before it at once.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "An empty set — nothing seen yet."
+        },
+        {
+          "line": 3,
+          "gloss": "Take each value."
+        },
+        {
+          "line": 4,
+          "gloss": "Seen it before, anywhere? Then it's a duplicate."
+        },
+        {
+          "line": 6,
+          "gloss": "Not yet — remember it."
+        }
+      ],
+      "contrast": {
+        "wrong": "nums[i] == nums[i + 1]",
+        "wrong_note": "neighbours only",
+        "right": "x in seen",
+        "right_note": "every value before it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def contains_duplicate(nums):\n    seen = set()\n    for x in nums:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n\nprint(contains_duplicate(nums))",
+    "alternatives": [
+      {
+        "code": "def contains_duplicate(nums):\n    return len(set(nums)) != len(nums)\n\nprint(contains_duplicate(nums))",
+        "note": "A set drops the twins — if it's shorter than the list, something repeated."
+      }
+    ],
+    "hints": [
+      "Which pairs does the draft actually compare?",
+      "A twin can be anywhere earlier in the list, not just next door.",
+      "seen = set(); for x in nums: if x in seen: return True; seen.add(x)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          1,
+          2,
+          3,
+          1
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "nums": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "nums": [
+          1,
+          1,
+          1,
+          3,
+          3,
+          4,
+          3,
+          2,
+          4,
+          2
+        ]
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [5, 9, 2, 5] — any duplicate?",
+    "data": {
+      "name": "nums",
+      "value": [
+        5,
+        9,
+        2,
+        5
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def contains_duplicate(nums):\n    seen = set()\n    for x in nums:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n\nprint(contains_duplicate(nums))",
+    "fix_hint": "Nothing to change — the set remembers the first 5, so the last one is caught."
+  },
+  "one_liner": "A twin can sit anywhere in the list — check every value against ALL the ones before it, not just its neighbour.",
+  "trace_watch": [
+    "i",
+    "x",
+    "seen"
+  ]
+}

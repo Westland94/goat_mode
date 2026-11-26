@@ -1,0 +1,221 @@
+{
+  "id": "120",
+  "skill": "combo-dedupe-sum",
+  "title": "Add up the distinct prices",
+  "scenario": "A till receipt lists every price scanned, including repeats. How much would the distinct prices add up to?",
+  "data": {
+    "name": "prices",
+    "value": [
+      4,
+      7,
+      4,
+      9,
+      7
+    ]
+  },
+  "intro": {
+    "job": "A till receipt lists every price scanned, including repeats. How much would the distinct prices add up to?",
+    "idea": {
+      "rule": "Count each price once — dedupe with a set, then add.",
+      "detail": "Two patterns chained: the set (015) remembers which prices you've already counted; the running total (004) only adds a price the first time it appears. The draft does the second half without the first, so a repeated price gets charged twice."
+    },
+    "watch": {
+      "code": "seen = set()\ntotal = 0\nfor p in prices:\n    if p not in seen:\n        seen.add(p)\n        total += p\nprint(total)",
+      "data": {
+        "name": "prices",
+        "value": [
+          2,
+          2,
+          5
+        ]
+      },
+      "trace_watch": [
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Add up the prices, counting each distinct price only once.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no prices",
+        "none"
+      ],
+      "question": "What if there are no prices?",
+      "answer": "Not today — there's always at least one price."
+    },
+    {
+      "keywords": [
+        "order",
+        "sorted"
+      ],
+      "question": "Does the order matter?",
+      "answer": "No — addition doesn't care about order, only about counting each price once."
+    },
+    {
+      "keywords": [
+        "set",
+        "seen",
+        "remember"
+      ],
+      "question": "What does the set remember?",
+      "answer": "Which prices you've already added — so a repeat gets skipped."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk the prices in order. Add each one to the total. Print the total.",
+  "draft_code": "total = 0\nfor p in prices:\n    total += p\nprint(total)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "After the third price, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "On the print line, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 4
+      },
+      "prompt": "With the fix — after adding the fourth price, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft adds every price it sees — the second 4 and the second 7 get charged again, so the total counts five prices instead of three distinct ones.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Adding up a receipt without crossing off repeats is like paying for the same coffee twice because it appears on two lines.",
+    "bridge": "Which prices get counted twice — and what remembers that a price was already added?",
+    "fix": {
+      "rule": "Remember what you've seen: skip a price that's already in the set, add it only the first time.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Start with an empty set — nothing seen yet."
+        },
+        {
+          "line": 4,
+          "gloss": "Has this price been counted already?"
+        },
+        {
+          "line": 5,
+          "gloss": "No — remember it now."
+        },
+        {
+          "line": 6,
+          "gloss": "And add it to the total, once."
+        }
+      ],
+      "contrast": {
+        "wrong": "add every price",
+        "wrong_note": "counts repeats twice",
+        "right": "skip prices already seen",
+        "right_note": "each price counted once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "seen = set()\ntotal = 0\nfor p in prices:\n    if p not in seen:\n        seen.add(p)\n        total += p\nprint(total)",
+    "alternatives": [
+      {
+        "code": "print(sum(set(prices)))",
+        "note": "Set first, then sum — the one-liner says the chain out loud."
+      }
+    ],
+    "hints": [
+      "Which prices appear more than once in the list?",
+      "A set remembers what it has seen — check before adding.",
+      "Add a seen set: if p not in seen: add it and add the price."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "prices": [
+          4,
+          7,
+          4,
+          9,
+          7
+        ]
+      },
+      "expected": "20"
+    },
+    {
+      "input": {
+        "prices": [
+          3,
+          3,
+          5
+        ]
+      },
+      "expected": "8"
+    },
+    {
+      "input": {
+        "prices": [
+          10
+        ]
+      },
+      "expected": "10"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more receipt: [6, 6, 6, 2] — what do the distinct prices add up to?",
+    "data": {
+      "name": "prices",
+      "value": [
+        6,
+        6,
+        6,
+        2
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new receipt, what gets printed?"
+    },
+    "recommended": "seen = set()\ntotal = 0\nfor p in prices:\n    if p not in seen:\n        seen.add(p)\n        total += p\nprint(total)",
+    "fix_hint": "Nothing to change — the set skips all three 6s after the first."
+  },
+  "one_liner": "Count each price once — dedupe with a set, then add.",
+  "trace_watch": [
+    "total"
+  ]
+}

@@ -1,0 +1,267 @@
+{
+  "id": "155",
+  "skill": "two-pointers-move-zeroes",
+  "title": "Remove Element",
+  "section": "leetcode",
+  "lc": {
+    "number": 27,
+    "title": "Remove Element",
+    "difficulty": "Easy",
+    "slug": "remove-element"
+  },
+  "scenario": "Given a list of integers nums and a value val, remove every occurrence of val in place. Return k, the number of elements that are not val; the first k positions of nums must hold those elements (in any order). What's beyond position k doesn't matter.\n\nExample 1:\nInput: nums = [3, 2, 2, 3], val = 3\nOutput: 2\nWhy: nums starts [2, 2, ...].\n\nExample 2:\nInput: nums = [0, 1, 2, 2, 3, 0, 4, 2], val = 2\nOutput: 5\n\nConstraints:\n0 <= len(nums) <= 100\n0 <= nums[i] <= 50\n0 <= val <= 100\n\nWrite: def remove_element(nums, val) — the driver calls it on nums = [3, 3, 2, 2, 3], val = 3 (case = [nums, val]) and prints k.",
+  "data": {
+    "name": "case",
+    "value": [
+      [
+        3,
+        3,
+        2,
+        2,
+        3
+      ],
+      3
+    ]
+  },
+  "intro": {
+    "job": "Given a list of integers nums and a value val, remove every occurrence of val in place. Return k, the number of elements that are not val; the first k positions of nums must hold those elements (in any order). What's beyond position k doesn't matter.\n\nExample 1:\nInput: nums = [3, 2, 2, 3], val = 3\nOutput: 2\nWhy: nums starts [2, 2, ...].\n\nExample 2:\nInput: nums = [0, 1, 2, 2, 3, 0, 4, 2], val = 2\nOutput: 5\n\nConstraints:\n0 <= len(nums) <= 100\n0 <= nums[i] <= 50\n0 <= val <= 100\n\nWrite: def remove_element(nums, val) — the driver calls it on nums = [3, 3, 2, 2, 3], val = 3 (case = [nums, val]) and prints k.",
+    "idea": {
+      "rule": "Don't change a list while you're walking it — the walker steps over whatever slides into the spot it just left.",
+      "detail": "This is problem 041 (Shove the zeroes back) and 150 (Move Zeroes) again, with any value instead of 0. Removing from a list while a for loop walks it shifts everything left, so the loop skips the element that slides into the spot it just checked — two vals in a row means the second survives. Instead keep a write index k: copy every element that isn't val to nums[k], then return k."
+    },
+    "watch": {
+      "code": "def remove_element(nums, val):\n    k = 0\n    for x in nums:\n        if x != val:\n            nums[k] = x\n            k += 1\n    return k\n\nnums, val = case\nprint(remove_element(nums, val))",
+      "data": {
+        "name": "case",
+        "value": [
+          [
+            1,
+            4,
+            4,
+            2
+          ],
+          4
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "k",
+        "nums"
+      ]
+    }
+  },
+  "model_restatement": "Count the elements that aren't val, moving them to the front of the list in place.",
+  "clarify": [
+    {
+      "keywords": [
+        "order",
+        "any order"
+      ],
+      "question": "Does the order of the kept elements matter?",
+      "answer": "No — any order, as long as they fill the first k positions."
+    },
+    {
+      "keywords": [
+        "new list",
+        "copy",
+        "in place"
+      ],
+      "question": "Can I build a new list?",
+      "answer": "No — change nums in place and return k."
+    },
+    {
+      "keywords": [
+        "after k",
+        "rest",
+        "beyond"
+      ],
+      "question": "What about the positions after k?",
+      "answer": "They don't matter."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk through the numbers; whenever you meet val, remove it. Return how many are left.",
+  "draft_code": "def remove_element(nums, val):\n    for x in nums:\n        if x == val:\n            nums.remove(x)\n    return len(nums)\n\nnums, val = case\nprint(remove_element(nums, val))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: after the remove, what is nums?",
+      "kind": "value",
+      "var": "nums"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: what is x?",
+      "kind": "value",
+      "var": "x"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 3
+      },
+      "prompt": "With the fix — after the first 2 is kept, what is k?",
+      "kind": "value",
+      "var": "k"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Removing the first 3 slides the second 3 into position 0, which the loop already passed — its next look (position 1) lands on a 2. The second 3 is never checked, so 3 elements remain instead of 2.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Removing while walking is pulling a chair out of a row while you count chairs — everyone shuffles up, and you step right past the person who just sat down behind you.",
+    "bridge": "On iteration 2, x is 2. Where did the second 3 go?",
+    "fix": {
+      "rule": "A write index k: copy each element that isn't val to nums[k] and move k on — the walked list never shifts under the walker.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Where the next keeper goes."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk every element."
+        },
+        {
+          "line": 4,
+          "gloss": "Not val?"
+        },
+        {
+          "line": 5,
+          "gloss": "Copy it forward."
+        },
+        {
+          "line": 7,
+          "gloss": "k keepers fill the front."
+        }
+      ],
+      "contrast": {
+        "wrong": "nums.remove(x)  (inside the loop)",
+        "wrong_note": "the list shifts under the walker",
+        "right": "nums[k] = x; k += 1",
+        "right_note": "nothing shifts"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def remove_element(nums, val):\n    k = 0\n    for x in nums:\n        if x != val:\n            nums[k] = x\n            k += 1\n    return k\n\nnums, val = case\nprint(remove_element(nums, val))",
+    "alternatives": [
+      {
+        "code": "def remove_element(nums, val):\n    keep = [x for x in nums if x != val]\n    nums[:len(keep)] = keep\n    return len(keep)\n\nnums, val = case\nprint(remove_element(nums, val))",
+        "note": "Collect the keepers, then write them over the front — same k, no walking-while-removing."
+      }
+    ],
+    "hints": [
+      "Iteration 2: is x the second 3?",
+      "Removing the first 3 shifted the second one into a spot the loop already passed.",
+      "k = 0; for x in nums: if x != val: nums[k] = x; k += 1; return k"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          [
+            3,
+            2,
+            2,
+            3
+          ],
+          3
+        ]
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            0,
+            1,
+            2,
+            2,
+            3,
+            0,
+            4,
+            2
+          ],
+          2
+        ]
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            3,
+            3,
+            2,
+            2,
+            3
+          ],
+          3
+        ]
+      },
+      "expected": "2"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [0, 1, 2, 2, 3, 0, 4, 2], val = 2 — what is k?",
+    "data": {
+      "name": "case",
+      "value": [
+        [
+          0,
+          1,
+          2,
+          2,
+          3,
+          0,
+          4,
+          2
+        ],
+        2
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def remove_element(nums, val):\n    k = 0\n    for x in nums:\n        if x != val:\n            nums[k] = x\n            k += 1\n    return k\n\nnums, val = case\nprint(remove_element(nums, val))",
+    "fix_hint": "Nothing to change — every 2 is skipped, and the five others are counted."
+  },
+  "one_liner": "Don't change a list while you're walking it — the walker steps over whatever slides into the spot it just left.",
+  "trace_watch": [
+    "x",
+    "k",
+    "nums"
+  ]
+}

@@ -1,0 +1,203 @@
+{
+  "id": "082",
+  "skill": "enumerate-zip",
+  "title": "Pair the books",
+  "scenario": "Pair each book with its price, in order.",
+  "data": {
+    "name": "titles",
+    "value": [
+      "dune",
+      "hobbit"
+    ]
+  },
+  "intro": {
+    "job": "Pair each book with its price, in order.",
+    "idea": {
+      "rule": "zip walks two lists holding hands — no indexes, no off-by-one.",
+      "detail": "zip(a, b) hands you the first of a with the first of b, then the second with the second, and so on — as pairs you can unpack straight into two names. There's no index to get wrong. If one list is longer, zip simply stops when the shorter one runs out."
+    },
+    "watch": {
+      "code": "out = []\nfor t, p in zip(a, [5, 4]):\n    out.append((t, p))\nprint(out)",
+      "data": {
+        "name": "a",
+        "value": [
+          "x",
+          "y"
+        ]
+      },
+      "trace_watch": [
+        "t",
+        "p",
+        "out"
+      ]
+    }
+  },
+  "model_restatement": "Match each book with the price at the same position and print the pairs.",
+  "clarify": [
+    {
+      "keywords": [
+        "same length",
+        "different length",
+        "lengths",
+        "more titles",
+        "more prices"
+      ],
+      "question": "Are the two lists always the same length?",
+      "answer": "Today, yes."
+    },
+    {
+      "keywords": [
+        "format",
+        "tuples",
+        "print",
+        "output",
+        "pairs"
+      ],
+      "question": "How should the pairs look?",
+      "answer": "A list of (title, price) tuples."
+    },
+    {
+      "keywords": [
+        "order",
+        "sorted",
+        "cheapest",
+        "sort"
+      ],
+      "question": "Sort by price?",
+      "answer": "No — keep them in shelf order."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each position i, pair the book at i with the next price. Print the pairs.",
+  "draft_code": "prices = [12, 9]\npairs = []\nfor i in range(len(titles)):\n    pairs.append((titles[i], prices[i + 1]))\nprint(pairs)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1, what is pairs?",
+      "kind": "value",
+      "var": "pairs"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after iteration 1, what is pairs?",
+      "kind": "value",
+      "var": "pairs"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "prices[i + 1] is one ahead: dune gets hobbit's 9, and on hobbit's turn prices[2] doesn't exist.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Indexing one ahead is two kids walking out of step — dune grabs hobbit's price, and by hobbit's turn there's no hand left to hold.",
+    "bridge": "So how could the two lists walk in step, without you counting positions at all?",
+    "fix": {
+      "rule": "zip pairs the first with the first, the second with the second — and you never touch an index.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The book prices."
+        },
+        {
+          "line": 2,
+          "gloss": "An empty list for the pairs."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk both lists in step: a title and its price together."
+        },
+        {
+          "line": 4,
+          "gloss": "Keep the pair."
+        }
+      ],
+      "contrast": {
+        "wrong": "prices[i + 1]",
+        "wrong_note": "one ahead — off by one",
+        "right": "zip(titles, prices)",
+        "right_note": "in step, no index"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "prices = [12, 9]\npairs = []\nfor title, p in zip(titles, prices):\n    pairs.append((title, p))\nprint(pairs)",
+    "alternatives": [
+      {
+        "code": "prices = [12, 9]\npairs = []\nfor i in range(len(titles)):\n    pairs.append((titles[i], prices[i]))\nprint(pairs)",
+        "note": "Index both with the same i — works, but zip has no index to get wrong."
+      }
+    ],
+    "hints": [
+      "Iteration 1: which price does dune get?",
+      "prices[i + 1] is one ahead of titles[i].",
+      "for title, p in zip(titles, prices):"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "titles": [
+          "dune",
+          "hobbit"
+        ]
+      },
+      "expected": "[('dune', 12), ('hobbit', 9)]"
+    },
+    {
+      "input": {
+        "titles": [
+          "cy"
+        ]
+      },
+      "expected": "[('cy', 12)]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Three books but only two prices: ['dune', 'hobbit', 'lotr']. What does zip do?",
+    "data": {
+      "name": "titles",
+      "value": [
+        "dune",
+        "hobbit",
+        "lotr"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With three titles and two prices, what gets printed?"
+    },
+    "recommended": "prices = [12, 9]\npairs = []\nfor title, p in zip(titles, prices):\n    pairs.append((title, p))\nprint(pairs)",
+    "fix_hint": "Nothing to change — zip stops when the shorter list runs out."
+  },
+  "one_liner": "zip walks two lists holding hands — no indexes, no off-by-one.",
+  "trace_watch": [
+    "i",
+    "title",
+    "p",
+    "pairs"
+  ]
+}

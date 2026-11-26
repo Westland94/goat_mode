@@ -1,0 +1,242 @@
+{
+  "id": "177",
+  "skill": "strings-join",
+  "title": "Check If Two String Arrays are Equivalent",
+  "section": "leetcode",
+  "lc": {
+    "number": 1662,
+    "title": "Check If Two String Arrays are Equivalent",
+    "difficulty": "Easy",
+    "slug": "check-if-two-string-arrays-are-equivalent"
+  },
+  "scenario": "You get two lists of strings, word1 and word2. Each list spells out a string when you glue its pieces together in order. Return True if both lists spell the same string, otherwise False.\n\nExample 1:\nInput: word1 = [\"ab\", \"c\"], word2 = [\"a\", \"bc\"]\nOutput: True\nWhy: both spell \"abc\".\n\nExample 2:\nInput: word1 = [\"a\", \"cb\"], word2 = [\"ab\", \"c\"]\nOutput: False\n\nExample 3:\nInput: word1 = [\"abc\", \"d\", \"defg\"], word2 = [\"abcddefg\"]\nOutput: True\n\nConstraints:\n1 <= len(word1), len(word2) <= 1000\nEach piece is lowercase English letters.\n\nWrite: def array_strings_are_equal(word1, word2) — the driver calls it on word1 = [\"ab\", \"c\"], word2 = [\"a\", \"bc\"] (case = [word1, word2]) and prints the result.",
+  "data": {
+    "name": "case",
+    "value": [
+      [
+        "ab",
+        "c"
+      ],
+      [
+        "a",
+        "bc"
+      ]
+    ]
+  },
+  "intro": {
+    "job": "You get two lists of strings, word1 and word2. Each list spells out a string when you glue its pieces together in order. Return True if both lists spell the same string, otherwise False.\n\nExample 1:\nInput: word1 = [\"ab\", \"c\"], word2 = [\"a\", \"bc\"]\nOutput: True\nWhy: both spell \"abc\".\n\nExample 2:\nInput: word1 = [\"a\", \"cb\"], word2 = [\"ab\", \"c\"]\nOutput: False\n\nExample 3:\nInput: word1 = [\"abc\", \"d\", \"defg\"], word2 = [\"abcddefg\"]\nOutput: True\n\nConstraints:\n1 <= len(word1), len(word2) <= 1000\nEach piece is lowercase English letters.\n\nWrite: def array_strings_are_equal(word1, word2) — the driver calls it on word1 = [\"ab\", \"c\"], word2 = [\"a\", \"bc\"] (case = [word1, word2]) and prints the result.",
+    "idea": {
+      "rule": "Compare what the pieces spell, not how they're cut — join each list into one string first.",
+      "detail": "Like problem 158 (Longest Common Prefix), the question is about two strings being the same — and like 142 (Valid Anagram), the same content can come in different shapes. [\"ab\", \"c\"] and [\"a\", \"bc\"] are different LISTS, so == on the lists says False. But the question is about what they SPELL. Glue each list into one string with \"\".join, then compare the two strings."
+    },
+    "watch": {
+      "code": "def array_strings_are_equal(word1, word2):\n    s1 = \"\".join(word1)\n    s2 = \"\".join(word2)\n    return s1 == s2\n\nword1, word2 = case\nprint(array_strings_are_equal(word1, word2))",
+      "data": {
+        "name": "case",
+        "value": [
+          [
+            "h",
+            "i"
+          ],
+          [
+            "hi"
+          ]
+        ]
+      },
+      "trace_watch": [
+        "s1",
+        "s2"
+      ]
+    }
+  },
+  "model_restatement": "Say whether the two lists of pieces spell the same string.",
+  "clarify": [
+    {
+      "keywords": [
+        "order",
+        "rearrange"
+      ],
+      "question": "Can I rearrange the pieces?",
+      "answer": "No — glue them in the order given."
+    },
+    {
+      "keywords": [
+        "split",
+        "different pieces",
+        "cut"
+      ],
+      "question": "What if the pieces are cut in different places?",
+      "answer": "That's fine — only what they spell matters."
+    },
+    {
+      "keywords": [
+        "empty",
+        "spaces",
+        "between"
+      ],
+      "question": "Do I add spaces between the pieces?",
+      "answer": "No — glue them straight together."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Compare the two lists directly with ==.",
+  "draft_code": "def array_strings_are_equal(word1, word2):\n    same = word1 == word2\n    return same\n\nword1, word2 = case\nprint(array_strings_are_equal(word1, word2))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is same?",
+      "kind": "value",
+      "var": "same"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 3, what is s2?",
+      "kind": "value",
+      "var": "s2"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "== on two lists compares them piece by piece: \"ab\" against \"a\" is already different, so the draft says False — though both lists spell \"abc\".",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Comparing the lists is checking two cakes are the same by comparing how they were sliced — the cake is what matters.",
+    "bridge": "same is False. What does [\"ab\", \"c\"] spell, and what does [\"a\", \"bc\"] spell?",
+    "fix": {
+      "rule": "Glue each list into one string with \"\".join, then compare the strings.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "What word1 spells."
+        },
+        {
+          "line": 3,
+          "gloss": "What word2 spells."
+        },
+        {
+          "line": 4,
+          "gloss": "Compare the spellings, not the pieces."
+        }
+      ],
+      "contrast": {
+        "wrong": "word1 == word2",
+        "wrong_note": "compares how they're cut",
+        "right": "\"\".join(word1) == \"\".join(word2)",
+        "right_note": "compares what they spell"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def array_strings_are_equal(word1, word2):\n    s1 = \"\".join(word1)\n    s2 = \"\".join(word2)\n    return s1 == s2\n\nword1, word2 = case\nprint(array_strings_are_equal(word1, word2))",
+    "alternatives": [
+      {
+        "code": "def array_strings_are_equal(word1, word2):\n    i = j = 0\n    a = b = 0\n    while i < len(word1) and j < len(word2):\n        if word1[i][a] != word2[j][b]:\n            return False\n        a += 1\n        b += 1\n        if a == len(word1[i]):\n            i, a = i + 1, 0\n        if b == len(word2[j]):\n            j, b = j + 1, 0\n    return i == len(word1) and j == len(word2)\n\nword1, word2 = case\nprint(array_strings_are_equal(word1, word2))",
+        "note": "Walk both lists with two pointers each (which piece, which letter in it), comparing one character at a time — no joined strings built."
+      }
+    ],
+    "hints": [
+      "Do [\"ab\", \"c\"] and [\"a\", \"bc\"] spell the same thing?",
+      "== on lists compares the pieces — the question is about the whole spelled string.",
+      "s1 = \"\".join(word1); s2 = \"\".join(word2); return s1 == s2"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          [
+            "ab",
+            "c"
+          ],
+          [
+            "a",
+            "bc"
+          ]
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            "a",
+            "cb"
+          ],
+          [
+            "ab",
+            "c"
+          ]
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            "abc",
+            "d",
+            "defg"
+          ],
+          [
+            "abcddefg"
+          ]
+        ]
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: word1 = [\"ab\", \"cd\"], word2 = [\"abc\", \"d\"] — what does your code print?",
+    "data": {
+      "name": "case",
+      "value": [
+        [
+          "ab",
+          "cd"
+        ],
+        [
+          "abc",
+          "d"
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def array_strings_are_equal(word1, word2):\n    s1 = \"\".join(word1)\n    s2 = \"\".join(word2)\n    return s1 == s2\n\nword1, word2 = case\nprint(array_strings_are_equal(word1, word2))",
+    "fix_hint": "Both join to \"abcd\" — True, however they're cut."
+  },
+  "one_liner": "Compare what the pieces spell, not how they're cut — join each list into one string first.",
+  "trace_watch": [
+    "same",
+    "s1",
+    "s2"
+  ]
+}

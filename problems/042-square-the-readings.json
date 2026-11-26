@@ -1,0 +1,210 @@
+{
+  "id": "042",
+  "skill": "two-pointers-squares",
+  "title": "Square the readings",
+  "scenario": "These readings are sorted smallest to biggest. Square each one — and keep them sorted.",
+  "data": {
+    "name": "nums",
+    "value": [
+      -4,
+      -1,
+      0,
+      3,
+      10
+    ]
+  },
+  "intro": {
+    "job": "These readings are sorted smallest to biggest. Square each one — and keep them sorted.",
+    "idea": {
+      "rule": "The biggest square comes from the biggest number by size, not by sign — compare from both ends and fill from the back.",
+      "detail": "Squaring throws the sign away, so a big negative number makes a big square: (-4)² is 16. In a sorted list the biggest SIZES sit at the two ends. Put one finger on each end, compare their sizes with abs(), and the bigger one gives the biggest remaining square — write it into the last empty spot, then move that finger in."
+    },
+    "watch": {
+      "code": "n = len(nums)\nsquares = [0] * n\nleft, right = 0, n - 1\nfor pos in range(n - 1, -1, -1):\n    if abs(nums[left]) > abs(nums[right]):\n        squares[pos] = nums[left] * nums[left]\n        left += 1\n    else:\n        squares[pos] = nums[right] * nums[right]\n        right -= 1\nprint(squares)",
+      "data": {
+        "name": "nums",
+        "value": [
+          -3,
+          -2,
+          5
+        ]
+      },
+      "trace_watch": [
+        "left",
+        "right",
+        "squares"
+      ]
+    }
+  },
+  "model_restatement": "Square every reading and print the squares in sorted order.",
+  "clarify": [
+    {
+      "keywords": [
+        "sort",
+        "sorted()",
+        "just sort",
+        "library"
+      ],
+      "question": "Can I square them and then just sort?",
+      "answer": "That works — but here, use the fact the input is already sorted: one pass, two fingers."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no readings",
+        "nothing"
+      ],
+      "question": "What if there are no readings?",
+      "answer": "Not today — at least one."
+    },
+    {
+      "keywords": [
+        "negative",
+        "negatives",
+        "all positive"
+      ],
+      "question": "Can readings be negative?",
+      "answer": "Yes — that's the whole point."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Go through the readings in order, square each one, and add it to the answer. Print the answer.",
+  "draft_code": "squares = []\nfor x in nums:\n    squares.append(x * x)\nprint(squares)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 is -4. After its append, what is squares?",
+      "kind": "value",
+      "var": "squares"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 9,
+        "iteration": 1
+      },
+      "prompt": "With the fix — iteration 1: after line 9, what is squares?",
+      "kind": "value",
+      "var": "squares"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Squaring in order keeps the input's order — but -4 is the biggest number by SIZE, so its square, 16, lands at the front of the list instead of near the end.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "The readings are sorted by sign, but squares care about size — -4 is small as a reading and big as a square, so the order breaks at the very first number.",
+    "bridge": "So where in a sorted list do the biggest SIZES sit?",
+    "fix": {
+      "rule": "Two fingers at the ends: the one with the bigger size gives the next-biggest square, written into the answer from the back.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "Fill the answer from the last spot to the first."
+        },
+        {
+          "line": 5,
+          "gloss": "Which end holds the bigger number by size?"
+        },
+        {
+          "line": 6,
+          "gloss": "The left one — its square goes in this spot, and the left finger moves in."
+        },
+        {
+          "line": 9,
+          "gloss": "Otherwise the right one's square goes here, and the right finger moves in."
+        }
+      ],
+      "contrast": {
+        "wrong": "squares.append(x * x)  (front to back)",
+        "wrong_note": "keeps the sign order",
+        "right": "compare abs() at both ends, fill from the back",
+        "right_note": "sorts by size"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "n = len(nums)\nsquares = [0] * n\nleft, right = 0, n - 1\nfor pos in range(n - 1, -1, -1):\n    if abs(nums[left]) > abs(nums[right]):\n        squares[pos] = nums[left] * nums[left]\n        left += 1\n    else:\n        squares[pos] = nums[right] * nums[right]\n        right -= 1\nprint(squares)",
+    "alternatives": [
+      {
+        "code": "print(sorted(x * x for x in nums))",
+        "note": "Square then sort — correct and short, but it ignores that the input was already sorted."
+      }
+    ],
+    "hints": [
+      "After iteration 1, which square is at the front — and is it the smallest?",
+      "Squares sort by SIZE. The biggest sizes are at the two ends of the input.",
+      "Use two fingers at the ends, compare abs(), and fill the answer from the back."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          -4,
+          -1,
+          0,
+          3,
+          10
+        ]
+      },
+      "expected": "[0, 1, 9, 16, 100]"
+    },
+    {
+      "input": {
+        "nums": [
+          -3,
+          -2,
+          5
+        ]
+      },
+      "expected": "[4, 9, 25]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New readings: [-7, -3, 2, 3, 11] — sorted squares?",
+    "data": {
+      "name": "nums",
+      "value": [
+        -7,
+        -3,
+        2,
+        3,
+        11
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new readings, what gets printed?"
+    },
+    "recommended": "n = len(nums)\nsquares = [0] * n\nleft, right = 0, n - 1\nfor pos in range(n - 1, -1, -1):\n    if abs(nums[left]) > abs(nums[right]):\n        squares[pos] = nums[left] * nums[left]\n        left += 1\n    else:\n        squares[pos] = nums[right] * nums[right]\n        right -= 1\nprint(squares)",
+    "fix_hint": "Nothing to change — -7 has a bigger size than 3, so 49 goes near the end."
+  },
+  "one_liner": "The biggest square comes from the biggest number by size, not by sign — compare from both ends and fill from the back.",
+  "trace_watch": [
+    "x",
+    "left",
+    "right",
+    "squares"
+  ]
+}

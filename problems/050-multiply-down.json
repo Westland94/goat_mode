@@ -1,0 +1,197 @@
+{
+  "id": "050",
+  "skill": "recursion-factorial",
+  "title": "Multiply down",
+  "scenario": "Multiply down from 5 to 1. What's 5! ?",
+  "data": {
+    "name": "n",
+    "value": 5
+  },
+  "intro": {
+    "job": "Multiply down from 5 to 1. What's 5! ?",
+    "idea": {
+      "rule": "The base case is the seed of the whole answer — return 0 and every multiplication dies with it.",
+      "detail": "A recursive function hands a smaller version of the job to itself: fact(5) is 5 * fact(4), which is 4 * fact(3), and so on down to the base case, which answers without calling again. Then the answers come back up, each one multiplied in. Whatever the base case returns is the seed every multiplication grows from — so it has to be 1, the number that changes nothing when you multiply by it."
+    },
+    "watch": {
+      "code": "def fact(n):\n    if n == 0:\n        return 1\n    return n * fact(n - 1)\nanswer = fact(n)\nprint(answer)",
+      "data": {
+        "name": "n",
+        "value": 3
+      },
+      "trace_watch": [
+        "n",
+        "answer"
+      ]
+    }
+  },
+  "model_restatement": "Compute 5 × 4 × 3 × 2 × 1 with a function that calls itself, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "zero",
+        "0!",
+        "n is 0",
+        "0"
+      ],
+      "question": "What is 0! ?",
+      "answer": "1 — multiplying nothing together gives 1."
+    },
+    {
+      "keywords": [
+        "negative",
+        "negatives"
+      ],
+      "question": "Negative n?",
+      "answer": "Not today."
+    },
+    {
+      "keywords": [
+        "loop",
+        "math.factorial",
+        "library"
+      ],
+      "question": "Can I use a loop or math.factorial?",
+      "answer": "In real work, sure. Here, the function calls itself — that's the pattern."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "fact(n) is n times fact(n - 1). When n reaches 0 there's nothing left, so return 0. Print fact(n).",
+  "draft_code": "def fact(n):\n    if n == 0:\n        return 0\n    return n * fact(n - 1)\nanswer = fact(n)\nprint(answer)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "When the base case runs (line 3), what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 0
+      },
+      "prompt": "On the print line, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 0
+      },
+      "prompt": "With the fix — on the print line, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "fact(0) returns 0, and every call above it multiplies by that: 1 × 0, 2 × 0, … 5 × 0 — the whole answer is 0.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The base case is the seed at the bottom of the chain — plant a 0 and every multiplication on the way back up grows nothing but zeros.",
+    "bridge": "What number can you multiply by without changing anything?",
+    "fix": {
+      "rule": "The base case returns 1, so the multiplications on the way back up build 1, 1, 2, 6, 24, 120.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Nothing left to multiply?"
+        },
+        {
+          "line": 3,
+          "gloss": "Return 1 — the seed that changes nothing."
+        },
+        {
+          "line": 4,
+          "gloss": "Otherwise: n times the answer for n - 1."
+        },
+        {
+          "line": 5,
+          "gloss": "Start the chain at n."
+        }
+      ],
+      "contrast": {
+        "wrong": "return 0",
+        "wrong_note": "kills every product",
+        "right": "return 1",
+        "right_note": "the neutral seed"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def fact(n):\n    if n == 0:\n        return 1\n    return n * fact(n - 1)\nanswer = fact(n)\nprint(answer)",
+    "alternatives": [
+      {
+        "code": "total = 1\nfor i in range(1, n + 1):\n    total *= i\nprint(total)",
+        "note": "Multiply in a loop instead of calling down — correct, and sometimes the clearer shape."
+      }
+    ],
+    "hints": [
+      "What does fact(0) hand back — and what's anything times that?",
+      "The base case is the seed every multiplication starts from.",
+      "if n == 0: return 1"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 5
+      },
+      "expected": "120"
+    },
+    {
+      "input": {
+        "n": 3
+      },
+      "expected": "6"
+    },
+    {
+      "input": {
+        "n": 0
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What about 0! ?",
+    "data": {
+      "name": "n",
+      "value": 0
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 0, what gets printed?"
+    },
+    "recommended": "def fact(n):\n    if n == 0:\n        return 1\n    return n * fact(n - 1)\nanswer = fact(n)\nprint(answer)",
+    "fix_hint": "Nothing to change — 0! is 1, straight from the base case."
+  },
+  "one_liner": "The base case is the seed of the whole answer — return 0 and every multiplication dies with it.",
+  "trace_watch": [
+    "n",
+    "answer"
+  ]
+}

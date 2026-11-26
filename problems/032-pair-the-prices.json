@@ -1,0 +1,249 @@
+{
+  "id": "032",
+  "skill": "hashmap-two-sum",
+  "title": "Pair the prices",
+  "scenario": "Two prices on a gift card must add up to exactly the card's value. Which two?",
+  "data": {
+    "name": "card",
+    "value": [
+      [
+        4,
+        1,
+        7,
+        2
+      ],
+      8
+    ]
+  },
+  "intro": {
+    "job": "Two prices on a gift card must add up to exactly the card's value. Which two?",
+    "idea": {
+      "rule": "Check for the partner BEFORE you file the number — otherwise a number can pair with itself.",
+      "detail": "The hashmap trick: walk the list once, and keep a dict of every price you've already seen and where it was. For each new price, the partner you need is target - price — one dict lookup tells you whether you've met it. Look first, then file: the dict should only ever hold numbers from BEFORE this one."
+    },
+    "watch": {
+      "code": "prices, target = card\nseen = {}\npair = None\nfor i, price in enumerate(prices):\n    if target - price in seen:\n        pair = (seen[target - price], i)\n        break\n    seen[price] = i\nprint(pair)",
+      "data": {
+        "name": "card",
+        "value": [
+          [
+            3,
+            5,
+            1
+          ],
+          6
+        ]
+      },
+      "trace_watch": [
+        "price",
+        "seen",
+        "pair"
+      ]
+    }
+  },
+  "model_restatement": "Find the positions of two different prices that add up to the card's value.",
+  "clarify": [
+    {
+      "keywords": [
+        "same price twice",
+        "same one twice",
+        "use twice",
+        "itself",
+        "same item",
+        "used twice"
+      ],
+      "question": "Can one price be used twice?",
+      "answer": "No — two different items. (Two items can have the same price, though.)"
+    },
+    {
+      "keywords": [
+        "no pair",
+        "none",
+        "no answer",
+        "not possible",
+        "work"
+      ],
+      "question": "What if no two prices work?",
+      "answer": "Today there's always exactly one answer."
+    },
+    {
+      "keywords": [
+        "format",
+        "positions",
+        "indexes",
+        "indices",
+        "values",
+        "print",
+        "output"
+      ],
+      "question": "Positions or prices?",
+      "answer": "Print the two positions, earlier one first: (i, j)."
+    },
+    {
+      "keywords": [
+        "sorted",
+        "sort",
+        "order"
+      ],
+      "question": "Are the prices sorted?",
+      "answer": "No — in the order they're listed."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Card holds the prices and the target. Walk the prices; file each one in seen, then check whether its partner is in seen. Print the first pair you find.",
+  "draft_code": "prices, target = card\nseen = {}\npair = None\nfor i, price in enumerate(prices):\n    seen[price] = i\n    if target - price in seen:\n        pair = (seen[target - price], i)\n        break\nprint(pair)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 (price 4): after line 5, what is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": 1
+      },
+      "prompt": "Still iteration 1: line 7 runs. What is pair?",
+      "kind": "value",
+      "var": "pair"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2 (price 1) is over. What is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Line 5 files the 4 before line 6 looks for its partner — and the partner of 4 (for 8) is 4, which is now in seen. The 4 pairs with itself: (0, 0).",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Filing first is writing your own name on the guest list and then finding yourself on it — the 4 shakes hands with itself.",
+    "bridge": "So what order would only ever find partners from EARLIER in the list?",
+    "fix": {
+      "rule": "Look first, then file: seen only holds earlier prices, so a number can't find itself.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "Walk the prices, with their positions."
+        },
+        {
+          "line": 5,
+          "gloss": "Have we already met this price's partner?"
+        },
+        {
+          "line": 6,
+          "gloss": "Yes — that's the pair: the partner's position, then this one's."
+        },
+        {
+          "line": 8,
+          "gloss": "No — file this price, so later prices can find it."
+        }
+      ],
+      "contrast": {
+        "wrong": "seen[price] = i  (then check)",
+        "wrong_note": "a price can find itself",
+        "right": "check, then seen[price] = i",
+        "right_note": "only earlier prices count"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "prices, target = card\nseen = {}\npair = None\nfor i, price in enumerate(prices):\n    if target - price in seen:\n        pair = (seen[target - price], i)\n        break\n    seen[price] = i\nprint(pair)",
+    "alternatives": [
+      {
+        "code": "prices, target = card\npair = None\nfor i in range(len(prices)):\n    for j in range(i + 1, len(prices)):\n        if prices[i] + prices[j] == target and pair is None:\n            pair = (i, j)\nprint(pair)",
+        "note": "Check every pair — correct, but it looks again and again (slow on long lists)."
+      }
+    ],
+    "hints": [
+      "Iteration 1: when line 6 looks for 8 - 4, what's already in seen?",
+      "Line 5 files the 4 before you look — so the 4 finds itself.",
+      "Move seen[price] = i to after the if (and its break)."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "card": [
+          [
+            4,
+            1,
+            7,
+            2
+          ],
+          8
+        ]
+      },
+      "expected": "(1, 2)"
+    },
+    {
+      "input": {
+        "card": [
+          [
+            3,
+            5,
+            1
+          ],
+          6
+        ]
+      },
+      "expected": "(1, 2)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Two items with the SAME price: [3, 4, 4] and a card of 8. Which two?",
+    "data": {
+      "name": "card",
+      "value": [
+        [
+          3,
+          4,
+          4
+        ],
+        8
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With prices [3, 4, 4] and target 8, what gets printed?"
+    },
+    "recommended": "prices, target = card\nseen = {}\npair = None\nfor i, price in enumerate(prices):\n    if target - price in seen:\n        pair = (seen[target - price], i)\n        break\n    seen[price] = i\nprint(pair)",
+    "fix_hint": "Nothing to change — two different 4s can pair, because the first 4 is filed before the second one looks."
+  },
+  "one_liner": "Check for the partner BEFORE you file the number — otherwise a number can pair with itself.",
+  "trace_watch": [
+    "i",
+    "price",
+    "seen",
+    "pair"
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "id": "150",
+  "skill": "two-pointers-move-zeroes",
+  "title": "Move Zeroes",
+  "section": "leetcode",
+  "lc": {
+    "number": 283,
+    "title": "Move Zeroes",
+    "difficulty": "Easy",
+    "slug": "move-zeroes"
+  },
+  "scenario": "Given a list of integers nums, move every 0 to the end while keeping the other numbers in their original order. Do it in place — change nums itself, don't build a new list.\n\nExample 1:\nInput: nums = [0, 1, 0, 3, 12]\nOutput: [1, 3, 12, 0, 0]\n\nExample 2:\nInput: nums = [0]\nOutput: [0]\n\nConstraints:\n1 <= len(nums) <= 10^4\n-2^31 <= nums[i] <= 2^31 - 1\n\nWrite: def move_zeroes(nums) — it changes nums in place; the driver calls it on nums = [0, 0, 1] and prints nums.",
+  "data": {
+    "name": "nums",
+    "value": [
+      0,
+      0,
+      1
+    ]
+  },
+  "intro": {
+    "job": "Given a list of integers nums, move every 0 to the end while keeping the other numbers in their original order. Do it in place — change nums itself, don't build a new list.\n\nExample 1:\nInput: nums = [0, 1, 0, 3, 12]\nOutput: [1, 3, 12, 0, 0]\n\nExample 2:\nInput: nums = [0]\nOutput: [0]\n\nConstraints:\n1 <= len(nums) <= 10^4\n-2^31 <= nums[i] <= 2^31 - 1\n\nWrite: def move_zeroes(nums) — it changes nums in place; the driver calls it on nums = [0, 0, 1] and prints nums.",
+    "idea": {
+      "rule": "Don't remove while you walk — write the keepers forward, then fill the tail with zeroes.",
+      "detail": "This is problem 041 (Shove the zeroes back) in interview format. Removing from a list while a for loop walks it shifts everything left, so the loop steps over whatever slides into the spot it just left — and the removed zeroes are simply gone. Instead walk once with a write position: copy each non-zero forward to nums[write], then fill every position from write to the end with 0."
+    },
+    "watch": {
+      "code": "def move_zeroes(nums):\n    write = 0\n    for x in nums:\n        if x != 0:\n            nums[write] = x\n            write += 1\n    for i in range(write, len(nums)):\n        nums[i] = 0\n\nmove_zeroes(nums)\nprint(nums)",
+      "data": {
+        "name": "nums",
+        "value": [
+          1,
+          0,
+          2
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "write"
+      ]
+    }
+  },
+  "model_restatement": "Move every 0 to the end of the list, in place, keeping the other numbers in order.",
+  "clarify": [
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "keep order"
+      ],
+      "question": "Do the other numbers keep their order?",
+      "answer": "Yes — exactly the order they came in."
+    },
+    {
+      "keywords": [
+        "new list",
+        "copy",
+        "in place"
+      ],
+      "question": "Can I build a new list?",
+      "answer": "No — change nums in place."
+    },
+    {
+      "keywords": [
+        "length",
+        "shorter",
+        "size"
+      ],
+      "question": "Can the list get shorter?",
+      "answer": "No — same length, zeroes at the end."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk through the numbers; whenever you meet a 0, remove it. Print nums.",
+  "draft_code": "def move_zeroes(nums):\n    for x in nums:\n        if x == 0:\n            nums.remove(x)\n\nmove_zeroes(nums)\nprint(nums)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: after the remove, what is nums?",
+      "kind": "value",
+      "var": "nums"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: what is x?",
+      "kind": "value",
+      "var": "x"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 3
+      },
+      "prompt": "With the fix — after the 1 is written, what is write?",
+      "kind": "value",
+      "var": "write"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Removing the first 0 slides the second 0 into position 0, which the loop already passed — its next look (position 1) lands on the 1. The second zero is never checked, and nothing ever puts zeroes back at the end.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Removing while walking is pulling a chair out of a row while you count chairs — everyone shuffles up, and you step right past the person who just sat down behind you.",
+    "bridge": "On iteration 2, x is 1. Where did the second 0 go?",
+    "fix": {
+      "rule": "Write the keepers forward with a write index, then fill the rest with zeroes — the walked list never shifts under the walker.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Where the next keeper goes."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk every number."
+        },
+        {
+          "line": 5,
+          "gloss": "A keeper: copy it forward."
+        },
+        {
+          "line": 7,
+          "gloss": "From write to the end..."
+        },
+        {
+          "line": 8,
+          "gloss": "...fill with zeroes."
+        }
+      ],
+      "contrast": {
+        "wrong": "nums.remove(x)  (inside the loop)",
+        "wrong_note": "the list shifts under the walker",
+        "right": "nums[write] = x; then fill zeroes",
+        "right_note": "nothing shifts, zeroes go last"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def move_zeroes(nums):\n    write = 0\n    for x in nums:\n        if x != 0:\n            nums[write] = x\n            write += 1\n    for i in range(write, len(nums)):\n        nums[i] = 0\n\nmove_zeroes(nums)\nprint(nums)",
+    "alternatives": [
+      {
+        "code": "def move_zeroes(nums):\n    keep = [x for x in nums if x != 0]\n    nums[:] = keep + [0] * (len(nums) - len(keep))\n\nmove_zeroes(nums)\nprint(nums)",
+        "note": "Build the answer, then copy it back into nums with a slice assignment — still in place for the caller."
+      }
+    ],
+    "hints": [
+      "Iteration 2: is x the second 0?",
+      "Removing the first 0 shifted the second one into a spot the loop already passed.",
+      "write = 0; copy non-zeroes to nums[write]; then set nums[write:] to 0."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          0,
+          1,
+          0,
+          3,
+          12
+        ]
+      },
+      "expected": "[1, 3, 12, 0, 0]"
+    },
+    {
+      "input": {
+        "nums": [
+          0
+        ]
+      },
+      "expected": "[0]"
+    },
+    {
+      "input": {
+        "nums": [
+          0,
+          0,
+          1
+        ]
+      },
+      "expected": "[1, 0, 0]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [0, 1, 0, 3, 12] — what's printed?",
+    "data": {
+      "name": "nums",
+      "value": [
+        0,
+        1,
+        0,
+        3,
+        12
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def move_zeroes(nums):\n    write = 0\n    for x in nums:\n        if x != 0:\n            nums[write] = x\n            write += 1\n    for i in range(write, len(nums)):\n        nums[i] = 0\n\nmove_zeroes(nums)\nprint(nums)",
+    "fix_hint": "Nothing to change — every keeper is written forward and both zeroes land at the end."
+  },
+  "one_liner": "Don't remove while you walk — write the keepers forward, then fill the tail with zeroes.",
+  "trace_watch": [
+    "x",
+    "write",
+    "nums"
+  ]
+}

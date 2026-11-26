@@ -1,0 +1,209 @@
+{
+  "id": "035",
+  "skill": "counting-spend-once",
+  "title": "Build the note",
+  "scenario": "Can the note be built from the magazine's letters, each used at most once?",
+  "data": {
+    "name": "pair",
+    "value": [
+      "hello",
+      "helo"
+    ]
+  },
+  "intro": {
+    "job": "Can the note be built from the magazine's letters, each used at most once?",
+    "idea": {
+      "rule": "Being in the magazine once isn't enough — each letter can only be spent once.",
+      "detail": "Think of the magazine as a wallet of letters. Count how many of each letter it holds, then 'spend' one for every letter the note needs. If you try to spend a letter whose count is already 0, the note can't be built — even though that letter IS in the magazine."
+    },
+    "watch": {
+      "code": "note, magazine = pair\nok = True\nleft = {}\nfor ch in magazine:\n    left[ch] = left.get(ch, 0) + 1\nfor ch in note:\n    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1\nprint(ok)",
+      "data": {
+        "name": "pair",
+        "value": [
+          "mom",
+          "mo"
+        ]
+      },
+      "trace_watch": [
+        "ch",
+        "left",
+        "ok"
+      ]
+    }
+  },
+  "model_restatement": "Check whether the magazine has enough of every letter the note needs, counting repeats.",
+  "clarify": [
+    {
+      "keywords": [
+        "spaces",
+        "space",
+        "punctuation"
+      ],
+      "question": "Spaces or punctuation?",
+      "answer": "Lowercase letters only today."
+    },
+    {
+      "keywords": [
+        "reuse",
+        "twice",
+        "more than once",
+        "use again"
+      ],
+      "question": "Can a magazine letter be used twice?",
+      "answer": "No — each magazine letter can be used at most once."
+    },
+    {
+      "keywords": [
+        "format",
+        "print",
+        "output",
+        "true",
+        "false"
+      ],
+      "question": "What should I print?",
+      "answer": "True if the note can be built, otherwise False."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Note and magazine come as a pair. For each letter in the note, check it's in the magazine; if one isn't, the note can't be built. Print the answer.",
+  "draft_code": "note, magazine = pair\nok = True\nfor ch in note:\n    if ch not in magazine:\n        ok = False\nprint(ok)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 5
+      },
+      "prompt": "The note's second 'l' has just been checked — the loop moves on to 'o'. What is ok?",
+      "kind": "value",
+      "var": "ok"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 4
+      },
+      "prompt": "With the fix — after counting the whole magazine (iteration 4), what is left?",
+      "kind": "value",
+      "var": "left"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "'l' in magazine only asks whether there's AN 'l' — it's True both times, so the second 'l' gets waved through even though the magazine has just one.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "'in' checks the wallet has that coin — it doesn't take the coin out, so you can spend the same 'l' forever.",
+    "bridge": "So how could you keep track of how many of each letter are left to spend?",
+    "fix": {
+      "rule": "Count the magazine's letters, then spend one per note letter — a count of 0 means you're out.",
+      "walk": [
+        {
+          "line": 3,
+          "gloss": "An empty wallet."
+        },
+        {
+          "line": 4,
+          "gloss": "Go through the magazine..."
+        },
+        {
+          "line": 5,
+          "gloss": "...and count each letter into the wallet."
+        },
+        {
+          "line": 7,
+          "gloss": "For each note letter: none left? Then the note can't be built; otherwise spend one."
+        }
+      ],
+      "contrast": {
+        "wrong": "if ch not in magazine:",
+        "wrong_note": "is there one at all?",
+        "right": "if left.get(ch, 0) == 0:",
+        "right_note": "is there one left to spend?"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "note, magazine = pair\nok = True\nleft = {}\nfor ch in magazine:\n    left[ch] = left.get(ch, 0) + 1\nfor ch in note:\n    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1\nprint(ok)",
+    "alternatives": [
+      {
+        "code": "note, magazine = pair\nok = True\nletters = list(magazine)\nfor ch in note:\n    if ch in letters:\n        letters.remove(ch)\n    else:\n        ok = False\nprint(ok)",
+        "note": "Spend by removing from a list — the same idea, slower on long magazines."
+      }
+    ],
+    "hints": [
+      "How many 'l's does the note need? How many does the magazine have?",
+      "'in' never uses a letter up.",
+      "Count the magazine's letters, then subtract one per note letter."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pair": [
+          "hello",
+          "helo"
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "pair": [
+          "mom",
+          "mo"
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "pair": [
+          "ab",
+          "abc"
+        ]
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New note: 'book' from the magazine 'bok' — can it be built?",
+    "data": {
+      "name": "pair",
+      "value": [
+        "book",
+        "bok"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With note 'book' and magazine 'bok', what gets printed?"
+    },
+    "recommended": "note, magazine = pair\nok = True\nleft = {}\nfor ch in magazine:\n    left[ch] = left.get(ch, 0) + 1\nfor ch in note:\n    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1\nprint(ok)",
+    "fix_hint": "Nothing to change — the second 'o' finds the wallet empty."
+  },
+  "one_liner": "Being in the magazine once isn't enough — each letter can only be spent once.",
+  "trace_watch": [
+    "ch",
+    "ok",
+    "left"
+  ]
+}

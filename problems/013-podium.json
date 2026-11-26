@@ -1,0 +1,233 @@
+{
+  "id": "013",
+  "skill": "lists-sorting",
+  "title": "Podium",
+  "scenario": "Announce the best score.",
+  "data": {
+    "name": "scores",
+    "value": [
+      42,
+      87,
+      65
+    ]
+  },
+  "intro": {
+    "job": "Announce the best score.",
+    "idea": {
+      "rule": "sort() lines them up smallest first — the trophy sits at the END of the line.",
+      "detail": "scores.sort() rearranges the list in place from smallest to biggest. After that, index 0 is the lowest score and the highest is at the very end. Negative indexes count from the back, so scores[-1] is the last one — the best."
+    },
+    "watch": {
+      "code": "nums.sort()\ntop = nums[-1]\nprint(top)",
+      "data": {
+        "name": "nums",
+        "value": [
+          3,
+          9,
+          4
+        ]
+      },
+      "trace_watch": [
+        "nums",
+        "top"
+      ]
+    }
+  },
+  "model_restatement": "Find the highest score and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "tie",
+        "ties",
+        "tied",
+        "same score",
+        "equal"
+      ],
+      "question": "What if two scores tie for best?",
+      "answer": "Then that score is still the best — print it once."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no scores",
+        "none"
+      ],
+      "question": "What if there are no scores?",
+      "answer": "There's always at least one score today."
+    },
+    {
+      "keywords": [
+        "change",
+        "modify",
+        "original",
+        "in place",
+        "mutate"
+      ],
+      "question": "Can I change the order of the list?",
+      "answer": "Sorting the list in place is fine today."
+    },
+    {
+      "keywords": [
+        "max",
+        "library",
+        "builtin",
+        "built-in"
+      ],
+      "question": "Can I just use max()?",
+      "answer": "max() would do it — here, use sort so we can watch the line-up."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Sort the scores, take the first one, and announce it.",
+  "draft_code": "scores.sort()\nbest = scores[0]\nprint(best)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is scores?",
+      "kind": "value",
+      "var": "scores"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "sort() puts the smallest first, so scores[0] after sorting is the lowest score — 42.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "sort() lines everyone up shortest first — scores[0] grabs the front of the line, which is the lowest score.",
+    "bridge": "So where in the line is the best score standing?",
+    "fix": {
+      "rule": "After sort(), the best is at the very end — scores[-1] counts from the back.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Line the scores up, smallest first."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the last one — the biggest."
+        },
+        {
+          "line": 3,
+          "gloss": "Announce it."
+        }
+      ],
+      "contrast": {
+        "wrong": "scores[0]",
+        "wrong_note": "the front: smallest",
+        "right": "scores[-1]",
+        "right_note": "the end: biggest"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "scores.sort()\nbest = scores[-1]\nprint(best)",
+    "alternatives": [
+      {
+        "code": "print(max(scores))",
+        "note": "max() skips the sort — the shortcut."
+      },
+      {
+        "code": "scores.sort(reverse=True)\nbest = scores[0]\nprint(best)",
+        "note": "Sort biggest first, then the front is the best."
+      }
+    ],
+    "hints": [
+      "After line 1, which score is at index 0?",
+      "sort() is smallest first. The best is at the other end.",
+      "best = scores[-1]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "scores": [
+          42,
+          87,
+          65
+        ]
+      },
+      "expected": "87"
+    },
+    {
+      "input": {
+        "scores": [
+          5
+        ]
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "scores": [
+          9,
+          9,
+          1
+        ]
+      },
+      "expected": "9"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A tie at the top: [9, 9, 1] — what's the best?",
+    "data": {
+      "name": "scores",
+      "value": [
+        9,
+        9,
+        1
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With scores = [9, 9, 1], what gets printed?"
+    },
+    "recommended": "scores.sort()\nbest = scores[-1]\nprint(best)",
+    "fix_hint": "Nothing to change — sorted, the best is still at the end."
+  },
+  "one_liner": "sort() lines them up smallest first — the trophy sits at the END of the line.",
+  "trace_watch": [
+    "scores",
+    "best"
+  ]
+}

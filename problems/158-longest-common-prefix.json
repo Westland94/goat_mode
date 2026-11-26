@@ -1,0 +1,227 @@
+{
+  "id": "158",
+  "skill": "strings-common-prefix",
+  "title": "Longest Common Prefix",
+  "section": "leetcode",
+  "lc": {
+    "number": 14,
+    "title": "Longest Common Prefix",
+    "difficulty": "Easy",
+    "slug": "longest-common-prefix"
+  },
+  "scenario": "You get a list of words strs. Return the longest string that every word starts with. If they share no starting letters, return an empty string \"\".\n\nExample 1:\nInput: strs = [\"flower\", \"flow\", \"flight\"]\nOutput: \"fl\"\n\nExample 2:\nInput: strs = [\"dog\", \"racecar\", \"car\"]\nOutput: \"\"\nWhy: the words don't share a first letter.\n\nConstraints:\n1 <= len(strs) <= 200\n0 <= len(strs[i]) <= 200\nEach word is lowercase English letters.\n\nWrite: def longest_common_prefix(strs) — the driver calls it on strs = [\"flower\", \"flow\", \"flight\"] and prints the prefix.",
+  "data": {
+    "name": "strs",
+    "value": [
+      "flower",
+      "flow",
+      "flight"
+    ]
+  },
+  "intro": {
+    "job": "You get a list of words strs. Return the longest string that every word starts with. If they share no starting letters, return an empty string \"\".\n\nExample 1:\nInput: strs = [\"flower\", \"flow\", \"flight\"]\nOutput: \"fl\"\n\nExample 2:\nInput: strs = [\"dog\", \"racecar\", \"car\"]\nOutput: \"\"\nWhy: the words don't share a first letter.\n\nConstraints:\n1 <= len(strs) <= 200\n0 <= len(strs[i]) <= 200\nEach word is lowercase English letters.\n\nWrite: def longest_common_prefix(strs) — the driver calls it on strs = [\"flower\", \"flow\", \"flight\"] and prints the prefix.",
+    "idea": {
+      "rule": "Every word gets a vote — trim the prefix until each word starts with it.",
+      "detail": "This is problem 056 (What do they start with?) in exam clothes. The common prefix has to fit EVERY word, not just the first two. Start with the whole first word as the prefix; for each other word, chop letters off the end of the prefix until that word starts with it. Whatever survives every word is the answer — possibly \"\"."
+    },
+    "watch": {
+      "code": "def longest_common_prefix(strs):\n    prefix = strs[0]\n    for word in strs[1:]:\n        while not word.startswith(prefix):\n            prefix = prefix[:-1]\n    return prefix\n\nprint(longest_common_prefix(strs))",
+      "data": {
+        "name": "strs",
+        "value": [
+          "card",
+          "care"
+        ]
+      },
+      "trace_watch": [
+        "word",
+        "prefix"
+      ]
+    }
+  },
+  "model_restatement": "Return the longest start that every word in the list shares.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "nothing",
+        "no common"
+      ],
+      "question": "What if the words share nothing at the start?",
+      "answer": "Return the empty string \"\"."
+    },
+    {
+      "keywords": [
+        "one word",
+        "single word"
+      ],
+      "question": "What if there's only one word?",
+      "answer": "Then the whole word is the prefix."
+    },
+    {
+      "keywords": [
+        "case",
+        "uppercase",
+        "capital"
+      ],
+      "question": "Do I need to worry about upper case?",
+      "answer": "No — every word is lowercase letters."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Compare the first two words letter by letter, and stop at the first letter where they differ — what they share is the prefix.",
+  "draft_code": "def longest_common_prefix(strs):\n    a, b = strs[0], strs[1]\n    prefix = \"\"\n    for i in range(min(len(a), len(b))):\n        if a[i] != b[i]:\n            break\n        prefix += a[i]\n    return prefix\n\nprint(longest_common_prefix(strs))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is b?",
+      "kind": "value",
+      "var": "b"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": 4
+      },
+      "prompt": "Iteration 4: after adding a letter, what is prefix?",
+      "kind": "value",
+      "var": "prefix"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "With the fix — checking \"flight\": after the first trim, what is prefix?",
+      "kind": "value",
+      "var": "prefix"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft only ever compares \"flower\" with \"flow\" — they share \"flow\". \"flight\" never gets a vote, and it starts with only \"fl\".",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Checking the first two words is asking two people in a room what everyone agrees on — the third person never got asked.",
+    "bridge": "The draft printed \"flow\". Does \"flight\" start with \"flow\"?",
+    "fix": {
+      "rule": "Start with the first word as the prefix, and for every other word trim the prefix until that word starts with it.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "The biggest the prefix could ever be."
+        },
+        {
+          "line": 3,
+          "gloss": "Every other word gets a vote."
+        },
+        {
+          "line": 4,
+          "gloss": "Doesn't fit this word yet?"
+        },
+        {
+          "line": 5,
+          "gloss": "Chop one letter off the end and try again."
+        }
+      ],
+      "contrast": {
+        "wrong": "a, b = strs[0], strs[1]",
+        "wrong_note": "only two words get compared",
+        "right": "for word in strs[1:]: trim until word.startswith(prefix)",
+        "right_note": "every word votes"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def longest_common_prefix(strs):\n    prefix = strs[0]\n    for word in strs[1:]:\n        while not word.startswith(prefix):\n            prefix = prefix[:-1]\n    return prefix\n\nprint(longest_common_prefix(strs))",
+    "alternatives": [
+      {
+        "code": "def longest_common_prefix(strs):\n    prefix = \"\"\n    for i in range(len(strs[0])):\n        ch = strs[0][i]\n        for w in strs:\n            if i >= len(w) or w[i] != ch:\n                return prefix\n        prefix += ch\n    return prefix\n\nprint(longest_common_prefix(strs))",
+        "note": "Build the prefix one letter at a time: for each position in the first word, check that every word has the same letter there — the first mismatch (or a word running out) ends it."
+      }
+    ],
+    "hints": [
+      "Which words does the draft look at?",
+      "\"flight\" is never compared — the answer has to fit every word.",
+      "prefix = strs[0]; for word in strs[1:]: while not word.startswith(prefix): prefix = prefix[:-1]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "strs": [
+          "flower",
+          "flow",
+          "flight"
+        ]
+      },
+      "expected": "fl"
+    },
+    {
+      "input": {
+        "strs": [
+          "dog",
+          "racecar",
+          "car"
+        ]
+      },
+      "expected": ""
+    },
+    {
+      "input": {
+        "strs": [
+          "cart",
+          "care",
+          "cat"
+        ]
+      },
+      "expected": "ca"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: strs = [\"apple\", \"apply\", \"ape\"] — what does your code print?",
+    "data": {
+      "name": "strs",
+      "value": [
+        "apple",
+        "apply",
+        "ape"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def longest_common_prefix(strs):\n    prefix = strs[0]\n    for word in strs[1:]:\n        while not word.startswith(prefix):\n            prefix = prefix[:-1]\n    return prefix\n\nprint(longest_common_prefix(strs))",
+    "fix_hint": "\"ape\" trims the prefix down to \"ap\" — every word votes."
+  },
+  "one_liner": "Every word gets a vote — trim the prefix until each word starts with it.",
+  "trace_watch": [
+    "i",
+    "prefix",
+    "word"
+  ]
+}

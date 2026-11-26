@@ -1,0 +1,247 @@
+{
+  "id": "144",
+  "skill": "one-pass-stock",
+  "title": "Best Time to Buy and Sell Stock",
+  "section": "leetcode",
+  "lc": {
+    "number": 121,
+    "title": "Best Time to Buy and Sell Stock",
+    "difficulty": "Easy",
+    "slug": "best-time-to-buy-and-sell-stock"
+  },
+  "scenario": "prices[i] is a stock's price on day i. You may buy one share on one day and sell it on a LATER day. Return the largest profit you can make; if no trade makes money, return 0.\n\nExample 1:\nInput: prices = [7, 1, 5, 3, 6, 4]\nOutput: 5\nWhy: buy on day 1 (price 1), sell on day 4 (price 6).\n\nExample 2:\nInput: prices = [7, 6, 4, 3, 1]\nOutput: 0\nWhy: prices only fall, so don't trade.\n\nConstraints:\n1 <= len(prices) <= 10^5\n0 <= prices[i] <= 10^4\n\nWrite: def max_profit(prices) — the driver calls it on Example 1 and prints the result.",
+  "data": {
+    "name": "prices",
+    "value": [
+      7,
+      1,
+      5,
+      3,
+      6,
+      4
+    ]
+  },
+  "intro": {
+    "job": "prices[i] is a stock's price on day i. You may buy one share on one day and sell it on a LATER day. Return the largest profit you can make; if no trade makes money, return 0.\n\nExample 1:\nInput: prices = [7, 1, 5, 3, 6, 4]\nOutput: 5\nWhy: buy on day 1 (price 1), sell on day 4 (price 6).\n\nExample 2:\nInput: prices = [7, 6, 4, 3, 1]\nOutput: 0\nWhy: prices only fall, so don't trade.\n\nConstraints:\n1 <= len(prices) <= 10^5\n0 <= prices[i] <= 10^4\n\nWrite: def max_profit(prices) — the driver calls it on Example 1 and prints the result.",
+    "idea": {
+      "rule": "You can only sell AFTER you buy — the cheapest day so far is the only buy that matters, then ask what selling today would make.",
+      "detail": "This is problem 043 (Buy low, sell high) in interview format. The biggest price minus the smallest price ignores time: the 7 came before the 1, so you can't sell at 7 after buying at 1. Walk the days once, keeping the lowest price seen SO FAR and the best profit so far — each day, first update the low, then ask what selling today would make."
+    },
+    "watch": {
+      "code": "def max_profit(prices):\n    low = prices[0]\n    best = 0\n    for p in prices:\n        low = min(low, p)\n        best = max(best, p - low)\n    return best\n\nprint(max_profit(prices))",
+      "data": {
+        "name": "prices",
+        "value": [
+          3,
+          2,
+          6,
+          1,
+          4
+        ]
+      },
+      "trace_watch": [
+        "p",
+        "low",
+        "best"
+      ]
+    }
+  },
+  "model_restatement": "Find the biggest gain from buying on one day and selling on a later day, or 0.",
+  "clarify": [
+    {
+      "keywords": [
+        "same day",
+        "later",
+        "before",
+        "order"
+      ],
+      "question": "Can I sell before I buy?",
+      "answer": "No — buy on one day, sell on a later day."
+    },
+    {
+      "keywords": [
+        "lose",
+        "loss",
+        "negative",
+        "no profit",
+        "loses",
+        "trade loses"
+      ],
+      "question": "What if every trade loses money?",
+      "answer": "Then don't trade — return 0."
+    },
+    {
+      "keywords": [
+        "more than once",
+        "multiple",
+        "several",
+        "twice"
+      ],
+      "question": "Can I trade more than once?",
+      "answer": "No — one buy and one sell."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Find the lowest price and the highest price. Return the highest minus the lowest.",
+  "draft_code": "def max_profit(prices):\n    low = min(prices)\n    high = max(prices)\n    return high - low\n\nprint(max_profit(prices))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is low?",
+      "kind": "value",
+      "var": "low"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 0
+      },
+      "prompt": "On the return line, what is high?",
+      "kind": "value",
+      "var": "high"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 3
+      },
+      "prompt": "With the fix — on day 3 (price 5), after line 6, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max(prices) - min(prices) is 7 - 1 = 6, but the 7 is on day 0 and the 1 is on day 1 — that 'trade' sells before it buys.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The highest price minus the lowest price is a time machine — it sells on day 0 at 7 and buys on day 1 at 1.",
+    "bridge": "The 7 comes before the 1. Can a sale at 7 use a purchase made after it?",
+    "fix": {
+      "rule": "One pass: low = min(low, p) keeps the cheapest buy SO FAR, so p - low is always a buy-then-sell.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Start with the first price as the cheapest buy."
+        },
+        {
+          "line": 4,
+          "gloss": "Walk the days in order."
+        },
+        {
+          "line": 5,
+          "gloss": "Is today a cheaper buy?"
+        },
+        {
+          "line": 6,
+          "gloss": "If I sold today, would that beat my best?"
+        }
+      ],
+      "contrast": {
+        "wrong": "max(prices) - min(prices)",
+        "wrong_note": "ignores which day comes first",
+        "right": "low = min(low, p); best = max(best, p - low)",
+        "right_note": "buy always before sell"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def max_profit(prices):\n    low = prices[0]\n    best = 0\n    for p in prices:\n        low = min(low, p)\n        best = max(best, p - low)\n    return best\n\nprint(max_profit(prices))",
+    "alternatives": [
+      {
+        "code": "def max_profit(prices):\n    best = 0\n    for i in range(len(prices)):\n        for j in range(i + 1, len(prices)):\n            best = max(best, prices[j] - prices[i])\n    return best\n\nprint(max_profit(prices))",
+        "note": "Try every buy-then-sell pair — correct, but slow for 10^5 days."
+      }
+    ],
+    "hints": [
+      "On which day is the high price — before or after the low one?",
+      "A sale has to come after its buy.",
+      "low = prices[0]; best = 0; for p in prices: low = min(low, p); best = max(best, p - low)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "prices": [
+          7,
+          1,
+          5,
+          3,
+          6,
+          4
+        ]
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "prices": [
+          7,
+          6,
+          4,
+          3,
+          1
+        ]
+      },
+      "expected": "0"
+    },
+    {
+      "input": {
+        "prices": [
+          2,
+          4,
+          1
+        ]
+      },
+      "expected": "2"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: prices = [3, 8, 1, 2] — best profit?",
+    "data": {
+      "name": "prices",
+      "value": [
+        3,
+        8,
+        1,
+        2
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def max_profit(prices):\n    low = prices[0]\n    best = 0\n    for p in prices:\n        low = min(low, p)\n        best = max(best, p - low)\n    return best\n\nprint(max_profit(prices))",
+    "fix_hint": "Nothing to change — buy at 3, sell at 8; the 1 comes too late to help."
+  },
+  "one_liner": "You can only sell AFTER you buy — the cheapest day so far is the only buy that matters, then ask what selling today would make.",
+  "trace_watch": [
+    "p",
+    "low",
+    "high",
+    "best"
+  ]
+}

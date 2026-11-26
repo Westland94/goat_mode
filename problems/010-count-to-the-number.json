@@ -1,0 +1,207 @@
+{
+  "id": "010",
+  "skill": "for-range",
+  "title": "Count to the number",
+  "scenario": "Print the count 1 up to and including the number.",
+  "data": {
+    "name": "n",
+    "value": 5
+  },
+  "intro": {
+    "job": "Print the count 1 up to and including the number.",
+    "idea": {
+      "rule": "range stops BEFORE the end — to include 5, you have to say 6.",
+      "detail": "range(start, stop) hands out numbers from start up to — but never including — stop, like a ticket roll that ends one ticket early. range(1, 5) gives 1, 2, 3, 4. When the last number matters, the stop has to be one past it: range(1, n + 1)."
+    },
+    "watch": {
+      "code": "out = []\nfor i in range(1, m + 1):\n    out.append(i)\nprint(out)",
+      "data": {
+        "name": "m",
+        "value": 3
+      },
+      "trace_watch": [
+        "i",
+        "out"
+      ]
+    }
+  },
+  "model_restatement": "Make the list 1, 2, … n — including n itself — and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "start at",
+        "starting",
+        "begin",
+        "from 1",
+        "from 0",
+        "start"
+      ],
+      "question": "Where does the count start?",
+      "answer": "Start at 1."
+    },
+    {
+      "keywords": [
+        "include",
+        "including",
+        "inclusive",
+        "up to"
+      ],
+      "question": "Does the count include n itself?",
+      "answer": "Yes — n is the last number."
+    },
+    {
+      "keywords": [
+        "n is 0",
+        "n is zero",
+        "negative",
+        "nothing"
+      ],
+      "question": "Could n be 0 or negative?",
+      "answer": "Today n is always at least 1."
+    },
+    {
+      "keywords": [
+        "format",
+        "list",
+        "output",
+        "print",
+        "give"
+      ],
+      "question": "How should I give the count?",
+      "answer": "Print it as one list."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count from 1 to n. Put each number in a list, then print the list.",
+  "draft_code": "nums = []\nfor i in range(1, n):\n    nums.append(i)\nprint(nums)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "The loop has finished. What is i now?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — when the loop has finished, what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "range(1, n) stops before n — with n = 5 the last i is 4, so 5 never makes it into the list.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "range(1, n) is a ticket roll that ends one ticket early — it hands out 1 to 4, and 5 never comes off the roll.",
+    "bridge": "So what stop value would let 5 through?",
+    "fix": {
+      "rule": "range(1, n + 1): start at 1, stop just past n — so n itself is the last ticket.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the count."
+        },
+        {
+          "line": 2,
+          "gloss": "Hand out 1, 2, … up to n — the stop is n + 1, one past the end."
+        },
+        {
+          "line": 3,
+          "gloss": "Add this number to the list."
+        },
+        {
+          "line": 4,
+          "gloss": "After the last number, show the list."
+        }
+      ],
+      "contrast": {
+        "wrong": "range(1, n)",
+        "wrong_note": "stops at 4",
+        "right": "range(1, n + 1)",
+        "right_note": "stops at 5"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "nums = []\nfor i in range(1, n + 1):\n    nums.append(i)\nprint(nums)",
+    "alternatives": [
+      {
+        "code": "print(list(range(1, n + 1)))",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "When the loop ends, what's the last i?",
+      "range stops before its second number.",
+      "range(1, n + 1)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 5
+      },
+      "expected": "[1, 2, 3, 4, 5]"
+    },
+    {
+      "input": {
+        "n": 1
+      },
+      "expected": "[1]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What if n is 1?",
+    "data": {
+      "name": "n",
+      "value": 1
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 1, what gets printed?"
+    },
+    "recommended": "nums = []\nfor i in range(1, n + 1):\n    nums.append(i)\nprint(nums)",
+    "fix_hint": "The count has to include n itself — with n = 1, range(1, 1) is empty, so the draft prints an empty list, `[]`."
+  },
+  "one_liner": "range stops BEFORE the end — to include 5, you have to say 6.",
+  "trace_watch": [
+    "i",
+    "nums"
+  ]
+}

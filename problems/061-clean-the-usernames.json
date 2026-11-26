@@ -1,0 +1,218 @@
+{
+  "id": "061",
+  "skill": "strings-methods",
+  "title": "Clean the usernames",
+  "scenario": "Clean up the usernames: strip the stray spaces off each one.",
+  "data": {
+    "name": "names",
+    "value": [
+      " ana ",
+      "ben "
+    ]
+  },
+  "intro": {
+    "job": "Clean up the usernames: strip the stray spaces off each one.",
+    "idea": {
+      "rule": "Strings never change in place — a method hands you a NEW string. Catch it or lose it.",
+      "detail": "A string can't be edited. name.strip() doesn't change name — it builds a brand-new string with the spaces gone and hands it back. If nothing catches it with an =, that new string is gone the moment the line ends, and name is exactly what it was."
+    },
+    "watch": {
+      "code": "clean = word.strip()\nprint(clean)",
+      "data": {
+        "name": "word",
+        "value": " cy "
+      },
+      "trace_watch": [
+        "word",
+        "clean"
+      ]
+    }
+  },
+  "model_restatement": "Make a new list with every name cleaned of its spaces.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no names",
+        "none",
+        "nothing"
+      ],
+      "question": "What if there are no names?",
+      "answer": "Then an empty list."
+    },
+    {
+      "keywords": [
+        "already",
+        "clean",
+        "no spaces"
+      ],
+      "question": "Could a name already be clean?",
+      "answer": "Some already are — the clean ones stay clean."
+    },
+    {
+      "keywords": [
+        "change",
+        "modify",
+        "in place",
+        "original",
+        "new list"
+      ],
+      "question": "Should I change names, or build a new list?",
+      "answer": "Build a new list of clean names — leave names as it is."
+    },
+    {
+      "keywords": [
+        "tab",
+        "tabs",
+        "inside",
+        "middle"
+      ],
+      "question": "Any spaces inside the names?",
+      "answer": "No — just the spaces on the ends."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each name: clean the spaces off it and add it to the clean list. Print the clean list.",
+  "draft_code": "clean = []\nfor name in names:\n    tag = name\n    tag.strip()\n    clean.append(tag)\nprint(clean)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: right after line 4 (tag.strip()), what is tag?",
+      "kind": "value",
+      "var": "tag"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "After line 5 in iteration 1, what is clean?",
+      "kind": "value",
+      "var": "clean"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 4 in iteration 1, what is clean?",
+      "kind": "value",
+      "var": "clean"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "tag.strip() builds a new string 'ana' and hands it back — but nothing catches it, so tag is still ' ana '.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "tag.strip() is a photocopier: it hands you a cleaned copy — and if nobody catches the copy, it falls on the floor while tag stays ' ana '.",
+    "bridge": "So how do you catch the copy .strip() hands you?",
+    "fix": {
+      "rule": "name.strip() makes a new, cleaned string — tag = catches it before it's lost.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the clean names."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next name."
+        },
+        {
+          "line": 3,
+          "gloss": "Make the cleaned copy and catch it in tag."
+        },
+        {
+          "line": 4,
+          "gloss": "Add the caught tag to the list."
+        }
+      ],
+      "contrast": {
+        "wrong": "tag.strip()",
+        "wrong_note": "the copy is thrown away",
+        "right": "tag = name.strip()",
+        "right_note": "the copy is caught"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "clean = []\nfor name in names:\n    tag = name.strip()\n    clean.append(tag)\nprint(clean)",
+    "alternatives": [
+      {
+        "code": "clean = []\nfor name in names:\n    tag = name\n    tag = tag.strip()\n    clean.append(tag)\nprint(clean)",
+        "note": "Catch it in two steps — the same fix, closest to the draft."
+      },
+      {
+        "code": "clean = [name.strip() for name in names]\nprint(clean)",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "After line 4 runs, what is tag?",
+      ".strip() hands back a new string — and nothing catches it.",
+      "tag = name.strip()"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "names": [
+          " ana ",
+          "ben "
+        ]
+      },
+      "expected": "['ana', 'ben']"
+    },
+    {
+      "input": {
+        "names": []
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One-sided spaces: ['ana ', ' ben'] — what's cleaned?",
+    "data": {
+      "name": "names",
+      "value": [
+        "ana ",
+        " ben"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With one-sided spaces, what gets printed?"
+    },
+    "recommended": "clean = []\nfor name in names:\n    tag = name.strip()\n    clean.append(tag)\nprint(clean)",
+    "fix_hint": "Nothing to change — strip() takes spaces off both ends, even when only one end has them."
+  },
+  "one_liner": "Strings never change in place — a method hands you a NEW string. Catch it or lose it.",
+  "trace_watch": [
+    "name",
+    "tag",
+    "clean"
+  ]
+}

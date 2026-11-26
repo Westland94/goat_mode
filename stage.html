@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Problem 001 — the stage</title>
+  <style>
+    body { margin: 0; background: #111116; color: #b9b9c4; font-family: system-ui, sans-serif; }
+    header { padding: 12px 20px; }
+    a { color: #7be495; }
+    #back-link { min-height: 44px; display: inline-flex; align-items: center; }  /* 44 px: Task 165 — still reads as a back link */
+    canvas { display: block; width: 1280px; height: 720px; max-width: 100%; margin: 0 auto; }
+    #stage-error { color: #ff5577; padding: 0 20px; }
+    /* ---- replay mode (Task 121): HIS stream, stepped event by event on a DOM/SVG stage ---- */
+    #replay[hidden] { display: none; }
+    #replay { max-width: 1280px; margin: 0 auto; }
+    #replay-svg { display: block; width: 100%; height: auto; background: #111116; font-family: Montserrat, system-ui, sans-serif; }
+    #replay-controls { display: flex; gap: 10px; align-items: center; padding: 12px 20px; font-family: Montserrat, system-ui, sans-serif; }
+    #replay-controls button { font: inherit; font-size: 14px; font-weight: 700; color: #111116; background: #ffc727; border: 0; border-radius: 999px; padding: 7px 18px; cursor: pointer; min-height: 44px; }  /* 44 px: Task 165 */
+    #replay-controls button:disabled { opacity: .4; cursor: default; }
+    #replay-count { color: #b9b9c4; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 6px; }
+    .fo-title { color: #b9b9c4; font-size: 28px; font-weight: 600; letter-spacing: .02em; }
+    .fo-job { color: #fff; font-size: 34px; font-weight: 700; line-height: 1.2; }
+    .fo-cap { font-size: 26px; font-weight: 700; line-height: 1.25; white-space: pre-wrap; }
+    .cap-draft { color: #b9b9c4; } .cap-why, .cap-error { color: #ff5577; } .cap-fix { color: #7be495; } .cap-final { color: #fff; }
+    .g-label { fill: #fff; font-size: 26px; font-weight: 600; text-anchor: middle; }
+    .g-edge, .g-head { transition: opacity 300ms ease; }
+    .g-edge.skip, .g-head.skip { opacity: .35; }
+    #g-token { transition: transform 420ms ease-in-out; }
+    .g-ring { transform-box: fill-box; transform-origin: center; animation: ring-pulse 900ms ease-in-out 2; }
+    @keyframes ring-pulse { 50% { transform: scale(1.15); } }
+    .g-flash { animation: flash 700ms ease-out both; }
+    @keyframes flash { 0% { opacity: 0; } 25% { opacity: .35; } 55% { opacity: .12; } 75% { opacity: .35; } 100% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .g-ring, .g-flash { animation: none; }
+      .g-flash { opacity: 0; }
+      #g-token, .g-edge, .g-head { transition: none; }
+    }
+  </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header><a href="./" id="back-link">Back to GOAT Mode</a></header>
+  <canvas id="stage-canvas" width="1280" height="720"></canvas>
+  <div id="replay" hidden>
+    <svg id="replay-svg" viewBox="0 0 1280 720" role="img" aria-label="Replay of your run"></svg>
+    <div id="replay-controls">
+      <button type="button" id="r-play">Play</button>
+      <button type="button" id="r-pause">Pause</button>
+      <button type="button" id="r-step">Step</button>
+      <span id="replay-count">event 0/0</span>
+    </div>
+  </div>
+  <p id="stage-error" hidden></p>
+  <script src="https://cdn.jsdelivr.net/npm/@rive-app/canvas@2.55.1/rive.js"></script>
+  <script>
+    // A problem's prebuilt kit scene (stage/kit-<id>), played as-is: draft then fix, looping.
+    // ?p=<id> picks the scene (default 001); only problems with a published scene play.
+    // Everything loads from this server: the runtime, its wasm, and the scene.
+    const STAGE_IDS = ['001', '003', '010', '132'];
+    const params = new URLSearchParams(location.search);
+    const pid = params.get('p') || '001';
+    const showError = (msg) => {
+      const p = document.getElementById('stage-error');
+      p.hidden = false;
+      p.textContent = msg;
+    };
+    if (params.get('replay')) {
+      // startReplay lives in the script below; run it once every script has loaded
+      addEventListener('DOMContentLoaded', () => startReplay(pid, params.get('replay'), params.get('code') || '', params.get('data')));
+    } else if (!STAGE_IDS.includes(pid)) {
+      document.title = 'No stage scene — the stage';
+      showError(`There's no stage scene for problem ${pid} yet.`);
+    } else {
+      document.title = `Problem ${pid} — the stage`;
+      rive.RuntimeLoader.setWasmUrl('https://cdn.jsdelivr.net/npm/@rive-app/canvas@2.55.1/rive.wasm');
+      window.stageRive = new rive.Rive({
+        src: `stage/kit-${pid}.riv`,
+        canvas: document.getElementById('stage-canvas'),
+        stateMachines: 'State Machine 1',
+        autoplay: true,
+        layout: new rive.Layout({ fit: rive.Fit.Contain }),
+        onLoad: () => { window.stageRive.resizeDrawingSurfaceToCanvas(); window.stageLoaded = true; },
+        onLoadError: (e) => showError('The stage scene failed to load: ' + (e && e.data ? e.data : e)),
+      });
+    }
+  </script>
+  <script>
+    // Replay mode (Task 121): ?p=<id>&replay=<run>&code=<base64url>[&data=<base64url JSON>] plays HIS run — the stream
+    // /api/stage-stream emits from his code — one event per step. Played as emitted: no event is
+    // added, dropped or reordered here. Layout comes from the response's positions, else the
+    // kit_gen circle (centre 640,360, r250, first-seen node at the top, clockwise).
+    // Port (Task 187): the stream comes from the in-browser worker via the shim, imported on first use
+    async function goatStageFetch(path, opts) {
+      if (typeof window.goatShim !== 'function') await import('./shim/goat-shim.mjs');
+      return window.goatShim(path, opts);
+    }
+    function startReplay(pid, run, code64, data64) {
+      document.getElementById('stage-canvas').hidden = true;
+      document.getElementById('stage-canvas').style.display = 'none';
+      document.title = `Problem ${pid} — your run on the stage`;
+      const unb64 = (s) => {
+        const b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+        const bin = atob(b64 + '='.repeat((4 - b64.length % 4) % 4));
+        return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+      };
+      let code;
+      try {
+        code = unb64(code64);
+      } catch (e) {
+        return showError("The replay link is broken: its code couldn't be read.");
+      }
+      // optional data (Task 124): base64url JSON, one {name: value} variable — the follow-up's new data
+      const req = { problem_id: pid, code, run };
+      if (data64 != null) {
+        let data = null;
+        try { data = JSON.parse(unb64(data64)); } catch (e) { data = null; }
+        if (!data || typeof data !== 'object' || Array.isArray(data) || Object.keys(data).length !== 1)
+          return showError("The replay link is broken: its data couldn't be read.");
+        req.data = data;
+      }
+      goatStageFetch('api/stage-stream', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                   body: JSON.stringify(req) })
+        .then((r) => r.json().then((body) => ({ ok: r.ok, body })))
+        .then(({ ok, body }) => {
+          if (!ok) return showError(`The replay couldn't be built: ${body.error || 'unknown error'}`);
+          if (body.stageable === false) return showError('This run is too big to stage — it stays headless.');
+          if (body.contract !== 'stage-v2') return showError('No graph stage for this problem yet.');
+          const events = (body.streams || {})[run] || Object.values(body.streams || {})[0] || [];
+          window.stageReplay = makePlayer(pid, events, body.positions);  // not window.replay: that name is the #replay element
+        })
+        .catch((e) => showError('The replay couldn\'t reach the server: ' + e));
+    }
+
+    function makePlayer(pid, events, positions) {
+      const NS = 'http://www.w3.org/2000/svg', R = 38;
+      const svg = document.getElementById('replay-svg');
+      document.getElementById('replay').hidden = false;
+      const el = (tag, attrs = {}, parent = svg) => {
+        const n = document.createElementNS(NS, tag);
+        for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+        parent.append(n);
+        return n;
+      };
+      const fo = (x, y, w, h, cls) => {
+        const f = el('foreignObject', { x, y, width: w, height: h });
+        const d = document.createElement('div');
+        d.className = cls;
+        f.append(d);
+        return d;
+      };
+      // ---- layout: authored positions, else the circle rule (whole-stream first-seen order) ----
+      const order = events.filter((e) => e.type === 'node_add').map((e) => e.id);
+      const pos = {};
+      order.forEach((id, k) => {
+        const name = id.replace(/^node:/, '');
+        const lab = (events.find((e) => e.type === 'node_add' && e.id === id) || {}).label || name;
+        const p = positions && (positions[lab] || positions[name]);
+        if (p) pos[id] = [p[0], p[1]];
+        else {
+          const a = -Math.PI / 2 + 2 * Math.PI * k / Math.max(1, order.length);
+          pos[id] = [640 + 250 * Math.cos(a), 360 + 250 * Math.sin(a)];
+        }
+      });
+      // ---- layers (later = in front): flash, edges, rings, green, nodes, labels, token, text ----
+      const L = {};
+      for (const k of ['flash', 'edges', 'rings', 'green', 'nodes', 'labels', 'token', 'text'])
+        L[k] = el('g', { id: `layer-${k}` });
+      el('rect', { x: 40, y: 600, width: 1200, height: 10, fill: '#2a2a33' }, L.flash);
+      const title = fo(60, 20, 1160, 44, 'fo-title');
+      const job = fo(60, 62, 1160, 100, 'fo-job');
+      // one bottom line: captions by role; an error_flash takes it (red) until the next caption
+      const cap = fo(60, 618, 1160, 100, 'fo-cap');
+      for (const f of [title, job, cap]) L.text.append(f.parentNode);
+      const token = el('circle', { id: 'g-token', r: 13, cx: 0, cy: 0, fill: '#ffc727', visibility: 'hidden' }, L.token);
+
+      const nodeEls = {}, edgeEls = {};
+      let i = 0, timer = null, tokenShown = false;
+      const count = document.getElementById('replay-count');
+      const apply = (ev) => {
+        const t = ev.type;
+        if (t === 'scene_open') {
+          title.textContent = `PROBLEM ${pid} · ${(ev.title || '').toUpperCase()}`;
+          job.textContent = ev.job || '';
+        } else if (t === 'node_add') {
+          const [x, y] = pos[ev.id];
+          nodeEls[ev.id] = {
+            green: el('circle', { cx: x, cy: y, r: 42, fill: '#7be495', visibility: 'hidden' }, L.green),
+            rim: el('circle', { cx: x, cy: y, r: R, fill: '#4b4b63' }, L.nodes),
+            body: el('circle', { cx: x, cy: y, r: 34, fill: '#1d1d26' }, L.nodes),
+          };
+          el('text', { x, y: y + 72, class: 'g-label' }, L.labels).textContent = ev.label;
+        } else if (t === 'edge_add') {
+          const [x1, y1] = pos[ev.from], [x2, y2] = pos[ev.to];
+          const d = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / d, uy = (y2 - y1) / d;
+          edgeEls[`${ev.from}>${ev.to}`] = [
+            el('line', { x1: x1 + ux * (R + 4), y1: y1 + uy * (R + 4), x2: x2 - ux * (R + 4), y2: y2 - uy * (R + 4),
+                         stroke: '#9a9aae', 'stroke-width': 3, class: 'g-edge' }, L.edges),
+            el('circle', { cx: x2 - ux * (R + 12), cy: y2 - uy * (R + 12), r: 5.5, fill: '#9a9aae', class: 'g-head' }, L.edges),
+          ];
+        } else if (t === 'node_current') {
+          const [x, y] = pos[ev.id];
+          if (!tokenShown) token.style.transition = 'none';   // first appearance: snap, don't slide in from 0,0
+          token.setAttribute('transform', `translate(${x} ${y})`);
+          if (!tokenShown) { token.getBoundingClientRect(); token.style.transition = ''; }
+          token.setAttribute('visibility', 'visible');
+          tokenShown = true;
+        } else if (t === 'node_visit') {
+          nodeEls[ev.id] && nodeEls[ev.id].green.setAttribute('visibility', 'visible');
+        } else if (t === 'edge_skip') {
+          (edgeEls[`${ev.from}>${ev.to}`] || []).forEach((n) => n.classList.add('skip'));
+        } else if (t === 'node_found') {
+          const [x, y] = pos[ev.id];
+          el('circle', { cx: x, cy: y, r: 48, fill: '#ffc727', class: 'g-ring' }, L.rings);
+        } else if (t === 'error_flash') {
+          cap.className = 'fo-cap cap-error';
+          cap.textContent = ev.text || '';
+          const fx = ev.at && pos[ev.at] ? pos[ev.at] : [640, 360];
+          el('rect', { x: fx[0] - 130, y: fx[1] - 130, width: 260, height: 260, rx: 24, fill: '#cc004c', class: 'g-flash' }, L.flash);
+        } else if (t === 'caption') {
+          const prefix = { draft: 'DRAFT  ', why: 'WHY  ', fix: 'FIX  ', final: '' }[ev.role] ?? '';
+          cap.className = `fo-cap cap-${ev.role}`;
+          cap.textContent = prefix + (ev.text || '');
+        }
+      };
+      const show = () => {
+        count.textContent = `event ${i}/${events.length}`;
+        document.getElementById('r-step').disabled = i >= events.length;
+      };
+      const step = () => {
+        if (i >= events.length) return false;
+        apply(events[i++]);
+        show();
+        return i < events.length;
+      };
+      const pause = () => { clearInterval(timer); timer = null; };
+      const play = () => {
+        if (timer) return;
+        if (i >= events.length) { location.reload(); return; }   // replay from the top
+        timer = setInterval(() => { if (!step()) pause(); }, 600);
+      };
+      document.getElementById('r-play').onclick = play;
+      document.getElementById('r-pause').onclick = pause;
+      document.getElementById('r-step').onclick = () => { pause(); step(); };
+      show();
+      play();
+      return { events, step, play, pause, get index() { return i; } };
+    }
+  </script>
+</body>
+</html>

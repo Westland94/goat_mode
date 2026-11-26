@@ -1,0 +1,88 @@
+{
+  "id": "001",
+  "skill": "dict-counting",
+  "title": "Repeat customers",
+  "scenario": "Here are today's orders. I want to know how many orders each customer placed, so we can thank the repeat buyers.",
+  "data": { "name": "orders", "value": ["ana", "ben", "ana", "cy", "ben", "ana"] },
+  "model_restatement": "For each customer name, count how many times it appears in the list.",
+  "clarify": [
+    { "keywords": ["empty", "no orders", "none", "nothing", "zero orders"], "question": "What if the list is empty?", "answer": "Then return an empty dict." },
+    { "keywords": ["case", "uppercase", "lowercase", "capital", "capitals", "capitalized", "space", "spaces", "whitespace", "same name", "same person", "typo", "typos"], "question": "Could names differ in case or spacing?", "answer": "Today's data is clean — all lowercase." },
+    { "keywords": ["sort", "sorted", "sorting", "ordering", "order matter", "order matters", "in order", "output order", "what order", "which order"], "question": "Does output order matter?", "answer": "No — any order is fine." },
+    { "keywords": ["item", "items", "bought", "product", "products", "what they"], "question": "Counts only, or items too?", "answer": "Just counts." },
+    { "keywords": ["counter", "collections", "library", "built-in", "builtin", "import"], "question": "Can I use Counter?", "answer": "In real work, yes. Here, write the loop — I want to see the mechanics." }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Make an empty dict. For each order, add one to that customer's count. Print it.",
+  "draft_code": "counts = {}\nfor name in orders:\n    counts[name] += 1\nprint(counts)",
+  "checkpoints": [
+    { "id": "P1", "phase": "draft", "at": { "line": 1, "iteration": 0 }, "prompt": "After line 1 runs, what is counts?", "kind": "value", "var": "counts" },
+    { "id": "P2", "phase": "draft", "at": { "line": 2, "iteration": 1 }, "prompt": "First time through the loop — what is name?", "kind": "value", "var": "name" },
+    { "id": "P3", "phase": "draft", "at": { "line": 3, "iteration": 1 }, "prompt": "What happens on line 3, that first time?", "kind": "outcome",
+      "choices": [
+        { "label": "counts becomes {'ana': 1}", "match": { "var": "counts", "value": "{'ana': 1}" } },
+        { "label": "counts becomes {'ana': 0}", "match": { "var": "counts", "value": "{'ana': 0}" } },
+        { "label": "an error", "match": { "error": true }, "ask_which": true },
+        { "label": "nothing happens", "match": { "unchanged": true } }
+      ] },
+    { "id": "P4", "phase": "fixed", "at": { "line": 3, "iteration": 3 }, "prompt": "After iteration 3, what is counts?", "kind": "value", "var": "counts" },
+    { "id": "P5", "phase": "fixed", "at": "end", "prompt": "What gets printed?", "kind": "value" }
+  ],
+  "why_line": "counts[name] += 1 means counts[name] = counts[name] + 1 — and counts['ana'] doesn't exist yet.",
+  "fix": {
+    "recommended": "counts = {}\nfor name in orders:\n    counts[name] = counts.get(name, 0) + 1\nprint(counts)",
+    "alternatives": [
+      { "code": "counts = {}\nfor name in orders:\n    if name not in counts:\n        counts[name] = 0\n    counts[name] += 1\nprint(counts)", "note": "Same idea, more lines." },
+      { "code": "from collections import defaultdict\ncounts = defaultdict(int)\nfor name in orders:\n    counts[name] += 1\nprint(dict(counts))", "note": "A dict that hands out zeros by itself." },
+      { "code": "from collections import Counter\nprint(dict(Counter(orders)))", "note": "The shortcut — once you can trace the long way." }
+    ],
+    "hints": [
+      "Look at the very first iteration. What's in counts when line 3 runs?",
+      "+= has to read the old value first. Is there one?",
+      "counts[name] = counts.get(name, 0) + 1"
+    ]
+  },
+  "checks": [
+    { "input": { "orders": [] }, "expected": "{}" },
+    { "input": { "orders": ["ana", "ben", "ana", "cy", "ben", "ana"] }, "expected": "{'ana': 3, 'ben': 2, 'cy': 1}" }
+  ],
+  "follow_up": {
+    "prompt": "Tomorrow's data has 'Ana' and 'ana' — same person. What does your code print?",
+    "data": { "name": "orders", "value": ["Ana", "ana", "ben"] },
+    "checkpoint": { "id": "F1", "at": "end", "kind": "value", "prompt": "What gets printed with tomorrow's data?" },
+    "recommended": "counts = {}\nfor name in orders:\n    key = name.lower()\n    counts[key] = counts.get(key, 0) + 1\nprint(counts)",
+    "fix_hint": "Count name.lower() instead of name."
+  },
+  "intro": {
+    "job": "Here are today's orders. I want to know how many orders each customer placed, so we can thank the repeat buyers.",
+    "idea": {
+      "rule": "You can't add 1 to nothing — a key that isn't in the dict yet needs a starting value, or the read crashes.",
+      "detail": "Counting with a dict means: for each item, read its current count, add 1, write it back. The first time a key shows up there's nothing to read — like asking a jar for cookies before anyone put the jar on the shelf. counts.get(name, 0) reads the count if the key is there and hands you a 0 if it isn't, so the very first + 1 has something to add to."
+    },
+    "watch": {
+      "code": "counts = {}\nfor name in names:\n    counts[name] = counts.get(name, 0) + 1\nprint(counts)",
+      "data": { "name": "names", "value": ["cy", "ana", "cy"] },
+      "trace_watch": ["name", "counts"]
+    }
+  },
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Reading a key that isn't there is like asking a jar for cookies before anyone put the jar on the shelf — counts['ana'] fails because the jar doesn't exist yet.",
+    "bridge": "So what would hand you a 0 instead of crashing?",
+    "fix": {
+      "rule": ".get(k, 0) is a jar that hands you 0 when it's empty instead of refusing to open.",
+      "walk": [
+        { "line": 1, "gloss": "Start with an empty dict — no jars on the shelf yet." },
+        { "line": 2, "gloss": "Take the next name off the list." },
+        { "line": 3, "gloss": "Read that name's count — or 0 if there's no jar yet — add 1, and put it back." },
+        { "line": 4, "gloss": "Once every name is counted, show the dict." }
+      ],
+      "contrast": {
+        "wrong": "counts[name] += 1", "wrong_note": "needs the jar to exist",
+        "right": "counts[name] = counts.get(name, 0) + 1", "right_note": "works either way"
+      }
+    }
+  },
+  "one_liner": "You can't add 1 to nothing — .get(k, 0) hands you the zero.",
+  "trace_watch": ["name", "counts"]
+}

@@ -1,0 +1,223 @@
+{
+  "id": "174",
+  "skill": "dicts-mapping",
+  "title": "Isomorphic Strings",
+  "section": "leetcode",
+  "lc": {
+    "number": 205,
+    "title": "Isomorphic Strings",
+    "difficulty": "Easy",
+    "slug": "isomorphic-strings"
+  },
+  "scenario": "You get two strings s and t of the same length. They're isomorphic if you can turn s into t by swapping each letter for another — every copy of a letter swaps the same way, and no two different letters swap to the same one. (A letter may map to itself.) Return True if they're isomorphic, otherwise False.\n\nExample 1:\nInput: s = \"egg\", t = \"add\"\nOutput: True\n\nExample 2:\nInput: s = \"foo\", t = \"bar\"\nOutput: False\nWhy: 'o' would have to become both 'a' and 'r'.\n\nExample 3:\nInput: s = \"ab\", t = \"aa\"\nOutput: False\nWhy: 'a' and 'b' would both become 'a'.\n\nConstraints:\n1 <= len(s) <= 50000\nlen(t) == len(s)\n\nWrite: def is_isomorphic(s, t) — the driver calls it on s = \"egg\", t = \"add\" (case = [s, t]) and prints the result.",
+  "data": {
+    "name": "case",
+    "value": [
+      "egg",
+      "add"
+    ]
+  },
+  "intro": {
+    "job": "You get two strings s and t of the same length. They're isomorphic if you can turn s into t by swapping each letter for another — every copy of a letter swaps the same way, and no two different letters swap to the same one. (A letter may map to itself.) Return True if they're isomorphic, otherwise False.\n\nExample 1:\nInput: s = \"egg\", t = \"add\"\nOutput: True\n\nExample 2:\nInput: s = \"foo\", t = \"bar\"\nOutput: False\nWhy: 'o' would have to become both 'a' and 'r'.\n\nExample 3:\nInput: s = \"ab\", t = \"aa\"\nOutput: False\nWhy: 'a' and 'b' would both become 'a'.\n\nConstraints:\n1 <= len(s) <= 50000\nlen(t) == len(s)\n\nWrite: def is_isomorphic(s, t) — the driver calls it on s = \"egg\", t = \"add\" (case = [s, t]) and prints the result.",
+    "idea": {
+      "rule": "A swap has to work both ways — check s → t AND t → s.",
+      "detail": "Like problem 165 (Group Anagrams), the tool is a dict keyed by letters: as you walk the two strings together, record what each letter of s turned into. But that only catches one kind of clash — a letter of s turning into two different letters. The other kind is two letters of s landing on the SAME letter of t, and a one-way map never notices it (just as 141's set only catches what it remembers). Keep the reverse map too."
+    },
+    "watch": {
+      "code": "def is_isomorphic(s, t):\n    s_to_t, t_to_s = {}, {}\n    for a, b in zip(s, t):\n        if s_to_t.get(a, b) != b or t_to_s.get(b, a) != a:\n            return False\n        s_to_t[a] = b\n        t_to_s[b] = a\n    return True\n\ns, t = case\nprint(is_isomorphic(s, t))",
+      "data": {
+        "name": "case",
+        "value": [
+          "ab",
+          "cd"
+        ]
+      },
+      "trace_watch": [
+        "a",
+        "b",
+        "s_to_t",
+        "t_to_s"
+      ]
+    }
+  },
+  "model_restatement": "Say whether s can be turned into t by a letter swap that's consistent both ways.",
+  "clarify": [
+    {
+      "keywords": [
+        "itself"
+      ],
+      "question": "Can a letter map to itself?",
+      "answer": "Yes — 'a' can stay 'a'."
+    },
+    {
+      "keywords": [
+        "length",
+        "different lengths"
+      ],
+      "question": "Can s and t have different lengths?",
+      "answer": "No — they're always the same length."
+    },
+    {
+      "keywords": [
+        "different letters",
+        "same letter",
+        "both ways"
+      ],
+      "question": "Can two different letters of s map to the same letter of t?",
+      "answer": "No — the swap has to work both ways."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk the two strings together, remember what each letter of s turns into, and fail if a letter of s ever turns into something new.",
+  "draft_code": "def is_isomorphic(s, t):\n    mapping = {}\n    for a, b in zip(s, t):\n        if a in mapping and mapping[a] != b:\n            return False\n        mapping[a] = b\n    return True\n\ns, t = case\nprint(is_isomorphic(s, t))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: after line 6, what is mapping?",
+      "kind": "value",
+      "var": "mapping"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after line 6, what is mapping?",
+      "kind": "value",
+      "var": "mapping"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2: after line 7, what is t_to_s?",
+      "kind": "value",
+      "var": "t_to_s"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The one map only checks s → t. On \"egg\"/\"add\" that's enough — but on \"ab\"/\"aa\", 'a' → 'a' and 'b' → 'a' never clash in it, though two letters landed on one. Nothing ever checks t → s.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A one-way map is a seating chart that checks nobody gets two seats but never checks that two people don't share one.",
+    "bridge": "mapping is {'e': 'a', 'g': 'd'}. If 'g' had turned into 'a' instead, which check in the draft would catch it?",
+    "fix": {
+      "rule": "Keep both maps, s → t and t → s, and return False the moment either one disagrees.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "One map each way."
+        },
+        {
+          "line": 4,
+          "gloss": "A clash in either direction?"
+        },
+        {
+          "line": 6,
+          "gloss": "Record s → t..."
+        },
+        {
+          "line": 7,
+          "gloss": "...and t → s."
+        }
+      ],
+      "contrast": {
+        "wrong": "mapping[a] = b  (one way)",
+        "wrong_note": "two letters can share a target",
+        "right": "s_to_t[a] = b; t_to_s[b] = a",
+        "right_note": "checked both ways"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def is_isomorphic(s, t):\n    s_to_t, t_to_s = {}, {}\n    for a, b in zip(s, t):\n        if s_to_t.get(a, b) != b or t_to_s.get(b, a) != a:\n            return False\n        s_to_t[a] = b\n        t_to_s[b] = a\n    return True\n\ns, t = case\nprint(is_isomorphic(s, t))",
+    "alternatives": [
+      {
+        "code": "def is_isomorphic(s, t):\n    return len(set(s)) == len(set(t)) == len(set(zip(s, t)))\n\ns, t = case\nprint(is_isomorphic(s, t))",
+        "note": "Count distinct things: a consistent swap means s, t and the pairs zip(s, t) all have the same number of distinct members."
+      }
+    ],
+    "hints": [
+      "Which direction does the draft's map check?",
+      "Two different letters of s can land on the same letter of t, and a one-way map never notices.",
+      "Keep s_to_t and t_to_s; return False if s_to_t.get(a, b) != b or t_to_s.get(b, a) != a."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          "egg",
+          "add"
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "case": [
+          "foo",
+          "bar"
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "case": [
+          "ab",
+          "aa"
+        ]
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: s = \"badc\", t = \"baba\" — what does your code print?",
+    "data": {
+      "name": "case",
+      "value": [
+        "badc",
+        "baba"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def is_isomorphic(s, t):\n    s_to_t, t_to_s = {}, {}\n    for a, b in zip(s, t):\n        if s_to_t.get(a, b) != b or t_to_s.get(b, a) != a:\n            return False\n        s_to_t[a] = b\n        t_to_s[b] = a\n    return True\n\ns, t = case\nprint(is_isomorphic(s, t))",
+    "fix_hint": "'d' wants to become 'b', but 'b' already belongs to 'b' — the reverse map catches it: False."
+  },
+  "one_liner": "A swap has to work both ways — check s → t AND t → s.",
+  "trace_watch": [
+    "a",
+    "b",
+    "mapping",
+    "t_to_s"
+  ]
+}

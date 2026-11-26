@@ -1,0 +1,283 @@
+{
+  "id": "179",
+  "skill": "grid-counting",
+  "title": "Island Perimeter",
+  "section": "leetcode",
+  "lc": {
+    "number": 463,
+    "title": "Island Perimeter",
+    "difficulty": "Easy",
+    "slug": "island-perimeter"
+  },
+  "scenario": "You get a grid of 1s (land) and 0s (water). The land cells join up side by side into exactly one island, with no lakes inside it. Each cell is a 1×1 square. Return the island's perimeter — the length of its coastline.\n\nExample 1:\nInput: grid = [[0, 1, 0, 0], [1, 1, 1, 0], [0, 1, 0, 0], [1, 1, 0, 0]]\nOutput: 16\n\nExample 2:\nInput: grid = [[1]]\nOutput: 4\n\nExample 3:\nInput: grid = [[1, 0]]\nOutput: 4\n\nConstraints:\n1 <= rows, columns <= 100\nEach cell is 0 or 1, and there is exactly one island.\n\nWrite: def island_perimeter(grid) — the driver calls it on the 4×4 grid above and prints the perimeter.",
+  "data": {
+    "name": "grid",
+    "value": [
+      [
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        0,
+        0
+      ]
+    ]
+  },
+  "intro": {
+    "job": "You get a grid of 1s (land) and 0s (water). The land cells join up side by side into exactly one island, with no lakes inside it. Each cell is a 1×1 square. Return the island's perimeter — the length of its coastline.\n\nExample 1:\nInput: grid = [[0, 1, 0, 0], [1, 1, 1, 0], [0, 1, 0, 0], [1, 1, 0, 0]]\nOutput: 16\n\nExample 2:\nInput: grid = [[1]]\nOutput: 4\n\nExample 3:\nInput: grid = [[1, 0]]\nOutput: 4\n\nConstraints:\n1 <= rows, columns <= 100\nEach cell is 0 or 1, and there is exactly one island.\n\nWrite: def island_perimeter(grid) — the driver calls it on the 4×4 grid above and prints the perimeter.",
+    "idea": {
+      "rule": "Every land square brings 4 sides — but each side two land squares share is inland, so it costs 2.",
+      "detail": "Like problem 005 (Split the candies), it's counting. A lone land square has 4 coastline sides. But when two land squares touch, the side between them isn't coast at all — and both squares had counted it. Like problem 132's routes between stops, what matters is the edges between neighbours: add 4 for each land square, and take 2 away for every pair of touching squares. Checking each square's up and left neighbour finds every shared edge exactly once."
+    },
+    "watch": {
+      "code": "def island_perimeter(grid):\n    perimeter = 0\n    for r in range(len(grid)):\n        for c in range(len(grid[r])):\n            if grid[r][c] == 1:\n                perimeter += 4\n                if r > 0 and grid[r - 1][c] == 1:\n                    perimeter -= 2\n                if c > 0 and grid[r][c - 1] == 1:\n                    perimeter -= 2\n    return perimeter\n\nprint(island_perimeter(grid))",
+      "data": {
+        "name": "grid",
+        "value": [
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "trace_watch": [
+        "r",
+        "c",
+        "perimeter"
+      ]
+    }
+  },
+  "model_restatement": "Count the length of the island's coastline.",
+  "clarify": [
+    {
+      "keywords": [
+        "diagonal",
+        "corner"
+      ],
+      "question": "Do squares that touch only at a corner count as joined?",
+      "answer": "No — only squares that share a side."
+    },
+    {
+      "keywords": [
+        "lake",
+        "hole",
+        "inside"
+      ],
+      "question": "Can there be water inside the island?",
+      "answer": "No — no lakes."
+    },
+    {
+      "keywords": [
+        "more than one",
+        "several islands",
+        "two islands"
+      ],
+      "question": "Can there be more than one island?",
+      "answer": "No — exactly one."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count the land squares and multiply by 4 — each square has 4 sides.",
+  "draft_code": "def island_perimeter(grid):\n    land = 0\n    for row in grid:\n        for cell in row:\n            if cell == 1:\n                land += 1\n    return land * 4\n\nprint(island_perimeter(grid))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "Row 1: after counting the first land square, what is land?",
+      "kind": "value",
+      "var": "land"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 2
+      },
+      "prompt": "Row 2: after counting its first land square, what is land?",
+      "kind": "value",
+      "var": "land"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 2
+      },
+      "prompt": "With the fix — the square at row 1, column 1 has land above it. After line 8, what is perimeter?",
+      "kind": "value",
+      "var": "perimeter"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft gives every land square 4 sides — 7 squares, 28. But touching squares share a side that isn't coast, and both counted it: the 6 shared sides add 12 too many, so the real perimeter is 16.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Counting 4 sides per square is fencing every garden plot separately — where two plots touch, you've built a fence nobody needs, twice.",
+    "bridge": "The draft printed 28. In [[1, 1]], the two squares share a side — is that side coastline?",
+    "fix": {
+      "rule": "Add 4 for each land square, and subtract 2 for each neighbour above or to the left that's also land — each shared side is removed once, from both squares.",
+      "walk": [
+        {
+          "line": 5,
+          "gloss": "A land square..."
+        },
+        {
+          "line": 6,
+          "gloss": "...brings 4 sides."
+        },
+        {
+          "line": 7,
+          "gloss": "Land above it?"
+        },
+        {
+          "line": 8,
+          "gloss": "That shared side was counted by both — take 2 away."
+        },
+        {
+          "line": 10,
+          "gloss": "Same for land to the left."
+        }
+      ],
+      "contrast": {
+        "wrong": "land * 4",
+        "wrong_note": "shared sides counted as coast",
+        "right": "4 per square, minus 2 per shared side",
+        "right_note": "only coastline"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def island_perimeter(grid):\n    perimeter = 0\n    for r in range(len(grid)):\n        for c in range(len(grid[r])):\n            if grid[r][c] == 1:\n                perimeter += 4\n                if r > 0 and grid[r - 1][c] == 1:\n                    perimeter -= 2\n                if c > 0 and grid[r][c - 1] == 1:\n                    perimeter -= 2\n    return perimeter\n\nprint(island_perimeter(grid))",
+    "alternatives": [
+      {
+        "code": "def island_perimeter(grid):\n    land = 0\n    shared = 0\n    for r in range(len(grid)):\n        for c in range(len(grid[r])):\n            if grid[r][c] == 1:\n                land += 1\n                if r + 1 < len(grid) and grid[r + 1][c] == 1:\n                    shared += 1\n                if c + 1 < len(grid[r]) and grid[r][c + 1] == 1:\n                    shared += 1\n    return land * 4 - 2 * shared\n\nprint(island_perimeter(grid))",
+        "note": "Count land squares and shared sides separately (checking right and down instead of up and left), then return land * 4 - 2 * shared."
+      }
+    ],
+    "hints": [
+      "Two land squares side by side: how long is their coastline — 8 or 6?",
+      "A side shared by two land squares isn't coastline, and both squares counted it.",
+      "perimeter += 4 per land square; perimeter -= 2 if the square above is land; perimeter -= 2 if the square to the left is land"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "grid": [
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            0,
+            0
+          ]
+        ]
+      },
+      "expected": "16"
+    },
+    {
+      "input": {
+        "grid": [
+          [
+            1
+          ]
+        ]
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "grid": [
+          [
+            1,
+            0
+          ]
+        ]
+      },
+      "expected": "4"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: grid = [[1, 1], [1, 1]] — what does your code print?",
+    "data": {
+      "name": "grid",
+      "value": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def island_perimeter(grid):\n    perimeter = 0\n    for r in range(len(grid)):\n        for c in range(len(grid[r])):\n            if grid[r][c] == 1:\n                perimeter += 4\n                if r > 0 and grid[r - 1][c] == 1:\n                    perimeter -= 2\n                if c > 0 and grid[r][c - 1] == 1:\n                    perimeter -= 2\n    return perimeter\n\nprint(island_perimeter(grid))",
+    "fix_hint": "4 squares bring 16 sides, and 4 shared sides take away 8 — the perimeter is 8."
+  },
+  "one_liner": "Every land square brings 4 sides — but each side two land squares share is inland, so it costs 2.",
+  "trace_watch": [
+    "land",
+    "r",
+    "c",
+    "perimeter"
+  ]
+}

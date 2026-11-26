@@ -1,0 +1,212 @@
+{
+  "id": "152",
+  "skill": "recursion-fibonacci",
+  "title": "Fibonacci Number",
+  "section": "leetcode",
+  "lc": {
+    "number": 509,
+    "title": "Fibonacci Number",
+    "difficulty": "Easy",
+    "slug": "fibonacci-number"
+  },
+  "scenario": "The Fibonacci numbers start F(0) = 0 and F(1) = 1, and every later one is the sum of the two before it: F(n) = F(n - 1) + F(n - 2). Given n, return F(n).\n\nExample 1:\nInput: n = 2\nOutput: 1\nWhy: F(2) = F(1) + F(0) = 1 + 0.\n\nExample 2:\nInput: n = 3\nOutput: 2\n\nExample 3:\nInput: n = 4\nOutput: 3\n\nConstraints:\n0 <= n <= 30\n\nWrite: def fib(n) — the driver calls it on n = 6 and prints the result.",
+  "data": {
+    "name": "n",
+    "value": 6
+  },
+  "intro": {
+    "job": "The Fibonacci numbers start F(0) = 0 and F(1) = 1, and every later one is the sum of the two before it: F(n) = F(n - 1) + F(n - 2). Given n, return F(n).\n\nExample 1:\nInput: n = 2\nOutput: 1\nWhy: F(2) = F(1) + F(0) = 1 + 0.\n\nExample 2:\nInput: n = 3\nOutput: 2\n\nExample 3:\nInput: n = 4\nOutput: 3\n\nConstraints:\n0 <= n <= 30\n\nWrite: def fib(n) — the driver calls it on n = 6 and prints the result.",
+    "idea": {
+      "rule": "The seeds are the sequence's first two numbers — start at F(0) = 0 and F(1) = 1, or every answer lands one step too far along.",
+      "detail": "This is problem 052 (Count the shoots) in interview format, rolled forward instead of recursing. Keep the last two numbers, a and b, and step them along: a, b = b, a + b. After k steps, a is F(k) — but only if a and b start as F(0) and F(1), which are 0 and 1. Seed them with 1, 1 and the whole sequence is shifted one place: every answer is the NEXT Fibonacci number."
+    },
+    "watch": {
+      "code": "def fib(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n\nprint(fib(n))",
+      "data": {
+        "name": "n",
+        "value": 4
+      },
+      "trace_watch": [
+        "a",
+        "b"
+      ]
+    }
+  },
+  "model_restatement": "Return the n-th Fibonacci number, counting F(0) = 0 and F(1) = 1.",
+  "clarify": [
+    {
+      "keywords": [
+        "zero",
+        "n is 0",
+        "f(0)",
+        "f 0",
+        "what is f"
+      ],
+      "question": "What is F(0)?",
+      "answer": "0 — and F(1) is 1."
+    },
+    {
+      "keywords": [
+        "recursion",
+        "recursive",
+        "memo"
+      ],
+      "question": "Can I use recursion?",
+      "answer": "You can — here, roll two numbers forward; the seeds are the lesson."
+    },
+    {
+      "keywords": [
+        "negative",
+        "big",
+        "large"
+      ],
+      "question": "Could n be negative or huge?",
+      "answer": "No — 0 to 30."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start a and b at 1 and 1. Step them along n times (a, b = b, a + b). Return a.",
+  "draft_code": "def fib(n):\n    a, b = 1, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n\nprint(fib(n))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is a?",
+      "kind": "value",
+      "var": "a"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 6
+      },
+      "prompt": "After the sixth step, what is a?",
+      "kind": "value",
+      "var": "a"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is a?",
+      "kind": "value",
+      "var": "a"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "a and b start at 1, 1 — that's F(1) and F(2), not F(0) and F(1). Every step stays one place ahead, so after 6 steps a is F(7) = 13 instead of F(6) = 8.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Seeding with 1, 1 starts the race one lane ahead — every answer comes out as the NEXT Fibonacci number.",
+    "bridge": "F(0) is 0. What is a before any step — and which Fibonacci number is that?",
+    "fix": {
+      "rule": "Seed a, b = 0, 1 — F(0) and F(1) — so after k steps a is exactly F(k).",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "The first two Fibonacci numbers: F(0) = 0 and F(1) = 1."
+        },
+        {
+          "line": 3,
+          "gloss": "Take n steps."
+        },
+        {
+          "line": 4,
+          "gloss": "Step both along at once."
+        },
+        {
+          "line": 5,
+          "gloss": "a is now F(n)."
+        }
+      ],
+      "contrast": {
+        "wrong": "a, b = 1, 1",
+        "wrong_note": "starts one step ahead",
+        "right": "a, b = 0, 1",
+        "right_note": "F(0) and F(1)"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def fib(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n\nprint(fib(n))",
+    "alternatives": [
+      {
+        "code": "def fib(n):\n    if n < 2:\n        return n\n    return fib(n - 1) + fib(n - 2)\n\nprint(fib(n))",
+        "note": "The textbook recursion — correct, but it recomputes the same numbers again and again."
+      }
+    ],
+    "hints": [
+      "Before any step, which Fibonacci number is a?",
+      "F(0) is 0, not 1.",
+      "a, b = 0, 1"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 2
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "n": 3
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "n": 4
+      },
+      "expected": "3"
+    },
+    {
+      "input": {
+        "n": 6
+      },
+      "expected": "8"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: n = 2 — what is F(2)?",
+    "data": {
+      "name": "n",
+      "value": 2
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 2, what gets printed?"
+    },
+    "recommended": "def fib(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n\nprint(fib(n))",
+    "fix_hint": "Nothing to change — F(2) = 1 + 0 = 1."
+  },
+  "one_liner": "The seeds are the sequence's first two numbers — start at F(0) = 0 and F(1) = 1, or every answer lands one step too far along.",
+  "trace_watch": [
+    "a",
+    "b"
+  ]
+}

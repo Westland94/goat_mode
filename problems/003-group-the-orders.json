@@ -1,0 +1,82 @@
+{
+  "id": "003",
+  "skill": "grouping-into-lists",
+  "title": "Group the orders",
+  "scenario": "Orders come in as (customer, item) pairs. I need, per customer, the list of what they ordered.",
+  "data": { "name": "orders", "value": [["ana", "pen"], ["ben", "mug"], ["ana", "pad"], ["cy", "pen"], ["ana", "mug"]] },
+  "intro": {
+    "job": "Orders come in as (customer, item) pairs. I need, per customer, the list of what they ordered.",
+    "idea": {
+      "rule": "To group, keep one list per key and append to it — assigning a new list throws the old one away.",
+      "detail": "A group is a bag you keep adding to. The first time a key shows up there's no bag yet, so you put an empty one on the shelf; every time after, you add to the bag that's already there. setdefault(key, []) does both jobs: it hands you the existing list, or puts an empty one there first — then .append adds the item."
+    },
+    "watch": {
+      "code": "by_kind = {}\nfor kind, name in pets:\n    by_kind.setdefault(kind, []).append(name)\nprint(by_kind)",
+      "data": { "name": "pets", "value": [["dog", "rex"], ["cat", "tom"], ["dog", "fido"]] },
+      "trace_watch": ["kind", "name", "by_kind"]
+    }
+  },
+  "model_restatement": "Build a dict from customer to the list of items they ordered, keeping every order.",
+  "clarify": [
+    { "keywords": ["empty", "no orders", "none", "nothing", "zero orders"], "question": "What if there are no orders?", "answer": "Then return an empty dict." },
+    { "keywords": ["sort", "sorted", "sorting", "ordering", "in order", "output order", "what order", "which order", "order matter", "order matters", "same order"], "question": "Does order matter?", "answer": "Keep each customer's items in the order they came in. The customers themselves can be in any order." },
+    { "keywords": ["duplicate", "duplicates", "same item", "twice", "repeat", "repeats", "unique", "once"], "question": "What if someone orders the same item twice?", "answer": "Not in today's data — keep every order as it comes." },
+    { "keywords": ["count", "counts", "how many", "number"], "question": "Do you want counts, or the items?", "answer": "The items themselves, as a list per customer." },
+    { "keywords": ["counter", "collections", "library", "built-in", "builtin", "import", "defaultdict", "groupby", "itertools"], "question": "Can I use a library?", "answer": "In real work, sure. Here, write the loop — I want to see the mechanics." }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Make an empty dict. For each order, put the item in that customer's list. Print it.",
+  "draft_code": "groups = {}\nfor c, item in orders:\n    groups[c] = [item]\nprint(groups)",
+  "checkpoints": [
+    { "id": "P1", "phase": "draft", "at": { "line": 3, "iteration": 1 }, "prompt": "After iteration 1, what is groups?", "kind": "value", "var": "groups" },
+    { "id": "P2", "phase": "draft", "at": { "line": 3, "iteration": 3 }, "prompt": "Iteration 3 is ana's second order ('pad'). After it, what is groups?", "kind": "value", "var": "groups" },
+    { "id": "P3", "phase": "draft", "at": "end", "prompt": "What gets printed?", "kind": "value" },
+    { "id": "P4", "phase": "fixed", "at": { "line": 3, "iteration": 3 }, "prompt": "With the fix — after iteration 3, what is groups?", "kind": "value", "var": "groups" },
+    { "id": "P5", "phase": "fixed", "at": "end", "prompt": "What gets printed?", "kind": "value" }
+  ],
+  "why_line": "groups[c] = [item] builds a brand-new one-item list every time — so when 'pad' arrives, ana's ['pen'] is thrown away, not added to.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A group is a bag you keep adding to — groups[c] = [item] swaps in a new bag with one thing in it and throws the old bag away.",
+    "bridge": "So what would put 'pad' into the bag ana already has, instead of replacing it?",
+    "fix": {
+      "rule": "setdefault(c, []) hands you the customer's existing list — or shelves an empty one first — and .append adds to it.",
+      "walk": [
+        { "line": 1, "gloss": "Start with an empty dict — no bags on the shelf yet." },
+        { "line": 2, "gloss": "Take the next (customer, item) pair." },
+        { "line": 3, "gloss": "Get that customer's list (making an empty one if it's their first order), then add the item to the end." },
+        { "line": 4, "gloss": "Once every order is in a bag, show the dict." }
+      ],
+      "contrast": {
+        "wrong": "groups[c] = [item]", "wrong_note": "replaces the list every time",
+        "right": "groups.setdefault(c, []).append(item)", "right_note": "adds to the list that's there"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "groups = {}\nfor c, item in orders:\n    groups.setdefault(c, []).append(item)\nprint(groups)",
+    "alternatives": [
+      { "code": "groups = {}\nfor c, item in orders:\n    if c not in groups:\n        groups[c] = []\n    groups[c].append(item)\nprint(groups)", "note": "Same idea, spelled out." },
+      { "code": "from collections import defaultdict\ngroups = defaultdict(list)\nfor c, item in orders:\n    groups[c].append(item)\nprint(dict(groups))", "note": "defaultdict(list) — a dict that shelves an empty list for any new key by itself." }
+    ],
+    "hints": [
+      "Watch ana's list on iteration 3. Where did 'pen' go?",
+      "= [item] makes a fresh list every time. You want to add to the list that's already there.",
+      "groups.setdefault(c, []).append(item)"
+    ]
+  },
+  "checks": [
+    { "input": { "orders": [] }, "expected": "{}" },
+    { "input": { "orders": [["ana", "pen"], ["ben", "mug"], ["ana", "pad"], ["cy", "pen"], ["ana", "mug"]] }, "expected": "{'ana': ['pen', 'pad', 'mug'], 'ben': ['mug'], 'cy': ['pen']}" },
+    { "input": { "orders": [["dee", "cup"]] }, "expected": "{'dee': ['cup']}" }
+  ],
+  "follow_up": {
+    "prompt": "What if I only need each item once per customer?",
+    "data": { "name": "orders", "value": [["ana", "pen"], ["ana", "pen"], ["ben", "mug"], ["ana", "pad"]] },
+    "checkpoint": { "id": "F1", "at": "end", "kind": "value", "prompt": "With ana ordering 'pen' twice, what gets printed?" },
+    "recommended": "groups = {}\nfor c, item in orders:\n    items = groups.setdefault(c, [])\n    if item not in items:\n        items.append(item)\nprint(groups)",
+    "fix_hint": "Before you append, check whether the item is already in that customer's list."
+  },
+  "one_liner": "Assign replaces; append adds — a group is a list you keep adding to.",
+  "trace_watch": ["c", "item", "groups"]
+}

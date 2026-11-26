@@ -1,0 +1,304 @@
+{
+  "id": "090",
+  "skill": "dict-accumulation",
+  "title": "Points per player",
+  "scenario": "A game logs (player, points) pairs. Total the points per player.",
+  "data": {
+    "name": "plays",
+    "value": [
+      [
+        "ana",
+        3
+      ],
+      [
+        "ben",
+        2
+      ],
+      [
+        "ana",
+        1
+      ],
+      [
+        "cy",
+        4
+      ]
+    ]
+  },
+  "intro": {
+    "job": "A game logs (player, points) pairs. Total the points per player.",
+    "idea": {
+      "rule": "You can't add to nothing — start the total at zero with .get(name, 0).",
+      "detail": "points[name] += pts means points[name] = points[name] + pts — and the first time you meet a player, points[name] doesn't exist yet, so there's nothing to add to. .get(name, 0) hands back the total — or 0 the first time — so the add always has something to add to."
+    },
+    "watch": {
+      "code": "totals = {}\nfor who, pts in rounds:\n    totals[who] = totals.get(who, 0) + pts\nprint(totals)",
+      "data": {
+        "name": "rounds",
+        "value": [
+          [
+            "di",
+            2
+          ],
+          [
+            "ev",
+            3
+          ],
+          [
+            "di",
+            1
+          ]
+        ]
+      },
+      "trace_watch": [
+        "who",
+        "pts",
+        "totals"
+      ]
+    }
+  },
+  "model_restatement": "Add up each player's points across all their rounds and print the totals.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no rounds",
+        "none",
+        "nothing"
+      ],
+      "question": "What if there are no rounds?",
+      "answer": "Then an empty dict."
+    },
+    {
+      "keywords": [
+        "negative",
+        "minus",
+        "penalty",
+        "lose"
+      ],
+      "question": "Can points be negative?",
+      "answer": "Yes — a penalty round just subtracts."
+    },
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "in order",
+        "sorted"
+      ],
+      "question": "Does output order matter?",
+      "answer": "No — any order is fine."
+    },
+    {
+      "keywords": [
+        "more than once",
+        "twice",
+        "repeat",
+        "again"
+      ],
+      "question": "Can a player show up more than once?",
+      "answer": "Yes — that's the whole point."
+    },
+    {
+      "keywords": [
+        "library",
+        "defaultdict",
+        "collections",
+        "import"
+      ],
+      "question": "Can I use a library?",
+      "answer": "Yes — defaultdict(int) works too."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Make an empty dict. For each round, add the points to that player's total. Print it.",
+  "draft_code": "points = {}\nfor name, pts in plays:\n    points[name] += pts\nprint(points)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is pts?",
+      "kind": "value",
+      "var": "pts"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "What happens on line 3, that first time?",
+      "kind": "outcome",
+      "choices": [
+        {
+          "label": "points becomes {'ana': 3}",
+          "match": {
+            "var": "points",
+            "value": "{'ana': 3}"
+          }
+        },
+        {
+          "label": "points becomes {'ana': 0}",
+          "match": {
+            "var": "points",
+            "value": "{'ana': 0}"
+          }
+        },
+        {
+          "label": "an error",
+          "match": {
+            "error": true
+          },
+          "ask_which": true
+        },
+        {
+          "label": "nothing happens",
+          "match": {
+            "unchanged": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "After iteration 3, what is points?",
+      "kind": "value",
+      "var": "points"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "points[name] += pts means points[name] = points[name] + pts — and points['ana'] doesn't exist yet.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The first time you meet a player, there IS no total yet — += tries to read it before it exists.",
+    "bridge": "So what puts a zero in points['ana'] before the first add?",
+    "fix": {
+      "rule": "points.get(name, 0) hands back the total — or 0 the first time — so the add always has something to add to.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Start with an empty dict."
+        },
+        {
+          "line": 2,
+          "gloss": "Take each round in turn."
+        },
+        {
+          "line": 3,
+          "gloss": "Add the points to that player's total, starting from 0 the first time."
+        },
+        {
+          "line": 4,
+          "gloss": "Show the totals."
+        }
+      ],
+      "contrast": {
+        "wrong": "points[name] += pts",
+        "wrong_note": "reads a total that isn't there yet",
+        "right": "points[name] = points.get(name, 0) + pts",
+        "right_note": "starts from 0 the first time"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "points = {}\nfor name, pts in plays:\n    points[name] = points.get(name, 0) + pts\nprint(points)",
+    "alternatives": [
+      {
+        "code": "points = {}\nfor name, pts in plays:\n    if name not in points:\n        points[name] = 0\n    points[name] += pts\nprint(points)",
+        "note": "Say the zero out loud first — also fine."
+      },
+      {
+        "code": "from collections import defaultdict\npoints = defaultdict(int)\nfor name, pts in plays:\n    points[name] += pts\nprint(dict(points))",
+        "note": "Let the dict supply the zero for you."
+      }
+    ],
+    "hints": [
+      "The first time you meet a player, what is points[name]?",
+      "There's no total yet — += has nothing to add to.",
+      "points[name] = points.get(name, 0) + pts"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "plays": []
+      },
+      "expected": "{}"
+    },
+    {
+      "input": {
+        "plays": [
+          [
+            "ana",
+            3
+          ],
+          [
+            "ben",
+            2
+          ],
+          [
+            "ana",
+            1
+          ],
+          [
+            "cy",
+            4
+          ]
+        ]
+      },
+      "expected": "{'ana': 4, 'ben': 2, 'cy': 4}"
+    },
+    {
+      "input": {
+        "plays": [
+          [
+            "dee",
+            5
+          ]
+        ]
+      },
+      "expected": "{'dee': 5}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One round, zero points: [['ana', 0]] — what gets printed?",
+    "data": {
+      "name": "plays",
+      "value": [
+        [
+          "ana",
+          0
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With plays = [['ana', 0]], what gets printed?"
+    },
+    "recommended": "points = {}\nfor name, pts in plays:\n    points[name] = points.get(name, 0) + pts\nprint(points)",
+    "fix_hint": "Nothing to change — a zero round still needs the .get, or the first add has nothing to add to."
+  },
+  "one_liner": "You can't add to nothing — start the total at zero with .get(name, 0).",
+  "trace_watch": [
+    "name",
+    "pts",
+    "points"
+  ]
+}

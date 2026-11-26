@@ -1,0 +1,189 @@
+{
+  "id": "023",
+  "skill": "classes",
+  "title": "A jar object",
+  "scenario": "Two jars, A and B. Add n cookies to A only, then print both counts.",
+  "data": {
+    "name": "n",
+    "value": 3
+  },
+  "intro": {
+    "job": "Two jars, A and B. Add n cookies to A only, then print both counts.",
+    "idea": {
+      "rule": "Class attributes are the shared whiteboard; self. attributes are each jar's own label — write on the wrong one and everyone sees it.",
+      "detail": "Anything set directly in the class body (count = 0) belongs to the class — every jar reads the same one. self.count = 0 inside __init__ runs once per new jar and gives THAT jar its own count. Inside a method, self.count means 'this jar's count'; Jar.count means 'the shared one'."
+    },
+    "watch": {
+      "code": "class Jar:\n    def __init__(self):\n        self.count = 0\n    def add(self, n):\n        self.count += n\na = Jar()\nb = Jar()\na.add(k)\na_count = a.count\nb_count = b.count\nprint((a_count, b_count))",
+      "data": {
+        "name": "k",
+        "value": 2
+      },
+      "trace_watch": [
+        "a_count",
+        "b_count"
+      ]
+    }
+  },
+  "model_restatement": "Make two jars, add cookies to jar A only, and show both counts — B should still be 0.",
+  "clarify": [
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "begin",
+        "empty jar"
+      ],
+      "question": "What does a jar start with?",
+      "answer": "Every jar starts empty: 0 cookies."
+    },
+    {
+      "keywords": [
+        "remove",
+        "take",
+        "eat",
+        "negative"
+      ],
+      "question": "Can you take cookies out?",
+      "answer": "Not today — only add."
+    },
+    {
+      "keywords": [
+        "format",
+        "print",
+        "output",
+        "both"
+      ],
+      "question": "What should I print?",
+      "answer": "Both counts, as (A's count, B's count)."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "A Jar has a count that starts at 0, and add puts n more in. Make jars A and B, add n to A, and print both counts.",
+  "draft_code": "class Jar:\n    count = 0\n    def add(self, n):\n        Jar.count += n\na = Jar()\nb = Jar()\na.add(n)\na_count = a.count\nb_count = b.count\nprint((a_count, b_count))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 8,
+        "iteration": 0
+      },
+      "prompt": "After line 8, what is a_count?",
+      "kind": "value",
+      "var": "a_count"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 9,
+        "iteration": 0
+      },
+      "prompt": "After line 9, what is b_count?",
+      "kind": "value",
+      "var": "b_count"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 10,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 10, what is b_count?",
+      "kind": "value",
+      "var": "b_count"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "count lives on the class and add changes Jar.count — there's only one count, shared by every jar, so B reads the 3 too.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Jar.count is the whiteboard in the kitchen: write 3 on it for jar A, and jar B — reading the same board — says 3 as well.",
+    "bridge": "So where should each jar keep its own count?",
+    "fix": {
+      "rule": "self.count = 0 in __init__ gives each new jar its own label; self.count += n writes only on this jar's label.",
+      "walk": [
+        {
+          "line": 6,
+          "gloss": "Make jar A — __init__ gives it its own count of 0."
+        },
+        {
+          "line": 7,
+          "gloss": "Make jar B — its own count of 0 too."
+        },
+        {
+          "line": 8,
+          "gloss": "Add n to A's count only."
+        },
+        {
+          "line": 10,
+          "gloss": "Read B's own count — still 0."
+        }
+      ],
+      "contrast": {
+        "wrong": "Jar.count += n",
+        "wrong_note": "the shared whiteboard",
+        "right": "self.count += n",
+        "right_note": "this jar's own label"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "class Jar:\n    def __init__(self):\n        self.count = 0\n    def add(self, n):\n        self.count += n\na = Jar()\nb = Jar()\na.add(n)\na_count = a.count\nb_count = b.count\nprint((a_count, b_count))",
+    "alternatives": [],
+    "hints": [
+      "After line 9, what is b_count — and why would B have cookies?",
+      "count is set on the class, and add changes Jar.count — one count for everyone.",
+      "Give each jar self.count = 0 in __init__, and add to self.count."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 3
+      },
+      "expected": "(3, 0)"
+    },
+    {
+      "input": {
+        "n": 5
+      },
+      "expected": "(5, 0)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Add 1 to jar A — does B change?",
+    "data": {
+      "name": "n",
+      "value": 1
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 1, what gets printed?"
+    },
+    "recommended": "class Jar:\n    def __init__(self):\n        self.count = 0\n    def add(self, n):\n        self.count += n\na = Jar()\nb = Jar()\na.add(n)\na_count = a.count\nb_count = b.count\nprint((a_count, b_count))",
+    "fix_hint": "B should still be 0 — if B shows 1, the count is shared, not each jar's own."
+  },
+  "one_liner": "Class attributes are the shared whiteboard; self. attributes are each jar's own label — write on the wrong one and everyone sees it.",
+  "trace_watch": [
+    "a_count",
+    "b_count"
+  ]
+}

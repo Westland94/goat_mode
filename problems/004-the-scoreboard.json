@@ -1,0 +1,235 @@
+{
+  "id": "004",
+  "skill": "variables-assignment",
+  "title": "The scoreboard",
+  "scenario": "Track a player's score across plays. Each play adds its points.",
+  "data": {
+    "name": "plays",
+    "value": [
+      5,
+      3,
+      2
+    ]
+  },
+  "intro": {
+    "job": "Track a player's score across plays. Each play adds its points.",
+    "idea": {
+      "rule": "Assignment replaces; += adds — a scoreboard that forgets is just the last play.",
+      "detail": "A variable is a box that holds one value. score = points empties the box and drops the new value in — the old score is gone. score += points reads what's in the box, adds to it, and puts the sum back, so the total keeps growing."
+    },
+    "watch": {
+      "code": "total = 0\nfor pts in demo:\n    total += pts\nprint(total)",
+      "data": {
+        "name": "demo",
+        "value": [
+          2,
+          4
+        ]
+      },
+      "trace_watch": [
+        "pts",
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Add up every play's points into one running score.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no plays",
+        "none",
+        "nothing",
+        "zero plays"
+      ],
+      "question": "What if there are no plays?",
+      "answer": "Then the score is 0."
+    },
+    {
+      "keywords": [
+        "negative",
+        "negatives",
+        "minus",
+        "penalty",
+        "penalties",
+        "lose points"
+      ],
+      "question": "Can a play be negative?",
+      "answer": "Not today — every play is worth something."
+    },
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "begin",
+        "initial"
+      ],
+      "question": "What does the score start at?",
+      "answer": "Everyone starts at 0."
+    },
+    {
+      "keywords": [
+        "sum",
+        "library",
+        "builtin",
+        "built-in",
+        "import"
+      ],
+      "question": "Can I just use sum()?",
+      "answer": "In real work, sure. Here, write the loop — I want to see the mechanics."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start the score at 0. For each play, put its points on the scoreboard. Print the score.",
+  "draft_code": "score = 0\nfor points in plays:\n    score = points\nprint(score)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1, what is score?",
+      "kind": "value",
+      "var": "score"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "After iteration 2 (a 3-point play), what is score?",
+      "kind": "value",
+      "var": "score"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "With the fix — after iteration 2, what is score?",
+      "kind": "value",
+      "var": "score"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "score = points throws the old score away and keeps only this play's points — so the 5 vanishes when the 3 arrives.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A scoreboard you rewrite every play only ever shows the last play — score = points wipes the board and writes 3.",
+    "bridge": "So what would add the 3 to the 5 that's already on the board?",
+    "fix": {
+      "rule": "score += points means score = score + points: read the board, add the play, write the sum back.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The board starts at 0."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next play's points."
+        },
+        {
+          "line": 3,
+          "gloss": "Read the board, add the points, write the new total back."
+        },
+        {
+          "line": 4,
+          "gloss": "After every play, show the final score."
+        }
+      ],
+      "contrast": {
+        "wrong": "score = points",
+        "wrong_note": "replaces the total",
+        "right": "score += points",
+        "right_note": "adds to the total"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "score = 0\nfor points in plays:\n    score += points\nprint(score)",
+    "alternatives": [
+      {
+        "code": "score = 0\nfor points in plays:\n    score = score + points\nprint(score)",
+        "note": "The same thing, spelled out."
+      },
+      {
+        "code": "print(sum(plays))",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "Watch score on iteration 2. Where did the 5 go?",
+      "= puts a new value in the box and throws the old one out. You want to add to what's there.",
+      "score += points"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "plays": [
+          5,
+          3,
+          2
+        ]
+      },
+      "expected": "10"
+    },
+    {
+      "input": {
+        "plays": []
+      },
+      "expected": "0"
+    },
+    {
+      "input": {
+        "plays": [
+          7
+        ]
+      },
+      "expected": "7"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A penalty play is worth -3. What changes?",
+    "data": {
+      "name": "plays",
+      "value": [
+        5,
+        -3,
+        2
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With a -3 penalty play, what gets printed?"
+    },
+    "recommended": "score = 0\nfor points in plays:\n    score += points\nprint(score)",
+    "fix_hint": "Nothing structural — adding a negative number just takes points off."
+  },
+  "one_liner": "Assignment replaces; += adds — a scoreboard that forgets is just the last play.",
+  "trace_watch": [
+    "points",
+    "score"
+  ]
+}

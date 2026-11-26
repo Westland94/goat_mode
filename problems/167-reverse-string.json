@@ -1,0 +1,225 @@
+{
+  "id": "167",
+  "skill": "two-pointers-reverse",
+  "title": "Reverse String",
+  "section": "leetcode",
+  "lc": {
+    "number": 344,
+    "title": "Reverse String",
+    "difficulty": "Easy",
+    "slug": "reverse-string"
+  },
+  "scenario": "You get a list of characters s. Reverse it in place — change the list you were given, return nothing.\n\nExample 1:\nInput: s = [\"h\", \"e\", \"l\", \"l\", \"o\"]\nOutput: [\"o\", \"l\", \"l\", \"e\", \"h\"]\n\nExample 2:\nInput: s = [\"a\", \"b\"]\nOutput: [\"b\", \"a\"]\n\nExample 3:\nInput: s = [\"x\"]\nOutput: [\"x\"]\n\nConstraints:\n1 <= len(s) <= 100000\nEach s[i] is a printable character.\n\nWrite: def reverse_string(s) — it returns nothing; the driver calls it on s = [\"h\", \"e\", \"l\", \"l\", \"o\"] and then prints s.",
+  "data": {
+    "name": "s",
+    "value": [
+      "h",
+      "e",
+      "l",
+      "l",
+      "o"
+    ]
+  },
+  "intro": {
+    "job": "You get a list of characters s. Reverse it in place — change the list you were given, return nothing.\n\nExample 1:\nInput: s = [\"h\", \"e\", \"l\", \"l\", \"o\"]\nOutput: [\"o\", \"l\", \"l\", \"e\", \"h\"]\n\nExample 2:\nInput: s = [\"a\", \"b\"]\nOutput: [\"b\", \"a\"]\n\nExample 3:\nInput: s = [\"x\"]\nOutput: [\"x\"]\n\nConstraints:\n1 <= len(s) <= 100000\nEach s[i] is a printable character.\n\nWrite: def reverse_string(s) — it returns nothing; the driver calls it on s = [\"h\", \"e\", \"l\", \"l\", \"o\"] and then prints s.",
+    "idea": {
+      "rule": "In place means changing the list you were handed — making a new list and pointing your own name at it changes nothing for the caller.",
+      "detail": "This is problem 039 (Flip the word) with a twist: you must change the caller's list itself. s[::-1] builds a brand-new reversed list, and s = ... just points the function's own name at it — the caller's list is untouched. Instead swap ends in place with two pointers: s[left] and s[right] trade places, then both step inward until they meet."
+    },
+    "watch": {
+      "code": "def reverse_string(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        s[left], s[right] = s[right], s[left]\n        left += 1\n        right -= 1\n\nreverse_string(s)\nprint(s)",
+      "data": {
+        "name": "s",
+        "value": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "trace_watch": [
+        "left",
+        "right",
+        "s"
+      ]
+    }
+  },
+  "model_restatement": "Reverse the list of characters in place, without returning anything.",
+  "clarify": [
+    {
+      "keywords": [
+        "return",
+        "returns"
+      ],
+      "question": "Should the function return the reversed list?",
+      "answer": "No — return nothing; change s itself."
+    },
+    {
+      "keywords": [
+        "new list",
+        "copy",
+        "extra"
+      ],
+      "question": "Can I build a new list?",
+      "answer": "No — reverse the given list in place."
+    },
+    {
+      "keywords": [
+        "one",
+        "single"
+      ],
+      "question": "What about a list with one character?",
+      "answer": "It's already reversed — leave it as it is."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Reverse s with slicing inside the function: s = s[::-1].",
+  "draft_code": "def reverse_string(s):\n    s = s[::-1]\n\nreverse_string(s)\nprint(s)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "Inside the function: after line 2, what is s?",
+      "kind": "value",
+      "var": "s"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "Back at the driver: what gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — pass 1: after the swap, what is s?",
+      "kind": "value",
+      "var": "s"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Inside the function s IS reversed — but s = s[::-1] only points the function's own name at a new list. The caller's list was never touched, so the driver prints the original.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Rebinding the name is writing the answer on your own copy of the worksheet — the one on the teacher's desk never changes.",
+    "bridge": "Inside the function, s was ['o', 'l', 'l', 'e', 'h']. Why does the driver still print 'h' first?",
+    "fix": {
+      "rule": "Swap in place with two pointers: s[left] and s[right] trade places, then both move inward.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "One pointer at each end."
+        },
+        {
+          "line": 3,
+          "gloss": "Until they meet in the middle."
+        },
+        {
+          "line": 4,
+          "gloss": "Swap — this writes into the caller's list."
+        },
+        {
+          "line": 5,
+          "gloss": "Step inward..."
+        },
+        {
+          "line": 6,
+          "gloss": "...from both ends."
+        }
+      ],
+      "contrast": {
+        "wrong": "s = s[::-1]",
+        "wrong_note": "a new list under the local name",
+        "right": "s[left], s[right] = s[right], s[left]",
+        "right_note": "changes the caller's list"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def reverse_string(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        s[left], s[right] = s[right], s[left]\n        left += 1\n        right -= 1\n\nreverse_string(s)\nprint(s)",
+    "alternatives": [
+      {
+        "code": "def reverse_string(s):\n    for i in range(len(s) // 2):\n        s[i], s[-i - 1] = s[-i - 1], s[i]\n\nreverse_string(s)\nprint(s)",
+        "note": "Swap position i with its mirror s[-i - 1] for each i in the first half — same in-place swaps, one index."
+      }
+    ],
+    "hints": [
+      "Inside the function s looks reversed. What does the driver print?",
+      "s = s[::-1] makes a new list and points the local name at it — the caller's list is untouched.",
+      "left, right = 0, len(s) - 1; while left < right: s[left], s[right] = s[right], s[left]; left += 1; right -= 1"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "s": [
+          "h",
+          "e",
+          "l",
+          "l",
+          "o"
+        ]
+      },
+      "expected": "['o', 'l', 'l', 'e', 'h']"
+    },
+    {
+      "input": {
+        "s": [
+          "a",
+          "b"
+        ]
+      },
+      "expected": "['b', 'a']"
+    },
+    {
+      "input": {
+        "s": [
+          "x"
+        ]
+      },
+      "expected": "['x']"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: s = [\"H\", \"a\", \"n\", \"n\", \"a\", \"h\"] — what does your code print?",
+    "data": {
+      "name": "s",
+      "value": [
+        "H",
+        "a",
+        "n",
+        "n",
+        "a",
+        "h"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def reverse_string(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        s[left], s[right] = s[right], s[left]\n        left += 1\n        right -= 1\n\nreverse_string(s)\nprint(s)",
+    "fix_hint": "The swaps change the caller's list: ['h', 'a', 'n', 'n', 'a', 'H']."
+  },
+  "one_liner": "In place means changing the list you were handed — making a new list and pointing your own name at it changes nothing for the caller.",
+  "trace_watch": [
+    "s",
+    "left",
+    "right"
+  ]
+}

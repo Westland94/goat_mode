@@ -1,0 +1,230 @@
+{
+  "id": "017",
+  "skill": "functions-return",
+  "title": "The total function",
+  "scenario": "Write a helper that totals a price list so the register can add tax on top.",
+  "data": {
+    "name": "prices",
+    "value": [
+      10,
+      5,
+      2
+    ]
+  },
+  "intro": {
+    "job": "Write a helper that totals a price list so the register can add tax on top.",
+    "idea": {
+      "rule": "print shows YOU the number; return hands it back — a function that only prints is a dead end.",
+      "detail": "print puts text on the screen for a human; the code that called the function gets nothing from it. return sends a value back to the caller, so bill = total(prices) actually holds the total. A function with no return hands back None — and None can't be added to anything."
+    },
+    "watch": {
+      "code": "def total(items):\n    s = 0\n    for p in items:\n        s += p\n    return s\nresult = total(nums)\nprint(result)",
+      "data": {
+        "name": "nums",
+        "value": [
+          1,
+          2
+        ]
+      },
+      "trace_watch": [
+        "s",
+        "result"
+      ]
+    }
+  },
+  "model_restatement": "Write a function that adds up the prices and gives the total back, so the register can use it for tax.",
+  "clarify": [
+    {
+      "keywords": [
+        "tax",
+        "rate",
+        "percent"
+      ],
+      "question": "What's the tax?",
+      "answer": "The register adds a tenth, rounded down — your job is just the total."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no prices",
+        "nothing"
+      ],
+      "question": "What if the list is empty?",
+      "answer": "Then the total is 0."
+    },
+    {
+      "keywords": [
+        "sum",
+        "builtin",
+        "built-in",
+        "library"
+      ],
+      "question": "Can I use sum()?",
+      "answer": "In real work, yes. Here, keep the loop — the question is how the number gets out."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Write total: add up the prices and show the total. Then print the bill and the bill with tax.",
+  "draft_code": "def total(items):\n    s = 0\n    for p in items:\n        s += p\n    print(s)\nbill = total(prices)\nwith_tax = bill + bill // 10\nprint((bill, with_tax))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": "after"
+      },
+      "prompt": "Inside total, after the loop — what is s?",
+      "kind": "value",
+      "var": "s"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": "after"
+      },
+      "prompt": "On the tax line (line 7), what is bill?",
+      "kind": "value",
+      "var": "bill"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": "after"
+      },
+      "prompt": "What happens on line 7?",
+      "kind": "outcome",
+      "choices": [
+        {
+          "label": "with_tax becomes 18",
+          "match": {
+            "var": "with_tax",
+            "value": "18"
+          }
+        },
+        {
+          "label": "with_tax becomes 17",
+          "match": {
+            "var": "with_tax",
+            "value": "17"
+          }
+        },
+        {
+          "label": "an error",
+          "match": {
+            "error": true
+          },
+          "ask_which": true
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — after line 7, what is with_tax?",
+      "kind": "value",
+      "var": "with_tax"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "total only prints s — it never returns it — so bill = total(prices) gets None, and None + None // 10 is a TypeError.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A function that prints is a cashier who reads the total out loud and then hands you an empty envelope — you heard 17, but bill is None.",
+    "bridge": "So what would put the 17 in the envelope?",
+    "fix": {
+      "rule": "return s hands the total back to whoever called total — so bill really is 17.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Start the running total at 0."
+        },
+        {
+          "line": 3,
+          "gloss": "Take each price."
+        },
+        {
+          "line": 4,
+          "gloss": "Add it to the running total."
+        },
+        {
+          "line": 5,
+          "gloss": "Hand the total back to the caller."
+        }
+      ],
+      "contrast": {
+        "wrong": "print(s)",
+        "wrong_note": "shows it, hands back None",
+        "right": "return s",
+        "right_note": "hands the number back"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def total(items):\n    s = 0\n    for p in items:\n        s += p\n    return s\nbill = total(prices)\nwith_tax = bill + bill // 10\nprint((bill, with_tax))",
+    "alternatives": [
+      {
+        "code": "def total(items):\n    return sum(items)\nbill = total(prices)\nwith_tax = bill + bill // 10\nprint((bill, with_tax))",
+        "note": "sum() inside — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "On line 7, what is bill?",
+      "total prints the number but doesn't hand it back. What does a function with no return give?",
+      "Change print(s) to return s."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "prices": [
+          10,
+          5,
+          2
+        ]
+      },
+      "expected": "(17, 18)"
+    },
+    {
+      "input": {
+        "prices": []
+      },
+      "expected": "(0, 0)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "No prices at all: [] — what's the bill?",
+    "data": {
+      "name": "prices",
+      "value": []
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With prices = [], what gets printed?"
+    },
+    "recommended": "def total(items):\n    s = 0\n    for p in items:\n        s += p\n    return s\nbill = total(prices)\nwith_tax = bill + bill // 10\nprint((bill, with_tax))",
+    "fix_hint": "Nothing to change — an empty list totals 0, so the bill is (0, 0)."
+  },
+  "one_liner": "print shows YOU the number; return hands it back — a function that only prints is a dead end.",
+  "trace_watch": [
+    "s",
+    "bill",
+    "with_tax"
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "id": "113",
+  "skill": "recursion-fibonacci",
+  "title": "Rabbit pairs",
+  "scenario": "A rabbit pair has babies each month — as many pairs as the last two months put together. Month 1: 1 pair, month 2: 1 pair. How many pairs in month 7?",
+  "data": {
+    "name": "n",
+    "value": 7
+  },
+  "intro": {
+    "job": "A rabbit pair has babies each month — as many pairs as the last two months put together. Month 1: 1 pair, month 2: 1 pair. How many pairs in month 7?",
+    "idea": {
+      "rule": "Both branches count — fib(n) is fib(n-1) plus fib(n-2), not just one of them.",
+      "detail": "Each month's count is the two months before it added together: 1, 1, 2, 3, 5, 8, 13. So fib(n) calls itself TWICE — once for last month, once for the month before — and adds the two answers. The base case (months 1 and 2 are 1) stops the calls; both branches have to come back and be added, or the count never grows."
+    },
+    "watch": {
+      "code": "def fib(n):\n    if n <= 2:\n        return 1\n    return fib(n - 1) + fib(n - 2)\nanswer = fib(n)\nprint(answer)",
+      "data": {
+        "name": "n",
+        "value": 5
+      },
+      "trace_watch": [
+        "n",
+        "answer"
+      ]
+    }
+  },
+  "model_restatement": "Work out month n's count, where each month is the sum of the two months before it.",
+  "clarify": [
+    {
+      "keywords": [
+        "month 0",
+        "zero",
+        "start"
+      ],
+      "question": "Where does the count start?",
+      "answer": "Month 1 and month 2 both have 1 pair."
+    },
+    {
+      "keywords": [
+        "loop",
+        "fast",
+        "memo",
+        "big n"
+      ],
+      "question": "Does it need to be fast for big months?",
+      "answer": "Not today — n is small. Speed is the alternative's story."
+    },
+    {
+      "keywords": [
+        "negative",
+        "n is 1",
+        "small",
+        "smallest"
+      ],
+      "question": "What's the smallest n?",
+      "answer": "At least 1."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "fib(n) is built from the month before. Months 1 and 2 are 1. Print fib(n).",
+  "draft_code": "def fib(n):\n    if n <= 2:\n        return 1\n    return fib(n - 1)\nanswer = fib(n)\nprint(answer)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "When the base case first runs (line 3), what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 0
+      },
+      "prompt": "On the print line, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 0
+      },
+      "prompt": "With the fix — on the print line, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "return fib(n - 1) follows one branch all the way down to month 2 and hands back its 1 — nothing is ever added, so every month comes out as 1.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Counting only one branch is asking just one parent how many grandchildren there are — you get one family tree's worth, and the other half of the warren is never counted.",
+    "bridge": "Month 7 is month 6 plus which other month?",
+    "fix": {
+      "rule": "fib(n - 1) + fib(n - 2): both earlier months come back, and their counts are added.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Months 1 and 2..."
+        },
+        {
+          "line": 3,
+          "gloss": "...have 1 pair each — the base case."
+        },
+        {
+          "line": 4,
+          "gloss": "Any later month: last month plus the month before, both counted."
+        },
+        {
+          "line": 5,
+          "gloss": "Start the chain at month n."
+        }
+      ],
+      "contrast": {
+        "wrong": "return fib(n - 1)",
+        "wrong_note": "one branch only",
+        "right": "return fib(n - 1) + fib(n - 2)",
+        "right_note": "both branches added"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def fib(n):\n    if n <= 2:\n        return 1\n    return fib(n - 1) + fib(n - 2)\nanswer = fib(n)\nprint(answer)",
+    "alternatives": [
+      {
+        "code": "memo = {0: 0, 1: 1}\ndef fib(k):\n    if k not in memo:\n        memo[k] = fib(k - 1) + fib(k - 2)\n    return memo[k]\nprint(fib(n))",
+        "note": "Remember each month's count so you never count it twice — correct, and the fast way once the numbers get big."
+      }
+    ],
+    "hints": [
+      "Does the draft ever add two counts together?",
+      "Each month is the sum of the TWO months before it.",
+      "return fib(n - 1) + fib(n - 2)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 7
+      },
+      "expected": "13"
+    },
+    {
+      "input": {
+        "n": 6
+      },
+      "expected": "8"
+    },
+    {
+      "input": {
+        "n": 2
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What about month 8?",
+    "data": {
+      "name": "n",
+      "value": 8
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 8, what gets printed?"
+    },
+    "recommended": "def fib(n):\n    if n <= 2:\n        return 1\n    return fib(n - 1) + fib(n - 2)\nanswer = fib(n)\nprint(answer)",
+    "fix_hint": "Nothing to change — 13 + 8 = 21."
+  },
+  "one_liner": "Both branches count — fib(n) is fib(n-1) plus fib(n-2), not just one of them.",
+  "trace_watch": [
+    "n",
+    "answer"
+  ]
+}

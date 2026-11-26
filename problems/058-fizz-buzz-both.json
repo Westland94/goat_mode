@@ -1,0 +1,198 @@
+{
+  "id": "058",
+  "skill": "fizzbuzz",
+  "title": "Fizz, buzz, both",
+  "scenario": "Count out loud from 1 to 15 — say 'fizz' for a multiple of 3, 'buzz' for a multiple of 5, and 'fizzbuzz' when it's both.",
+  "data": {
+    "name": "n",
+    "value": 15
+  },
+  "intro": {
+    "job": "Count out loud from 1 to 15 — say 'fizz' for a multiple of 3, 'buzz' for a multiple of 5, and 'fizzbuzz' when it's both.",
+    "idea": {
+      "rule": "Check the both-case first — 15 is a multiple of 3, so the 3-check swallows it.",
+      "detail": "The elif waterfall again (009): only the first true branch runs. 15 is a multiple of 3 AND of 5 — so if 'multiple of 3?' is asked first, 15 answers yes, becomes 'fizz', and never reaches the question that would make it 'fizzbuzz'. Ask the strictest question — both — at the top."
+    },
+    "watch": {
+      "code": "for i in range(1, n + 1):\n    if i % 3 == 0 and i % 5 == 0:\n        word = \"fizzbuzz\"\n    elif i % 3 == 0:\n        word = \"fizz\"\n    elif i % 5 == 0:\n        word = \"buzz\"\n    else:\n        word = i\n    print(word)",
+      "data": {
+        "name": "n",
+        "value": 20
+      },
+      "trace_watch": [
+        "i",
+        "word"
+      ]
+    }
+  },
+  "model_restatement": "For 1 to n, print the number — or fizz, buzz, or fizzbuzz for multiples of 3, 5, or both.",
+  "clarify": [
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase",
+        "Fizz",
+        "capitalised"
+      ],
+      "question": "Capitalised?",
+      "answer": "All lowercase: fizz, buzz, fizzbuzz."
+    },
+    {
+      "keywords": [
+        "one line",
+        "same line",
+        "list",
+        "format",
+        "per line"
+      ],
+      "question": "One per line?",
+      "answer": "Yes — one word or number per line."
+    },
+    {
+      "keywords": [
+        "start at 0",
+        "zero",
+        "from 0"
+      ],
+      "question": "Start at 0 or 1?",
+      "answer": "Start at 1, up to and including n."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count from 1 to n. Multiples of 3 say fizz; otherwise multiples of 5 say buzz; otherwise say the number. (Both? Then it's fizzbuzz.) Print each.",
+  "draft_code": "for i in range(1, n + 1):\n    if i % 3 == 0:\n        word = \"fizz\"\n    elif i % 5 == 0:\n        word = \"buzz\"\n    else:\n        word = i\n    print(word)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3 (i = 3): after line 3, what is word?",
+      "kind": "value",
+      "var": "word"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 15
+      },
+      "prompt": "Iteration 15 (i = 15): after line 3, what is word?",
+      "kind": "value",
+      "var": "word"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 15
+      },
+      "prompt": "With the fix — iteration 15: after line 3, what is word?",
+      "kind": "value",
+      "var": "word"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 9
+      },
+      "prompt": "With the fix — iteration 9: after line 5, what is word?",
+      "kind": "value",
+      "var": "word"
+    }
+  ],
+  "why_line": "15 % 3 == 0 is True, so the first branch catches 15 as 'fizz' — the elif chain stops there, and nothing ever asks whether it's a multiple of both.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The 3-check is a bouncer at the front door: 15 is a multiple of 3, so it's waved in as 'fizz' before anyone checks it's a multiple of 5 too.",
+    "bridge": "Which question has to be asked first so that 15 gets its full name?",
+    "fix": {
+      "rule": "Ask 'multiple of both?' at the top — then 3-only, then 5-only, then the number.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Count from 1 to n."
+        },
+        {
+          "line": 2,
+          "gloss": "Strictest first: a multiple of 3 AND 5?"
+        },
+        {
+          "line": 3,
+          "gloss": "Then it's fizzbuzz — and the rest of the chain is skipped."
+        },
+        {
+          "line": 10,
+          "gloss": "Say it."
+        }
+      ],
+      "contrast": {
+        "wrong": "if i % 3 == 0:  (first)",
+        "wrong_note": "swallows 15",
+        "right": "if i % 3 == 0 and i % 5 == 0:  (first)",
+        "right_note": "15 becomes fizzbuzz"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "for i in range(1, n + 1):\n    if i % 3 == 0 and i % 5 == 0:\n        word = \"fizzbuzz\"\n    elif i % 3 == 0:\n        word = \"fizz\"\n    elif i % 5 == 0:\n        word = \"buzz\"\n    else:\n        word = i\n    print(word)",
+    "alternatives": [
+      {
+        "code": "for i in range(1, n + 1):\n    out = \"\"\n    if i % 3 == 0:\n        out += \"fizz\"\n    if i % 5 == 0:\n        out += \"buzz\"\n    print(out or i)",
+        "note": "Build the word from its parts — a multiple of both gets both halves."
+      }
+    ],
+    "hints": [
+      "Iteration 15: which branch catches i = 15 first?",
+      "elif stops at the first true branch, and 15 % 3 == 0 is already True.",
+      "Put the both-case first: if i % 3 == 0 and i % 5 == 0:"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 15
+      },
+      "expected": "1\n2\nfizz\n4\nbuzz\nfizz\n7\n8\nfizz\nbuzz\n11\nfizz\n13\n14\nfizzbuzz"
+    },
+    {
+      "input": {
+        "n": 20
+      },
+      "expected": "1\n2\nfizz\n4\nbuzz\nfizz\n7\n8\nfizz\nbuzz\n11\nfizz\n13\n14\nfizzbuzz\n16\n17\nfizz\n19\nbuzz"
+    },
+    {
+      "input": {
+        "n": 5
+      },
+      "expected": "1\n2\nfizz\n4\nbuzz"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Count to 30 — what gets said?",
+    "data": {
+      "name": "n",
+      "value": 30
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 30, what gets printed? (Space-separated is fine.)"
+    },
+    "recommended": "for i in range(1, n + 1):\n    if i % 3 == 0 and i % 5 == 0:\n        word = \"fizzbuzz\"\n    elif i % 3 == 0:\n        word = \"fizz\"\n    elif i % 5 == 0:\n        word = \"buzz\"\n    else:\n        word = i\n    print(word)",
+    "fix_hint": "Nothing to change — 15 and 30 both hit the both-case first."
+  },
+  "one_liner": "Check the both-case first — 15 is a multiple of 3, so the 3-check swallows it.",
+  "trace_watch": [
+    "i",
+    "word"
+  ]
+}

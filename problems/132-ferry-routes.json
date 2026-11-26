@@ -1,0 +1,367 @@
+{
+  "id": "132",
+  "skill": "graph-reachability",
+  "title": "Ferry routes",
+  "scenario": "Ferry stops are joined by one-way routes. Starting at the depot, can you reach the lighthouse?",
+  "data": {
+    "name": "trip",
+    "value": [
+      {
+        "depot": [
+          "market"
+        ],
+        "market": [
+          "harbor",
+          "cliff"
+        ],
+        "harbor": [
+          "depot",
+          "cove"
+        ],
+        "cove": [
+          "light"
+        ],
+        "light": [
+          "harbor"
+        ],
+        "cliff": []
+      },
+      "depot",
+      "light"
+    ]
+  },
+  "intro": {
+    "job": "Ferry stops are joined by one-way routes. Starting at the depot, can you reach the lighthouse?",
+    "idea": {
+      "rule": "The seen set is the memory — without it, the walk goes in circles forever.",
+      "detail": "The adjacency dict IS the map: each stop lists the stops its routes lead to. To ask 'can I get there?', walk from the start: if you're at the target, yes; otherwise try each route out, and ask the same question from there. But routes can loop back — harbor leads back to depot — and a walk with no memory follows the loop forever. Keep a set of the stops you've already been to, and never walk into one again."
+    },
+    "watch": {
+      "code": "def can_reach(graph, node, target, seen=None):\n    if seen is None:\n        seen = set()\n    if node == target:\n        return True\n    seen.add(node)\n    for nxt in graph[node]:\n        if nxt not in seen and can_reach(graph, nxt, target, seen):\n            return True\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+      "data": {
+        "name": "trip",
+        "value": [
+          {
+            "depot": [
+              "light"
+            ],
+            "light": []
+          },
+          "depot",
+          "light"
+        ]
+      },
+      "trace_watch": [
+        "node",
+        "seen"
+      ]
+    }
+  },
+  "model_restatement": "Say whether some chain of one-way routes leads from the start stop to the target stop.",
+  "clarify": [
+    {
+      "keywords": [
+        "loop",
+        "loops",
+        "cycle",
+        "circle",
+        "back"
+      ],
+      "question": "Can the routes loop back on themselves?",
+      "answer": "Yes — harbor leads back to depot. Your walk has to survive that."
+    },
+    {
+      "keywords": [
+        "unreachable",
+        "no way",
+        "can't reach",
+        "no route"
+      ],
+      "question": "What if there's no way to reach the target?",
+      "answer": "Then print False."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no routes",
+        "dead end"
+      ],
+      "question": "What about a stop with no routes out?",
+      "answer": "It's a dead end — like the cliff. Just try the next route."
+    },
+    {
+      "keywords": [
+        "shortest",
+        "fewest",
+        "path",
+        "which way"
+      ],
+      "question": "Do I need the shortest path or the actual route?",
+      "answer": "No — just whether you can get there: True or False."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "To reach the target from a stop: if this stop is the target, yes. Otherwise try each route out of it, and ask the same question from where it leads. If none works, no.",
+  "draft_code": "def can_reach(graph, node, target):\n    if node == target:\n        return True\n    for nxt in graph[node]:\n        if can_reach(graph, nxt, target):\n            return True\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "The first call reaches line 2. Which stop is node?",
+      "kind": "value",
+      "var": "node"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "The walk takes its first route. On the next call, which stop is node?",
+      "kind": "value",
+      "var": "node"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 1,
+        "occurrence": 1
+      },
+      "prompt": "With the fix — after the second stop is remembered, what is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft has no memory: depot → market → harbor → back to depot, and round again, forever. Python would stop it with a RecursionError; here the tracer stops it after 2000 steps — the lighthouse is never reached.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "A walk with no memory is a tourist with no map marks — at the harbor, the road back to the depot looks as good as any, so it goes round and round.",
+    "bridge": "The walk goes depot → market → harbor → depot. What would it need to know at the harbor to take the cove road instead?",
+    "fix": {
+      "rule": "Carry a seen set: add each stop as you leave it, and never walk into a stop that's already in it.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "The first call starts an empty memory..."
+        },
+        {
+          "line": 3,
+          "gloss": "...shared by every call after it."
+        },
+        {
+          "line": 6,
+          "gloss": "Remember this stop before walking on."
+        },
+        {
+          "line": 8,
+          "gloss": "Only walk to stops not already seen."
+        }
+      ],
+      "contrast": {
+        "wrong": "for nxt in graph[node]: if can_reach(...)",
+        "wrong_note": "follows the loop forever",
+        "right": "if nxt not in seen and can_reach(..., seen)",
+        "right_note": "each stop visited once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def can_reach(graph, node, target, seen=None):\n    if seen is None:\n        seen = set()\n    if node == target:\n        return True\n    seen.add(node)\n    for nxt in graph[node]:\n        if nxt not in seen and can_reach(graph, nxt, target, seen):\n            return True\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+    "alternatives": [
+      {
+        "code": "def can_reach(graph, start, target):\n    seen = {start}\n    todo = [start]\n    while todo:\n        node = todo.pop()\n        if node == target:\n            return True\n        for nxt in graph[node]:\n            if nxt not in seen:\n                seen.add(nxt)\n                todo.append(nxt)\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+        "note": "The same walk with an explicit to-do list instead of recursion — the seen set does the same job."
+      }
+    ],
+    "hints": [
+      "Follow the draft from depot. Where does the harbor's first route lead?",
+      "Nothing stops the walk from going back to a stop it has already visited.",
+      "Pass a seen set along: seen.add(node), and only walk to nxt if nxt not in seen."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "trip": [
+          {
+            "depot": [
+              "market"
+            ],
+            "market": [
+              "harbor",
+              "cliff"
+            ],
+            "harbor": [
+              "depot",
+              "cove"
+            ],
+            "cove": [
+              "light"
+            ],
+            "light": [
+              "harbor"
+            ],
+            "cliff": []
+          },
+          "depot",
+          "light"
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "trip": [
+          {
+            "depot": [
+              "market"
+            ],
+            "market": [
+              "harbor",
+              "cliff"
+            ],
+            "harbor": [
+              "cove"
+            ],
+            "cove": [
+              "light"
+            ],
+            "light": [
+              "harbor"
+            ],
+            "cliff": []
+          },
+          "depot",
+          "light"
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "trip": [
+          {
+            "depot": [
+              "market"
+            ],
+            "market": [
+              "harbor",
+              "cliff"
+            ],
+            "harbor": [
+              "depot",
+              "cove"
+            ],
+            "cove": [],
+            "light": [
+              "harbor"
+            ],
+            "cliff": []
+          },
+          "depot",
+          "light"
+        ]
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "The cove ferry wants the cliff — same map, start at the cove, target the cliff. What does your code print?",
+    "data": {
+      "name": "trip",
+      "value": [
+        {
+          "depot": [
+            "market"
+          ],
+          "market": [
+            "harbor",
+            "cliff"
+          ],
+          "harbor": [
+            "depot",
+            "cove"
+          ],
+          "cove": [
+            "light"
+          ],
+          "light": [
+            "harbor"
+          ],
+          "cliff": []
+        },
+        "cove",
+        "cliff"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the cove as the start and the cliff as the target, what gets printed?"
+    },
+    "recommended": "def can_reach(graph, node, target, seen=None):\n    if seen is None:\n        seen = set()\n    if node == target:\n        return True\n    seen.add(node)\n    for nxt in graph[node]:\n        if nxt not in seen and can_reach(graph, nxt, target, seen):\n            return True\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+    "fix_hint": "The seen set lets it walk past the loop — cove → light → harbor → depot → market → cliff."
+  },
+  "one_liner": "The seen set is the memory — without it, the walk goes in circles forever.",
+  "trace_watch": [
+    "node",
+    "seen"
+  ],
+  "stage": {
+    "device": "graph",
+    "map": "map:graph",
+    "graph": "graph",
+    "current": "node",
+    "seen": "seen",
+    "candidate": "nxt",
+    "target": "target",
+    "positions": {
+      "depot": [
+        300,
+        360
+      ],
+      "market": [
+        520,
+        220
+      ],
+      "harbor": [
+        760,
+        360
+      ],
+      "cliff": [
+        520,
+        520
+      ],
+      "cove": [
+        980,
+        200
+      ],
+      "light": [
+        1080,
+        430
+      ]
+    }
+  }
+}

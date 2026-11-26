@@ -1,0 +1,300 @@
+{
+  "id": "135",
+  "skill": "graph-adjacency",
+  "title": "Build the map",
+  "scenario": "The ferry company hands you its routes as a list of pairs. Build the map: each stop to the stops its routes lead to.",
+  "data": {
+    "name": "pairs",
+    "value": [
+      [
+        "depot",
+        "market"
+      ],
+      [
+        "market",
+        "harbor"
+      ],
+      [
+        "market",
+        "cliff"
+      ],
+      [
+        "harbor",
+        "depot"
+      ],
+      [
+        "cove",
+        "light"
+      ],
+      [
+        "light",
+        "harbor"
+      ]
+    ]
+  },
+  "intro": {
+    "job": "The ferry company hands you its routes as a list of pairs. Build the map: each stop to the stops its routes lead to.",
+    "idea": {
+      "rule": "The dict IS the map — each stop's list grows as you read the pairs.",
+      "detail": "In 132 the map arrived ready-made. Here you build it from a list of one-way routes, each a [from, to] pair. Each stop gets a list of the stops its routes lead to — and a stop with two routes out needs both in its list. So make each stop's list once, and append every new route to it. A stop that only appears as a target still belongs on the map, with an empty list."
+    },
+    "watch": {
+      "code": "def build_map(pairs):\n    graph = {}\n    for a, b in pairs:\n        if a not in graph:\n            graph[a] = []\n        graph[a].append(b)\n        if b not in graph:\n            graph[b] = []\n    return graph\n\nprint(build_map(pairs))",
+      "data": {
+        "name": "pairs",
+        "value": [
+          [
+            "depot",
+            "market"
+          ],
+          [
+            "market",
+            "light"
+          ]
+        ]
+      },
+      "trace_watch": [
+        "a",
+        "graph"
+      ]
+    }
+  },
+  "model_restatement": "Build the adjacency dict from a list of one-way routes: each stop maps to the list of stops its routes lead to.",
+  "clarify": [
+    {
+      "keywords": [
+        "two routes",
+        "more than one",
+        "several"
+      ],
+      "question": "What if a stop has two routes out?",
+      "answer": "Its list holds both, in the order the pairs give them — market goes to ['harbor', 'cliff']."
+    },
+    {
+      "keywords": [
+        "dead end",
+        "nowhere",
+        "no routes out"
+      ],
+      "question": "What about a dead end, a stop that goes nowhere?",
+      "answer": "It still gets a key, with an empty list — like the cliff: []."
+    },
+    {
+      "keywords": [
+        "only appears",
+        "only a target",
+        "never starts"
+      ],
+      "question": "What about a stop that only appears as a target?",
+      "answer": "It still belongs on the map — give it an empty list the first time you see it."
+    },
+    {
+      "keywords": [
+        "order",
+        "which way",
+        "direction"
+      ],
+      "question": "Which way does a pair point — what's the order?",
+      "answer": "Each pair is [from, to]: a one-way route from the first stop to the second."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start with an empty map. For each pair, set the first stop's routes to the second stop, and make sure the second stop is on the map too.",
+  "draft_code": "def build_map(pairs):\n    graph = {}\n    for a, b in pairs:\n        graph[a] = [b]\n        if b not in graph:\n            graph[b] = []\n    return graph\n\nprint(build_map(pairs))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "The first pass of the loop reads a pair. Which stop is a?",
+      "kind": "value",
+      "var": "a"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "On the second pass, after line 4 runs, what is graph?",
+      "kind": "value",
+      "var": "graph"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 3
+      },
+      "prompt": "With the fix — on the third pass, after the append, what is graph?",
+      "kind": "value",
+      "var": "graph"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft assigns graph[a] = [b] for every pair — so market's second route replaces its first, and the map says market goes only to cliff.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Assigning a fresh list is wiping a whiteboard: each new route for a stop erases the ones written before it.",
+    "bridge": "Market's first pair writes ['harbor']. What happens to that list when market's second pair comes along?",
+    "fix": {
+      "rule": "Make each stop's list once, then append to it: graph[a].append(b) keeps every route.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "Only a stop seen for the first time gets a new list."
+        },
+        {
+          "line": 6,
+          "gloss": "Add the route to the list that's already there."
+        },
+        {
+          "line": 7,
+          "gloss": "A stop that's only a target..."
+        },
+        {
+          "line": 8,
+          "gloss": "...still gets an empty list."
+        }
+      ],
+      "contrast": {
+        "wrong": "graph[a] = [b]",
+        "wrong_note": "replaces earlier routes",
+        "right": "graph[a].append(b)",
+        "right_note": "keeps every route"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def build_map(pairs):\n    graph = {}\n    for a, b in pairs:\n        if a not in graph:\n            graph[a] = []\n        graph[a].append(b)\n        if b not in graph:\n            graph[b] = []\n    return graph\n\nprint(build_map(pairs))",
+    "alternatives": [
+      {
+        "code": "def build_map(pairs):\n    graph = {}\n    for a, b in pairs:\n        graph.setdefault(a, []).append(b)\n        graph.setdefault(b, [])\n    return graph\n\nprint(build_map(pairs))",
+        "note": "setdefault makes the list only if the stop isn't there yet, and hands back the list either way — one line per stop."
+      }
+    ],
+    "hints": [
+      "Follow market: what is graph['market'] after its first pair, and after its second?",
+      "graph[a] = [b] makes a brand-new list every time — the old one is thrown away.",
+      "Make the list once (if a not in graph: graph[a] = []), then graph[a].append(b)."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pairs": [
+          [
+            "depot",
+            "market"
+          ],
+          [
+            "market",
+            "harbor"
+          ],
+          [
+            "market",
+            "cliff"
+          ],
+          [
+            "harbor",
+            "depot"
+          ],
+          [
+            "cove",
+            "light"
+          ],
+          [
+            "light",
+            "harbor"
+          ]
+        ]
+      },
+      "expected": "{'depot': ['market'], 'market': ['harbor', 'cliff'], 'harbor': ['depot'], 'cliff': [], 'cove': ['light'], 'light': ['harbor']}"
+    },
+    {
+      "input": {
+        "pairs": [
+          [
+            "pier",
+            "bay"
+          ],
+          [
+            "pier",
+            "dock"
+          ],
+          [
+            "bay",
+            "dock"
+          ]
+        ]
+      },
+      "expected": "{'pier': ['bay', 'dock'], 'bay': ['dock'], 'dock': []}"
+    },
+    {
+      "input": {
+        "pairs": [
+          [
+            "depot",
+            "market"
+          ]
+        ]
+      },
+      "expected": "{'depot': ['market'], 'market': []}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New route list, same job — build the map.",
+    "data": {
+      "name": "pairs",
+      "value": [
+        [
+          "market",
+          "harbor"
+        ],
+        [
+          "market",
+          "cove"
+        ],
+        [
+          "harbor",
+          "light"
+        ],
+        [
+          "cove",
+          "light"
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new route list, what gets printed?"
+    },
+    "recommended": "def build_map(pairs):\n    graph = {}\n    for a, b in pairs:\n        if a not in graph:\n            graph[a] = []\n        graph[a].append(b)\n        if b not in graph:\n            graph[b] = []\n    return graph\n\nprint(build_map(pairs))",
+    "fix_hint": "Market keeps both its routes: ['harbor', 'cove']."
+  },
+  "one_liner": "A stop's list grows — assigning a fresh list throws the earlier routes away.",
+  "trace_watch": [
+    "a",
+    "graph"
+  ]
+}

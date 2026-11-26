@@ -1,0 +1,205 @@
+{
+  "id": "147",
+  "skill": "dp-climbing-stairs",
+  "title": "Climbing Stairs",
+  "section": "leetcode",
+  "lc": {
+    "number": 70,
+    "title": "Climbing Stairs",
+    "difficulty": "Easy",
+    "slug": "climbing-stairs"
+  },
+  "scenario": "You're climbing a staircase with n steps, taking either 1 or 2 steps at a time. Return how many different ways there are to reach the top.\n\nExample 1:\nInput: n = 2\nOutput: 2\nWhy: 1 + 1, or 2.\n\nExample 2:\nInput: n = 3\nOutput: 3\nWhy: 1 + 1 + 1, 1 + 2, or 2 + 1.\n\nConstraints:\n1 <= n <= 45\n\nWrite: def climb_stairs(n) — the driver calls it on n = 5 and prints the result.",
+  "data": {
+    "name": "n",
+    "value": 5
+  },
+  "intro": {
+    "job": "You're climbing a staircase with n steps, taking either 1 or 2 steps at a time. Return how many different ways there are to reach the top.\n\nExample 1:\nInput: n = 2\nOutput: 2\nWhy: 1 + 1, or 2.\n\nExample 2:\nInput: n = 3\nOutput: 3\nWhy: 1 + 1 + 1, 1 + 2, or 2 + 1.\n\nConstraints:\n1 <= n <= 45\n\nWrite: def climb_stairs(n) — the driver calls it on n = 5 and prints the result.",
+    "idea": {
+      "rule": "Each step comes from the two BEFORE it — update both from the old values at once.",
+      "detail": "This is problem 053 (Climb the stairs) in interview format. To reach step i your last move was a 1-step (from i - 1) or a 2-step (from i - 2), so ways(i) = ways(i - 1) + ways(i - 2). Roll forward with just two numbers, a and b — and move them together: a, b = b, a + b reads the OLD a and b on the right before either changes. Split into two lines, the second line reads a number that already moved."
+    },
+    "watch": {
+      "code": "def climb_stairs(n):\n    a, b = 1, 1\n    for i in range(2, n + 1):\n        a, b = b, a + b\n    return b\n\nprint(climb_stairs(n))",
+      "data": {
+        "name": "n",
+        "value": 4
+      },
+      "trace_watch": [
+        "i",
+        "a",
+        "b"
+      ]
+    }
+  },
+  "model_restatement": "Count the different sequences of 1-steps and 2-steps that add up to n.",
+  "clarify": [
+    {
+      "keywords": [
+        "3 steps",
+        "three",
+        "bigger steps"
+      ],
+      "question": "Can I take 3 steps at once?",
+      "answer": "No — only 1 or 2."
+    },
+    {
+      "keywords": [
+        "order",
+        "different order"
+      ],
+      "question": "Does order matter?",
+      "answer": "Yes — 1 then 2 is a different way from 2 then 1."
+    },
+    {
+      "keywords": [
+        "recursion",
+        "recursive",
+        "memo"
+      ],
+      "question": "Can I use recursion?",
+      "answer": "Sure, but it re-counts the same steps — roll two numbers forward instead."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start with 1 way for steps 0 and 1. For each step up to n, move a up to b, then make b the sum of a and b. Return b.",
+  "draft_code": "def climb_stairs(n):\n    a, b = 1, 1\n    for i in range(2, n + 1):\n        a = b\n        b = a + b\n    return b\n\nprint(climb_stairs(n))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after line 4, what is a?",
+      "kind": "value",
+      "var": "a"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after line 5, what is b?",
+      "kind": "value",
+      "var": "b"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2: after line 4, what is b?",
+      "kind": "value",
+      "var": "b"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "a = b runs first, so on line 5 a is already the NEW value — b = a + b is b + b, and the count doubles every step: 2, 4, 8, 16 instead of 2, 3, 5, 8.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Updating one at a time is copying today's answer over yesterday's before you've used yesterday's — the sum ends up adding today to itself.",
+    "bridge": "After line 4 on iteration 2, a and b are both 2. What should b become — and what did it become?",
+    "fix": {
+      "rule": "a, b = b, a + b: the right side reads the old a and b before either changes, so b becomes the two previous counts added.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Ways to stand on step 0 and step 1."
+        },
+        {
+          "line": 3,
+          "gloss": "Climb step 2, 3, … up to n."
+        },
+        {
+          "line": 4,
+          "gloss": "Move both at once: new a is old b, new b is old a + old b."
+        },
+        {
+          "line": 5,
+          "gloss": "The ways to reach step n."
+        }
+      ],
+      "contrast": {
+        "wrong": "a = b\nb = a + b",
+        "wrong_note": "b doubles",
+        "right": "a, b = b, a + b",
+        "right_note": "each step adds the two before it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def climb_stairs(n):\n    a, b = 1, 1\n    for i in range(2, n + 1):\n        a, b = b, a + b\n    return b\n\nprint(climb_stairs(n))",
+    "alternatives": [
+      {
+        "code": "def climb_stairs(n):\n    ways = [1, 1]\n    for i in range(2, n + 1):\n        ways.append(ways[i - 1] + ways[i - 2])\n    return ways[n]\n\nprint(climb_stairs(n))",
+        "note": "Keep every step's count in a list — same rule, more memory."
+      }
+    ],
+    "hints": [
+      "On iteration 2, which value of a does line 5 read?",
+      "The second line reads a after it already changed.",
+      "a, b = b, a + b"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 2
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "n": 3
+      },
+      "expected": "3"
+    },
+    {
+      "input": {
+        "n": 5
+      },
+      "expected": "8"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: n = 3 — how many ways?",
+    "data": {
+      "name": "n",
+      "value": 3
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 3, what gets printed?"
+    },
+    "recommended": "def climb_stairs(n):\n    a, b = 1, 1\n    for i in range(2, n + 1):\n        a, b = b, a + b\n    return b\n\nprint(climb_stairs(n))",
+    "fix_hint": "Nothing to change — 1 + 2 = 3."
+  },
+  "one_liner": "Each step comes from the two BEFORE it — update both from the old values at once.",
+  "trace_watch": [
+    "i",
+    "a",
+    "b"
+  ]
+}

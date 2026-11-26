@@ -1,0 +1,205 @@
+{
+  "id": "169",
+  "skill": "numbers-operators",
+  "title": "Add Digits",
+  "section": "leetcode",
+  "lc": {
+    "number": 258,
+    "title": "Add Digits",
+    "difficulty": "Easy",
+    "slug": "add-digits"
+  },
+  "scenario": "You get a non-negative integer num. Add up its digits, then add up the digits of that result, and keep going until only one digit is left. Return that digit.\n\nExample 1:\nInput: num = 38\nOutput: 2\nWhy: 3 + 8 = 11, then 1 + 1 = 2.\n\nExample 2:\nInput: num = 0\nOutput: 0\n\nConstraints:\n0 <= num <= 2^31 - 1\n\nWrite: def add_digits(num) — the driver calls it on num = 38 and prints the result.",
+  "data": {
+    "name": "num",
+    "value": 38
+  },
+  "intro": {
+    "job": "You get a non-negative integer num. Add up its digits, then add up the digits of that result, and keep going until only one digit is left. Return that digit.\n\nExample 1:\nInput: num = 38\nOutput: 2\nWhy: 3 + 8 = 11, then 1 + 1 = 2.\n\nExample 2:\nInput: num = 0\nOutput: 0\n\nConstraints:\n0 <= num <= 2^31 - 1\n\nWrite: def add_digits(num) — the driver calls it on num = 38 and prints the result.",
+    "idea": {
+      "rule": "Keep adding the digits until one digit is left — one round isn't always enough.",
+      "detail": "Like problem 005 (Split the candies), it's digit arithmetic. Adding 3 and 8 gives 11 — and 11 still has two digits, so the job isn't done. Repeat the digit sum while the number is 10 or more; when it drops below 10, that single digit is the answer."
+    },
+    "watch": {
+      "code": "def add_digits(num):\n    while num >= 10:\n        total = 0\n        for d in str(num):\n            total += int(d)\n        num = total\n    return num\n\nprint(add_digits(num))",
+      "data": {
+        "name": "num",
+        "value": 56
+      },
+      "trace_watch": [
+        "num",
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Add up num's digits again and again until a single digit is left.",
+  "clarify": [
+    {
+      "keywords": [
+        "zero",
+        "0"
+      ],
+      "question": "What if num is 0?",
+      "answer": "Return 0."
+    },
+    {
+      "keywords": [
+        "single digit",
+        "one digit",
+        "already"
+      ],
+      "question": "What if num already has a single digit?",
+      "answer": "Then it's the answer — return it as it is."
+    },
+    {
+      "keywords": [
+        "negative"
+      ],
+      "question": "Can num be negative?",
+      "answer": "No — num is non-negative."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Add up the digits of num and return the total.",
+  "draft_code": "def add_digits(num):\n    total = 0\n    for d in str(num):\n        total += int(d)\n    return total\n\nprint(add_digits(num))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after adding, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "With the fix — round 1: after line 6, what is num?",
+      "kind": "value",
+      "var": "num"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 2
+      },
+      "prompt": "Round 2: after line 6, what is num?",
+      "kind": "value",
+      "var": "num"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft adds the digits once: 3 + 8 = 11. But 11 still has two digits — it needs another round, 1 + 1 = 2.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Stopping after one round is folding a map once and calling it pocket-sized — keep folding until it fits.",
+    "bridge": "The draft printed 11. How many digits does 11 have — is the job done?",
+    "fix": {
+      "rule": "Repeat the digit sum while num has two or more digits (num >= 10).",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Still two or more digits?"
+        },
+        {
+          "line": 3,
+          "gloss": "Start this round's sum."
+        },
+        {
+          "line": 5,
+          "gloss": "Add each digit."
+        },
+        {
+          "line": 6,
+          "gloss": "The sum becomes the new num."
+        },
+        {
+          "line": 7,
+          "gloss": "One digit left — that's the answer."
+        }
+      ],
+      "contrast": {
+        "wrong": "return total  (after one round)",
+        "wrong_note": "38 gives 11",
+        "right": "while num >= 10: num = digit sum",
+        "right_note": "38 gives 2"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def add_digits(num):\n    while num >= 10:\n        total = 0\n        for d in str(num):\n            total += int(d)\n        num = total\n    return num\n\nprint(add_digits(num))",
+    "alternatives": [
+      {
+        "code": "def add_digits(num):\n    if num == 0:\n        return 0\n    return 1 + (num - 1) % 9\n\nprint(add_digits(num))",
+        "note": "The digital-root shortcut: for num > 0 the answer is 1 + (num - 1) % 9, and 0 stays 0."
+      }
+    ],
+    "hints": [
+      "Is the draft's answer a single digit?",
+      "One round of adding isn't always enough — 11 still has two digits.",
+      "while num >= 10: total = 0; for d in str(num): total += int(d); num = total; return num"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "num": 38
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "num": 0
+      },
+      "expected": "0"
+    },
+    {
+      "input": {
+        "num": 10
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: num = 199 — what does your code print?",
+    "data": {
+      "name": "num",
+      "value": 199
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def add_digits(num):\n    while num >= 10:\n        total = 0\n        for d in str(num):\n            total += int(d)\n        num = total\n    return num\n\nprint(add_digits(num))",
+    "fix_hint": "1 + 9 + 9 = 19, then 1 + 9 = 10, then 1 + 0 = 1 — three rounds."
+  },
+  "one_liner": "Keep adding the digits until one digit is left — one round isn't always enough.",
+  "trace_watch": [
+    "num",
+    "total"
+  ]
+}

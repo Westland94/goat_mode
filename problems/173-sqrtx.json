@@ -1,0 +1,201 @@
+{
+  "id": "173",
+  "skill": "numbers-operators",
+  "title": "Sqrt(x)",
+  "section": "leetcode",
+  "lc": {
+    "number": 69,
+    "title": "Sqrt(x)",
+    "difficulty": "Easy",
+    "slug": "sqrtx"
+  },
+  "scenario": "You get a non-negative integer x. Return its square root rounded down to a whole number — the biggest integer whose square is at most x. Don't use a built-in power or square-root function.\n\nExample 1:\nInput: x = 4\nOutput: 2\n\nExample 2:\nInput: x = 8\nOutput: 2\nWhy: the square root of 8 is 2.828..., which rounds down to 2.\n\nExample 3:\nInput: x = 1\nOutput: 1\n\nConstraints:\n0 <= x <= 2^31 - 1\n\nWrite: def my_sqrt(x) — the driver calls it on x = 8 and prints the result.",
+  "data": {
+    "name": "x",
+    "value": 8
+  },
+  "intro": {
+    "job": "You get a non-negative integer x. Return its square root rounded down to a whole number — the biggest integer whose square is at most x. Don't use a built-in power or square-root function.\n\nExample 1:\nInput: x = 4\nOutput: 2\n\nExample 2:\nInput: x = 8\nOutput: 2\nWhy: the square root of 8 is 2.828..., which rounds down to 2.\n\nExample 3:\nInput: x = 1\nOutput: 1\n\nConstraints:\n0 <= x <= 2^31 - 1\n\nWrite: def my_sqrt(x) — the driver calls it on x = 8 and prints the result.",
+    "idea": {
+      "rule": "The answer is the LAST number whose square fits — when you find the first one that doesn't, step back one.",
+      "detail": "Like problem 005 (Split the candies), it's arithmetic with rounding down. Count up i = 0, 1, 2, ... and square each one. The moment i * i is bigger than x, you've gone one too far — the answer is the number just before, i - 1. Returning the i that broke the rule is the classic off-by-one. (Like 149, First Bad Version, the same search can be done by halving a range.)"
+    },
+    "watch": {
+      "code": "def my_sqrt(x):\n    for i in range(x):\n        if i * i > x:\n            return i - 1\n    return x\n\nprint(my_sqrt(x))",
+      "data": {
+        "name": "x",
+        "value": 9
+      },
+      "trace_watch": [
+        "i"
+      ]
+    }
+  },
+  "model_restatement": "Return the biggest whole number whose square is at most x.",
+  "clarify": [
+    {
+      "keywords": [
+        "round",
+        "rounded",
+        "decimal"
+      ],
+      "question": "Do I round to the nearest number?",
+      "answer": "No — always round down: 8 gives 2, not 3."
+    },
+    {
+      "keywords": [
+        "built-in",
+        "sqrt",
+        "power"
+      ],
+      "question": "Can I use math.sqrt or **?",
+      "answer": "No — work it out with plain arithmetic."
+    },
+    {
+      "keywords": [
+        "zero",
+        "0"
+      ],
+      "question": "What about x = 0?",
+      "answer": "The answer is 0."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count up from 0 and return the first number whose square is bigger than x.",
+  "draft_code": "def my_sqrt(x):\n    for i in range(x):\n        if i * i > x:\n            return i\n    return x\n\nprint(my_sqrt(x))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3: what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 4
+      },
+      "prompt": "Iteration 4: what is i — and is i * i bigger than 8?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 4
+      },
+      "prompt": "With the fix — iteration 4: what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft stops at the first i whose square is too big — 3, because 9 > 8 — and returns it. But 3 is already too big; the answer is the number before it, 2.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Returning the first square that's too big is reporting the step you tripped on instead of the last one you stood on.",
+    "bridge": "The loop stopped at i = 3 because 3 * 3 = 9 is bigger than 8. Is 3 the biggest number whose square fits — or one past it?",
+    "fix": {
+      "rule": "Keep the same scan, but when i * i first passes x, return i - 1 — the last i whose square still fits.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Count up from 0."
+        },
+        {
+          "line": 3,
+          "gloss": "The first i whose square is too big..."
+        },
+        {
+          "line": 4,
+          "gloss": "...means the one before it is the answer."
+        },
+        {
+          "line": 5,
+          "gloss": "x is 0 or 1: it's its own answer."
+        }
+      ],
+      "contrast": {
+        "wrong": "return i",
+        "wrong_note": "one past the answer",
+        "right": "return i - 1",
+        "right_note": "the last square that fits"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def my_sqrt(x):\n    for i in range(x):\n        if i * i > x:\n            return i - 1\n    return x\n\nprint(my_sqrt(x))",
+    "alternatives": [
+      {
+        "code": "def my_sqrt(x):\n    lo, hi = 0, x\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if mid * mid <= x:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return hi\n\nprint(my_sqrt(x))",
+        "note": "Binary search: keep lo..hi, move lo up when mid * mid fits and hi down when it doesn't — when they cross, hi is the answer."
+      }
+    ],
+    "hints": [
+      "Is 3 * 3 at most 8?",
+      "The loop stops on the first number that's too big — the answer is the one before it.",
+      "Keep the scan, and when i * i > x, return i - 1."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "x": 4
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "x": 8
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "x": 1
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: x = 15 — what does your code print?",
+    "data": {
+      "name": "x",
+      "value": 15
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def my_sqrt(x):\n    for i in range(x):\n        if i * i > x:\n            return i - 1\n    return x\n\nprint(my_sqrt(x))",
+    "fix_hint": "4 * 4 = 16 is the first square past 15, so the answer is 3."
+  },
+  "one_liner": "The answer is the LAST number whose square fits — when you find the first one that doesn't, step back one.",
+  "trace_watch": [
+    "i"
+  ]
+}

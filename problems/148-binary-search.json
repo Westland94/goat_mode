@@ -1,0 +1,264 @@
+{
+  "id": "148",
+  "skill": "binary-search",
+  "title": "Binary Search",
+  "section": "leetcode",
+  "lc": {
+    "number": 704,
+    "title": "Binary Search",
+    "difficulty": "Easy",
+    "slug": "binary-search"
+  },
+  "scenario": "Given a list of integers nums sorted in increasing order and a target, return the index of target in nums, or -1 if it isn't there. Your search must halve the range each step (O(log n)), not scan.\n\nExample 1:\nInput: nums = [-1, 0, 3, 5, 9, 12], target = 9\nOutput: 4\n\nExample 2:\nInput: nums = [-1, 0, 3, 5, 9, 12], target = 2\nOutput: -1\n\nConstraints:\n1 <= len(nums) <= 10^4\n-10^4 < nums[i], target < 10^4\nAll values in nums are different, and nums is sorted ascending.\n\nWrite: def search(nums, target) — the driver calls it on nums = [-1, 0, 3, 5, 9, 12], target = 12 (case = [nums, target]) and prints the result.",
+  "data": {
+    "name": "case",
+    "value": [
+      [
+        -1,
+        0,
+        3,
+        5,
+        9,
+        12
+      ],
+      12
+    ]
+  },
+  "intro": {
+    "job": "Given a list of integers nums sorted in increasing order and a target, return the index of target in nums, or -1 if it isn't there. Your search must halve the range each step (O(log n)), not scan.\n\nExample 1:\nInput: nums = [-1, 0, 3, 5, 9, 12], target = 9\nOutput: 4\n\nExample 2:\nInput: nums = [-1, 0, 3, 5, 9, 12], target = 2\nOutput: -1\n\nConstraints:\n1 <= len(nums) <= 10^4\n-10^4 < nums[i], target < 10^4\nAll values in nums are different, and nums is sorted ascending.\n\nWrite: def search(nums, target) — the driver calls it on nums = [-1, 0, 3, 5, 9, 12], target = 12 (case = [nums, target]) and prints the result.",
+    "idea": {
+      "rule": "Check the last shelf standing — the search runs while lo is still at or below hi, not just below.",
+      "detail": "This is problem 047 (Find the shelf number) in interview format. lo and hi bracket the part of the list that could still hold the target. Look at the middle: too small, drop the left half; too big, drop the right half. When lo and hi land on the same index, that one position still needs checking — so keep going while lo <= hi."
+    },
+    "watch": {
+      "code": "def search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n\nnums, target = case\nprint(search(nums, target))",
+      "data": {
+        "name": "case",
+        "value": [
+          [
+            1,
+            3,
+            5,
+            7
+          ],
+          7
+        ]
+      },
+      "trace_watch": [
+        "lo",
+        "hi",
+        "mid"
+      ]
+    }
+  },
+  "model_restatement": "Find the index of target in the sorted list by halving, or -1 if it's missing.",
+  "clarify": [
+    {
+      "keywords": [
+        "missing",
+        "not there",
+        "absent"
+      ],
+      "question": "What if the target is missing?",
+      "answer": "Return -1."
+    },
+    {
+      "keywords": [
+        "duplicates",
+        "twice",
+        "repeat"
+      ],
+      "question": "Can a value appear twice?",
+      "answer": "No — every value is different."
+    },
+    {
+      "keywords": [
+        "scan",
+        "one by one",
+        "index("
+      ],
+      "question": "Can I just scan from the front?",
+      "answer": "It would work, but the job is to halve — O(log n)."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Keep lo and hi around the search area. While lo is below hi, look at the middle and move lo or hi toward the target. Return the index, or -1.",
+  "draft_code": "def search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n\nnums, target = case\nprint(search(nums, target))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Second look: what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 11,
+        "iteration": "after"
+      },
+      "prompt": "The loop has stopped. What is lo?",
+      "kind": "value",
+      "var": "lo"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 3
+      },
+      "prompt": "With the fix — third look: what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "After two looks lo and hi both sit on index 5 — the 12 — but 'while lo < hi' is already False, so the loop quits without looking and returns -1.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "lo < hi stops when exactly ONE position is left — the very one that might hold the answer — so the last shelf standing is never checked.",
+    "bridge": "When the loop stops, lo and hi are both 5. Was index 5 ever checked?",
+    "fix": {
+      "rule": "while lo <= hi: keep looking while at least one position is in range, including the last one.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "The whole list is in range."
+        },
+        {
+          "line": 3,
+          "gloss": "Keep going while at least one position is left — even just one."
+        },
+        {
+          "line": 4,
+          "gloss": "Look at the middle."
+        },
+        {
+          "line": 8,
+          "gloss": "Too small: drop everything up to mid."
+        }
+      ],
+      "contrast": {
+        "wrong": "while lo < hi:",
+        "wrong_note": "skips the last position",
+        "right": "while lo <= hi:",
+        "right_note": "checks it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n\nnums, target = case\nprint(search(nums, target))",
+    "alternatives": [
+      {
+        "code": "def search(nums, target):\n    return nums.index(target) if target in nums else -1\n\nnums, target = case\nprint(search(nums, target))",
+        "note": "Let Python find it — correct, but it scans instead of halving."
+      }
+    ],
+    "hints": [
+      "When the loop stops, where are lo and hi?",
+      "lo < hi is False when lo == hi, with one position unchecked.",
+      "while lo <= hi:"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          [
+            -1,
+            0,
+            3,
+            5,
+            9,
+            12
+          ],
+          9
+        ]
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            -1,
+            0,
+            3,
+            5,
+            9,
+            12
+          ],
+          2
+        ]
+      },
+      "expected": "-1"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            -1,
+            0,
+            3,
+            5,
+            9,
+            12
+          ],
+          12
+        ]
+      },
+      "expected": "5"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: same list, target = 0 — which index?",
+    "data": {
+      "name": "case",
+      "value": [
+        [
+          -1,
+          0,
+          3,
+          5,
+          9,
+          12
+        ],
+        0
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With target = 0, what gets printed?"
+    },
+    "recommended": "def search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        elif nums[mid] < target:\n            lo = mid + 1\n        else:\n            hi = mid - 1\n    return -1\n\nnums, target = case\nprint(search(nums, target))",
+    "fix_hint": "Nothing to change — the search narrows to index 1, and <= checks it."
+  },
+  "one_liner": "Check the last shelf standing — the search runs while lo is still at or below hi, not just below.",
+  "trace_watch": [
+    "lo",
+    "hi",
+    "mid"
+  ]
+}

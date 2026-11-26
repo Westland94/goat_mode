@@ -1,0 +1,245 @@
+{
+  "id": "024",
+  "skill": "dict-accumulation",
+  "title": "Tip jar",
+  "scenario": "Café tips by server, in dollars. Total per server.",
+  "data": {
+    "name": "tips",
+    "value": [
+      [
+        "sam",
+        4
+      ],
+      [
+        "jo",
+        6
+      ],
+      [
+        "sam",
+        3
+      ]
+    ]
+  },
+  "intro": {
+    "job": "Café tips by server, in dollars. Total per server.",
+    "idea": {
+      "rule": "You can't add to nothing — start the total at zero with .get(c, 0).",
+      "detail": "You've met this one: += reads the old total first, and a server's first tip has no old total. .get(server, 0) hands you a 0 to start from."
+    },
+    "watch": {
+      "code": "jar = {}\nfor who, amt in drops:\n    jar[who] = jar.get(who, 0) + amt\nprint(jar)",
+      "data": {
+        "name": "drops",
+        "value": [
+          [
+            "x",
+            1
+          ],
+          [
+            "x",
+            2
+          ]
+        ]
+      },
+      "trace_watch": [
+        "who",
+        "jar"
+      ]
+    }
+  },
+  "model_restatement": "Add up each server's tips.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no tips",
+        "nothing",
+        "none"
+      ],
+      "question": "What if there are no tips?",
+      "answer": "Then an empty dict."
+    },
+    {
+      "keywords": [
+        "refund",
+        "refunds",
+        "negative",
+        "minus"
+      ],
+      "question": "Can a tip be negative?",
+      "answer": "Not today."
+    },
+    {
+      "keywords": [
+        "cents",
+        "decimal",
+        "float",
+        "whole"
+      ],
+      "question": "Whole dollars?",
+      "answer": "Whole dollars today."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each tip, add the dollars to that server's total. Print the totals.",
+  "draft_code": "totals = {}\nfor server, amt in tips:\n    totals[server] += amt\nprint(totals)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "First time through — what happens on line 3?",
+      "kind": "outcome",
+      "choices": [
+        {
+          "label": "totals becomes {'sam': 4}",
+          "match": {
+            "var": "totals",
+            "value": "{'sam': 4}"
+          }
+        },
+        {
+          "label": "totals becomes {'sam': 0}",
+          "match": {
+            "var": "totals",
+            "value": "{'sam': 0}"
+          }
+        },
+        {
+          "label": "an error",
+          "match": {
+            "error": true
+          },
+          "ask_which": true
+        },
+        {
+          "label": "nothing happens",
+          "match": {
+            "unchanged": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "With the fix — after iteration 3, what is totals?",
+      "kind": "value",
+      "var": "totals"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "totals[server] += amt reads totals['sam'] before there is one — KeyError on the very first tip.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Same jar, same trap: you can't drop 4 dollars into sam's jar before sam's jar is on the shelf.",
+    "bridge": "You've fixed this one before — what hands you the starting 0?",
+    "fix": {
+      "rule": ".get(server, 0) reads sam's total, or 0 if there's no jar yet, so the first + 4 has something to add to.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "No jars yet."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next (server, dollars) tip."
+        },
+        {
+          "line": 3,
+          "gloss": "Read the total (or 0), add the tip, write it back."
+        },
+        {
+          "line": 4,
+          "gloss": "Show every server's total."
+        }
+      ],
+      "contrast": {
+        "wrong": "totals[server] += amt",
+        "wrong_note": "needs the jar to exist",
+        "right": "totals[server] = totals.get(server, 0) + amt",
+        "right_note": "works either way"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "totals = {}\nfor server, amt in tips:\n    totals[server] = totals.get(server, 0) + amt\nprint(totals)",
+    "alternatives": [
+      {
+        "code": "from collections import defaultdict\ntotals = defaultdict(int)\nfor server, amt in tips:\n    totals[server] += amt\nprint(dict(totals))",
+        "note": "defaultdict(int) — starts every total at zero by itself."
+      }
+    ],
+    "hints": [
+      "What's in totals when line 3 first runs?",
+      "Same trap as the repeat-customers job.",
+      "totals[server] = totals.get(server, 0) + amt"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "tips": [
+          [
+            "sam",
+            4
+          ],
+          [
+            "jo",
+            6
+          ],
+          [
+            "sam",
+            3
+          ]
+        ]
+      },
+      "expected": "{'sam': 7, 'jo': 6}"
+    },
+    {
+      "input": {
+        "tips": []
+      },
+      "expected": "{}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One tip only: a new server 'al' gets $5. What gets printed?",
+    "data": {
+      "name": "tips",
+      "value": [
+        [
+          "al",
+          5
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With just one tip, what gets printed?"
+    },
+    "recommended": "totals = {}\nfor server, amt in tips:\n    totals[server] = totals.get(server, 0) + amt\nprint(totals)",
+    "fix_hint": "Same trap, one row — al's jar doesn't exist until the first tip lands."
+  },
+  "one_liner": "You can't add to nothing — start the total at zero with .get(c, 0).",
+  "trace_watch": [
+    "server",
+    "amt",
+    "totals"
+  ]
+}

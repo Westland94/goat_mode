@@ -1,0 +1,230 @@
+{
+  "id": "121",
+  "skill": "combo-sort-two-pointer",
+  "title": "Find the pair that adds to seven",
+  "scenario": "Four numbers on a shelf, unsorted. Which two add up to 7?",
+  "data": {
+    "name": "nums",
+    "value": [
+      3,
+      1,
+      4,
+      2
+    ]
+  },
+  "intro": {
+    "job": "Four numbers on a shelf, unsorted. Which two add up to 7?",
+    "idea": {
+      "rule": "Two-pointer only walks a sorted list — sort first, then squeeze from both ends.",
+      "detail": "Two patterns chained: sorting (013) puts the numbers in order; the two-pointer squeeze, new in this problem, trusts that order: a small sum means move the left finger right, a big sum means move the right finger left. On an unsorted list the fingers walk blind: a small sum can still hide the big partner on the wrong side, so the pair gets walked past and the loop gives up."
+    },
+    "watch": {
+      "code": "nums = sorted(nums)\ni = 0\nj = len(nums) - 1\nwhile i < j:\n    s = nums[i] + nums[j]\n    if s == 7:\n        break\n    elif s < 7:\n        i += 1\n    else:\n        j -= 1\nprint((nums[i], nums[j]) if i < j else None)",
+      "data": {
+        "name": "nums",
+        "value": [
+          5,
+          2,
+          1,
+          4
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "j"
+      ]
+    }
+  },
+  "model_restatement": "Find the two numbers that add up to 7 — and print them as a pair.",
+  "clarify": [
+    {
+      "keywords": [
+        "same number",
+        "twice",
+        "reuse"
+      ],
+      "question": "Can I reuse the same number twice?",
+      "answer": "Not today — two different positions."
+    },
+    {
+      "keywords": [
+        "no pair",
+        "none",
+        "missing"
+      ],
+      "question": "What if no pair adds to seven?",
+      "answer": "Then the answer is None — the loop runs out of fingers."
+    },
+    {
+      "keywords": [
+        "sorted",
+        "sort"
+      ],
+      "question": "Why sort first?",
+      "answer": "The squeeze trusts the order — without it, a small sum can hide the big partner."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Put one finger on each end. Add the two numbers: too small, move the left finger right; too big, move the right finger left. Print the pair — or None.",
+  "draft_code": "i = 0\nj = len(nums) - 1\nwhile i < j:\n    s = nums[i] + nums[j]\n    if s == 7:\n        break\n    elif s < 7:\n        i += 1\n    else:\n        j -= 1\nprint((nums[i], nums[j]) if i < j else None)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "First check: what is s?",
+      "kind": "value",
+      "var": "s"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 3
+      },
+      "prompt": "Third check: what is s?",
+      "kind": "value",
+      "var": "s"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 3
+      },
+      "prompt": "With the fix — third check: what is s?",
+      "kind": "value",
+      "var": "s"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The list isn't sorted, so 'sum too small, move left right' is a lie — 3 + 2 is small, so the left finger steps off the 3, but the 3 was half the answer, and the 4 was never paired with it.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Squeezing an unsorted list is like playing twenty questions on a shuffled shelf — 'too small, go right' only means something if the shelf is in order.",
+    "bridge": "What does the squeeze assume about the list — and what happens to that assumption when the numbers aren't in order?",
+    "fix": {
+      "rule": "Sort first, then squeeze: a small sum moves the left finger right, a big sum moves the right finger left — now the moves mean something.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Sort the numbers first — the squeeze needs order."
+        },
+        {
+          "line": 5,
+          "gloss": "Add the two ends."
+        },
+        {
+          "line": 6,
+          "gloss": "Seven? Stop — that's the pair."
+        },
+        {
+          "line": 8,
+          "gloss": "Too small — move the left finger right."
+        },
+        {
+          "line": 10,
+          "gloss": "Too big — move the right finger left."
+        }
+      ],
+      "contrast": {
+        "wrong": "squeeze the unsorted list",
+        "wrong_note": "walks past the pair",
+        "right": "sort, then squeeze",
+        "right_note": "the fingers close on (3, 4)"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "nums = sorted(nums)\ni = 0\nj = len(nums) - 1\nwhile i < j:\n    s = nums[i] + nums[j]\n    if s == 7:\n        break\n    elif s < 7:\n        i += 1\n    else:\n        j -= 1\nprint((nums[i], nums[j]) if i < j else None)",
+    "alternatives": [
+      {
+        "code": "seen = set()\nfor n in nums:\n    if 7 - n in seen:\n        print(tuple(sorted((7 - n, n))))\n        break\n    seen.add(n)",
+        "note": "One pass with a set: for each number, check whether its partner is already seen — no sorting needed. The pair prints smallest-first, like the squeeze finds it."
+      }
+    ],
+    "hints": [
+      "What does the squeeze assume about the order of the numbers?",
+      "On an unsorted list, 'too small' doesn't tell you which finger to move.",
+      "Sort the list first: nums = sorted(nums) — then squeeze."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          3,
+          1,
+          4,
+          2
+        ]
+      },
+      "expected": "(3, 4)"
+    },
+    {
+      "input": {
+        "nums": [
+          5,
+          2,
+          1,
+          4
+        ]
+      },
+      "expected": "(2, 5)"
+    },
+    {
+      "input": {
+        "nums": [
+          2,
+          5,
+          1,
+          4
+        ]
+      },
+      "expected": "(2, 5)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more shelf: [1, 6, 4, 2] — which two add up to 7?",
+    "data": {
+      "name": "nums",
+      "value": [
+        1,
+        6,
+        4,
+        2
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelf, what gets printed?"
+    },
+    "recommended": "nums = sorted(nums)\ni = 0\nj = len(nums) - 1\nwhile i < j:\n    s = nums[i] + nums[j]\n    if s == 7:\n        break\n    elif s < 7:\n        i += 1\n    else:\n        j -= 1\nprint((nums[i], nums[j]) if i < j else None)",
+    "fix_hint": "Nothing to change — sorting puts 1 and 6 at the ends, and the squeeze finds them."
+  },
+  "one_liner": "Two-pointer only walks a sorted list — sort first, then squeeze from both ends.",
+  "trace_watch": [
+    "i",
+    "j"
+  ]
+}

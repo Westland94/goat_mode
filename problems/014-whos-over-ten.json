@@ -1,0 +1,239 @@
+{
+  "id": "014",
+  "skill": "dict-iteration",
+  "title": "Who's over ten?",
+  "scenario": "From the counts, list the customers with more than 10 orders.",
+  "data": {
+    "name": "counts",
+    "value": {
+      "ana": 12,
+      "ben": 4,
+      "cy": 20
+    }
+  },
+  "intro": {
+    "job": "From the counts, list the customers with more than 10 orders.",
+    "idea": {
+      "rule": "Looping a dict hands you the KEYS — when you need both, ask for .items().",
+      "detail": "for x in some_dict gives you only the keys — the labels on the jars, not what's inside. .items() hands you each pair, key and value together, so you can unpack them: for name, total in counts.items(). Then you can test the number and still keep the name."
+    },
+    "watch": {
+      "code": "for k in d:\n    print(k)\nfor name, total in d.items():\n    print((name, total))",
+      "data": {
+        "name": "d",
+        "value": {
+          "ana": 12,
+          "ben": 4
+        }
+      },
+      "trace_watch": [
+        "k",
+        "name",
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Go through the counts and list every customer whose number is over 10.",
+  "clarify": [
+    {
+      "keywords": [
+        "exactly 10",
+        "exactly ten",
+        "equal",
+        "at least",
+        "10 or more"
+      ],
+      "question": "Does exactly 10 count?",
+      "answer": "No — more than 10. Exactly 10 doesn't make the list."
+    },
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "sorted",
+        "sort"
+      ],
+      "question": "What order should the names be in?",
+      "answer": "Keep the dict's order."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no customers",
+        "nobody",
+        "none"
+      ],
+      "question": "What if nobody qualifies?",
+      "answer": "Then an empty list."
+    },
+    {
+      "keywords": [
+        "names",
+        "totals",
+        "format",
+        "print"
+      ],
+      "question": "Names, or names and totals?",
+      "answer": "Just the names, as a list."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Go through the counts; if a customer is over 10, add them to the list. Print the list.",
+  "draft_code": "over = []\nfor name in counts:\n    if name > 10:\n        over.append(name)\nprint(over)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is name?",
+      "kind": "value",
+      "var": "name"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "What happens on line 3, that first time?",
+      "kind": "outcome",
+      "choices": [
+        {
+          "label": "it compares and moves on",
+          "match": {
+            "unchanged": true
+          }
+        },
+        {
+          "label": "over becomes ['ana']",
+          "match": {
+            "var": "over",
+            "value": "['ana']"
+          }
+        },
+        {
+          "label": "an error",
+          "match": {
+            "error": true
+          },
+          "ask_which": true
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 4 in iteration 1, what is over?",
+      "kind": "value",
+      "var": "over"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Looping a dict gives you the keys — name is 'ana', a string — and Python can't tell whether 'ana' is bigger than 10.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Looping a dict reads the labels on the jars — you get 'ana', not what's inside, and a name can't be compared with 10.",
+    "bridge": "So how do you get the number inside each jar too?",
+    "fix": {
+      "rule": ".items() hands you each jar's label AND what's inside — name, total — so you test the total and keep the name.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the big customers."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next pair: the name and its total."
+        },
+        {
+          "line": 3,
+          "gloss": "Test the number, not the name."
+        },
+        {
+          "line": 4,
+          "gloss": "Over 10 — add the name."
+        }
+      ],
+      "contrast": {
+        "wrong": "for name in counts:",
+        "wrong_note": "keys only",
+        "right": "for name, total in counts.items():",
+        "right_note": "key and value"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "over = []\nfor name, total in counts.items():\n    if total > 10:\n        over.append(name)\nprint(over)",
+    "alternatives": [
+      {
+        "code": "over = []\nfor name in counts:\n    if counts[name] > 10:\n        over.append(name)\nprint(over)",
+        "note": "Look the value up by key — also fine."
+      },
+      {
+        "code": "print([name for name, total in counts.items() if total > 10])",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "First iteration: what is name, exactly?",
+      "The loop hands you keys. You need each customer's number too.",
+      "for name, total in counts.items():"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "counts": {
+          "ana": 12,
+          "ben": 4,
+          "cy": 20
+        }
+      },
+      "expected": "['ana', 'cy']"
+    },
+    {
+      "input": {
+        "counts": {
+          "x": 1
+        }
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Exactly ten: {'x': 10} — who's over ten?",
+    "data": {
+      "name": "counts",
+      "value": {
+        "x": 10
+      }
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new counts, what gets printed?"
+    },
+    "recommended": "over = []\nfor name, total in counts.items():\n    if total > 10:\n        over.append(name)\nprint(over)",
+    "fix_hint": "Nothing to change — same test, new numbers."
+  },
+  "one_liner": "Looping a dict hands you the KEYS — when you need both, ask for .items().",
+  "trace_watch": [
+    "name",
+    "over"
+  ]
+}

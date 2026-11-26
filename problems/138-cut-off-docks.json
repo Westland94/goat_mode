@@ -1,0 +1,315 @@
+{
+  "id": "138",
+  "skill": "graph-components",
+  "title": "The cut-off docks",
+  "scenario": "A storm cut some routes: which stops can still reach each other? The routes here run both ways. How many separate networks do the stops form?",
+  "data": {
+    "name": "routes",
+    "value": {
+      "anchor": [
+        "buoy"
+      ],
+      "buoy": [
+        "anchor"
+      ],
+      "channel": [
+        "beacon"
+      ],
+      "beacon": [
+        "channel"
+      ],
+      "shoal": [],
+      "lighthouse": []
+    }
+  },
+  "intro": {
+    "job": "A storm cut some routes: which stops can still reach each other? The routes here run both ways. How many separate networks do the stops form?",
+    "idea": {
+      "rule": "One walk finds one network — a fresh walk from an unseen stop is a new network.",
+      "detail": "Same question as Separate networks, after a storm. Every route runs both ways, so the stops fall into networks: groups joined by routes and cut off from each other. One walk from a stop reaches its whole network and nothing else. To count the networks, look at every stop in turn. Any stop no walk has reached yet starts a fresh walk — and every fresh walk is one more network."
+    },
+    "watch": {
+      "code": "def count_networks(graph):\n    seen = set()\n    count = 0\n    for start in graph:\n        if start not in seen:\n            count += 1\n            todo = [start]\n            seen.add(start)\n            while todo:\n                node = todo.pop()\n                for nxt in graph[node]:\n                    if nxt not in seen:\n                        seen.add(nxt)\n                        todo.append(nxt)\n    return count\n\nprint(count_networks(routes))",
+      "data": {
+        "name": "routes",
+        "value": {
+          "anchor": [
+            "buoy"
+          ],
+          "buoy": [
+            "anchor"
+          ],
+          "channel": []
+        }
+      },
+      "trace_watch": [
+        "count",
+        "seen"
+      ]
+    }
+  },
+  "model_restatement": "Say how many separate networks the stops form — two stops are in the same network if routes join them.",
+  "clarify": [
+    {
+      "keywords": [
+        "no routes",
+        "alone",
+        "dead end"
+      ],
+      "question": "What about a stop with no routes at all?",
+      "answer": "It's a network of its own — the shoal and the lighthouse each count as one."
+    },
+    {
+      "keywords": [
+        "both ways",
+        "two-way",
+        "one-way"
+      ],
+      "question": "Do the routes run both ways?",
+      "answer": "Yes — every route here runs both ways, so a walk from any stop in a network reaches all of it."
+    },
+    {
+      "keywords": [
+        "count",
+        "networks",
+        "how many"
+      ],
+      "question": "Do I count stops or networks?",
+      "answer": "Networks — a group of stops joined by routes counts once, however many stops it has."
+    },
+    {
+      "keywords": [
+        "start",
+        "begin",
+        "first walk"
+      ],
+      "question": "Where should the first walk start?",
+      "answer": "Anywhere — but one walk only finds one network. Every stop no walk has reached yet starts a new one."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start at the first stop and walk everywhere its routes lead, remembering each stop you reach. Count the stops you reached.",
+  "draft_code": "def count_networks(graph):\n    seen = set()\n    start = next(iter(graph))\n    todo = [start]\n    seen.add(start)\n    while todo:\n        node = todo.pop()\n        for nxt in graph[node]:\n            if nxt not in seen:\n                seen.add(nxt)\n                todo.append(nxt)\n    return len(seen)\n\nprint(count_networks(routes))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "Line 3 picks where the walk starts. Which stop is start?",
+      "kind": "value",
+      "var": "start"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 8,
+        "iteration": 1
+      },
+      "prompt": "The first stop off the to-do list looks at its routes. Which stop is nxt?",
+      "kind": "value",
+      "var": "nxt"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 3
+      },
+      "prompt": "With the fix — on the third pass of the for loop, which stop is start?",
+      "kind": "value",
+      "var": "start"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft walks once from the anchor and counts the stops it reaches: 2. It never asks whether the channel, shoal or lighthouse belong to the same network — they don't.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "One walk is one sweep of a flashlight: it lights up everything joined to where it starts, and nothing else.",
+    "bridge": "The walk from the anchor reaches the buoy and stops. What about the channel — who ever starts a walk from there?",
+    "fix": {
+      "rule": "Loop over every stop; each one no walk has reached yet starts a fresh walk — and a fresh walk is one more network.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "Look at every stop, not just the first."
+        },
+        {
+          "line": 5,
+          "gloss": "Skip stops an earlier walk already reached."
+        },
+        {
+          "line": 6,
+          "gloss": "An unreached stop means a new network."
+        },
+        {
+          "line": 8,
+          "gloss": "Mark it seen, then walk its whole network."
+        }
+      ],
+      "contrast": {
+        "wrong": "return len(seen)",
+        "wrong_note": "counts the stops one walk reached",
+        "right": "count += 1 for each fresh walk",
+        "right_note": "counts networks"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def count_networks(graph):\n    seen = set()\n    count = 0\n    for start in graph:\n        if start not in seen:\n            count += 1\n            todo = [start]\n            seen.add(start)\n            while todo:\n                node = todo.pop()\n                for nxt in graph[node]:\n                    if nxt not in seen:\n                        seen.add(nxt)\n                        todo.append(nxt)\n    return count\n\nprint(count_networks(routes))",
+    "alternatives": [
+      {
+        "code": "def walk(graph, node, seen):\n    seen.add(node)\n    for nxt in graph[node]:\n        if nxt not in seen:\n            walk(graph, nxt, seen)\n\ndef count_networks(graph):\n    seen = set()\n    count = 0\n    for start in graph:\n        if start not in seen:\n            count += 1\n            walk(graph, start, seen)\n    return count\n\nprint(count_networks(routes))",
+        "note": "The same count with a recursive walk — walk() marks a whole network seen, and the for loop counts how many times it has to start one."
+      }
+    ],
+    "hints": [
+      "The draft starts one walk from the anchor. Which stops does that walk never reach?",
+      "len(seen) counts the stops one walk found, not the networks.",
+      "Loop for start in graph; when start is not in seen, count += 1 and walk from it."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "routes": {
+          "anchor": [
+            "buoy"
+          ],
+          "buoy": [
+            "anchor"
+          ],
+          "channel": [
+            "beacon"
+          ],
+          "beacon": [
+            "channel"
+          ],
+          "shoal": [],
+          "lighthouse": []
+        }
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "routes": {
+          "anchor": [
+            "buoy",
+            "channel"
+          ],
+          "buoy": [
+            "anchor"
+          ],
+          "channel": [
+            "anchor",
+            "beacon"
+          ],
+          "beacon": [
+            "channel"
+          ],
+          "shoal": [
+            "lighthouse"
+          ],
+          "lighthouse": [
+            "shoal"
+          ]
+        }
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "routes": {
+          "anchor": []
+        }
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A new route joins the buoy to the channel — how many networks now?",
+    "data": {
+      "name": "routes",
+      "value": {
+        "anchor": [
+          "buoy"
+        ],
+        "buoy": [
+          "anchor",
+          "channel"
+        ],
+        "channel": [
+          "buoy"
+        ],
+        "shoal": [],
+        "lighthouse": [],
+        "beacon": []
+      }
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the buoy joined to the channel, what gets printed?"
+    },
+    "recommended": "def count_networks(graph):\n    seen = set()\n    count = 0\n    for start in graph:\n        if start not in seen:\n            count += 1\n            todo = [start]\n            seen.add(start)\n            while todo:\n                node = todo.pop()\n                for nxt in graph[node]:\n                    if nxt not in seen:\n                        seen.add(nxt)\n                        todo.append(nxt)\n    return count\n\nprint(count_networks(routes))",
+    "fix_hint": "The anchor, buoy and channel are one network now; the shoal, lighthouse and beacon are still alone — 4 in all."
+  },
+  "one_liner": "One walk finds one network — a fresh walk from an unseen stop is a new network.",
+  "trace_watch": [
+    "count",
+    "seen"
+  ],
+  "stage": {
+    "device": "graph",
+    "map": "map:graph",
+    "graph": "graph",
+    "current": "node",
+    "seen": "seen",
+    "candidate": "nxt",
+    "positions": {
+      "anchor": [
+        300,
+        360
+      ],
+      "buoy": [
+        520,
+        220
+      ],
+      "channel": [
+        760,
+        360
+      ],
+      "beacon": [
+        520,
+        520
+      ],
+      "shoal": [
+        980,
+        200
+      ],
+      "lighthouse": [
+        1080,
+        430
+      ]
+    }
+  }
+}

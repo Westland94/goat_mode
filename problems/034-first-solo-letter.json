@@ -1,0 +1,182 @@
+{
+  "id": "034",
+  "skill": "counting-first-unique",
+  "title": "First solo letter",
+  "scenario": "The first letter that appears exactly once.",
+  "data": {
+    "name": "word",
+    "value": "swiss"
+  },
+  "intro": {
+    "job": "The first letter that appears exactly once.",
+    "idea": {
+      "rule": "Count the whole word first — the first letter you haven't seen yet isn't the first letter that appears once.",
+      "detail": "Whether a letter appears once depends on the WHOLE word — a letter can look lonely at the start and repeat later. So make two passes: first count every letter, then walk the word again and stop at the first letter whose count is 1."
+    },
+    "watch": {
+      "code": "counts = {}\nfor ch in text:\n    counts[ch] = counts.get(ch, 0) + 1\nfor ch in text:\n    if counts[ch] == 1:\n        print(ch)\n        break",
+      "data": {
+        "name": "text",
+        "value": "aabbc"
+      },
+      "trace_watch": [
+        "ch",
+        "counts"
+      ]
+    }
+  },
+  "model_restatement": "Find the first letter in the word that occurs exactly once, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "no solo",
+        "none",
+        "every letter repeats",
+        "no unique",
+        "nothing"
+      ],
+      "question": "What if every letter repeats?",
+      "answer": "Today there's always at least one solo letter."
+    },
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase"
+      ],
+      "question": "Does case matter?",
+      "answer": "All lowercase today."
+    },
+    {
+      "keywords": [
+        "position",
+        "index",
+        "where"
+      ],
+      "question": "The letter, or its position?",
+      "answer": "Print the letter."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk the word keeping a set of letters seen. The first letter that isn't in the set is the answer — print it and stop.",
+  "draft_code": "seen = set()\nfor ch in word:\n    if ch not in seen:\n        print(ch)\n        break\n    seen.add(ch)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is ch?",
+      "kind": "value",
+      "var": "ch"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 5
+      },
+      "prompt": "With the fix — after the counting loop finishes (iteration 5), what is counts?",
+      "kind": "value",
+      "var": "counts"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The very first letter is never in an empty set, so the draft prints 's' straight away — before it has any idea that 's' comes back twice more.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Picking the first new face is calling 'only child!' at the first kid through the door — before her two brothers walk in.",
+    "bridge": "So what do you need to know about every letter before you can call one 'solo'?",
+    "fix": {
+      "rule": "Two passes: count everything first, then the first letter with count 1 is the answer.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty tally."
+        },
+        {
+          "line": 2,
+          "gloss": "Pass one: every letter of the word."
+        },
+        {
+          "line": 3,
+          "gloss": "Count it."
+        },
+        {
+          "line": 5,
+          "gloss": "Pass two: the first letter whose count is exactly 1 wins."
+        }
+      ],
+      "contrast": {
+        "wrong": "if ch not in seen:",
+        "wrong_note": "new so far",
+        "right": "if counts[ch] == 1:",
+        "right_note": "once in the whole word"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "counts = {}\nfor ch in word:\n    counts[ch] = counts.get(ch, 0) + 1\nfor ch in word:\n    if counts[ch] == 1:\n        print(ch)\n        break",
+    "alternatives": [
+      {
+        "code": "for ch in word:\n    if word.count(ch) == 1:\n        print(ch)\n        break",
+        "note": "word.count recounts for every letter — correct, but slow on long words."
+      }
+    ],
+    "hints": [
+      "Iteration 1: is 's' in the empty set?",
+      "'Not seen yet' only means new SO FAR — 's' comes back later.",
+      "Count every letter first, then look for the first count of 1."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "word": "swiss"
+      },
+      "expected": "w"
+    },
+    {
+      "input": {
+        "word": "aabbc"
+      },
+      "expected": "c"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New word: 'paper' — which letter?",
+    "data": {
+      "name": "word",
+      "value": "paper"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With word = 'paper', what gets printed?"
+    },
+    "recommended": "counts = {}\nfor ch in word:\n    counts[ch] = counts.get(ch, 0) + 1\nfor ch in word:\n    if counts[ch] == 1:\n        print(ch)\n        break",
+    "fix_hint": "Nothing to change — p repeats, so the first solo letter is a."
+  },
+  "one_liner": "Count the whole word first — the first letter you haven't seen yet isn't the first letter that appears once.",
+  "trace_watch": [
+    "ch",
+    "counts"
+  ]
+}

@@ -1,0 +1,235 @@
+{
+  "id": "059",
+  "skill": "variables-assignment",
+  "title": "The tip jar",
+  "scenario": "Collect the tips from each table into one jar. Each table adds its tip.",
+  "data": {
+    "name": "tips",
+    "value": [
+      4,
+      6,
+      1
+    ]
+  },
+  "intro": {
+    "job": "Collect the tips from each table into one jar. Each table adds its tip.",
+    "idea": {
+      "rule": "Assignment replaces; += adds — a tip jar that forgets is just the last table.",
+      "detail": "A variable is a box that holds one value. total = tip empties the box and drops the new value in — the old total is gone. total += tip reads what's in the box, adds to it, and puts the sum back, so the jar keeps growing."
+    },
+    "watch": {
+      "code": "total = 0\nfor t in demo:\n    total += t\nprint(total)",
+      "data": {
+        "name": "demo",
+        "value": [
+          3,
+          2
+        ]
+      },
+      "trace_watch": [
+        "t",
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Add up every table's tip into one running total.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no tables",
+        "none",
+        "nothing",
+        "zero tables"
+      ],
+      "question": "What if there are no tables?",
+      "answer": "Then the jar is empty: 0."
+    },
+    {
+      "keywords": [
+        "negative",
+        "negatives",
+        "minus",
+        "penalty",
+        "penalties",
+        "take back"
+      ],
+      "question": "Can a tip be negative?",
+      "answer": "Not today — every table leaves something."
+    },
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "begin",
+        "initial"
+      ],
+      "question": "What does the jar start at?",
+      "answer": "Empty — 0."
+    },
+    {
+      "keywords": [
+        "sum",
+        "library",
+        "builtin",
+        "built-in",
+        "import"
+      ],
+      "question": "Can I just use sum()?",
+      "answer": "In real work, sure. Here, write the loop — I want to see the mechanics."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start the jar at 0. For each table, put its tip in the jar. Print the total.",
+  "draft_code": "total = 0\nfor tip in tips:\n    total = tip\nprint(total)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "After iteration 2 (a 6-dollar tip), what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "With the fix — after iteration 2, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "total = tip throws the old total away and keeps only this table's tip — so the 4 vanishes when the 6 arrives.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A tip jar you rewrite every table only ever shows the last table — total = tip wipes the jar and writes 6.",
+    "bridge": "So what would add the 6 to the 4 that's already in the jar?",
+    "fix": {
+      "rule": "total += tip means total = total + tip: read the jar, add the table, write the sum back.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The jar starts at 0."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next table's tip."
+        },
+        {
+          "line": 3,
+          "gloss": "Read the jar, add the tip, write the new total back."
+        },
+        {
+          "line": 4,
+          "gloss": "After every table, show the final total."
+        }
+      ],
+      "contrast": {
+        "wrong": "total = tip",
+        "wrong_note": "replaces the total",
+        "right": "total += tip",
+        "right_note": "adds to the total"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "total = 0\nfor tip in tips:\n    total += tip\nprint(total)",
+    "alternatives": [
+      {
+        "code": "total = 0\nfor tip in tips:\n    total = total + tip\nprint(total)",
+        "note": "The same thing, spelled out."
+      },
+      {
+        "code": "print(sum(tips))",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "Watch total on iteration 2. Where did the 4 go?",
+      "= puts a new value in the box and throws the old one out. You want to add to what's there.",
+      "total += tip"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "tips": [
+          4,
+          6,
+          1
+        ]
+      },
+      "expected": "11"
+    },
+    {
+      "input": {
+        "tips": []
+      },
+      "expected": "0"
+    },
+    {
+      "input": {
+        "tips": [
+          8
+        ]
+      },
+      "expected": "8"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A table leaves no tip: [4, 0, 6] — what's in the jar?",
+    "data": {
+      "name": "tips",
+      "value": [
+        4,
+        0,
+        6
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With a 0 tip in the middle, what gets printed?"
+    },
+    "recommended": "total = 0\nfor tip in tips:\n    total += tip\nprint(total)",
+    "fix_hint": "Nothing structural — adding 0 changes nothing, and the draft still forgets the 4."
+  },
+  "one_liner": "Assignment replaces; += adds — a tip jar that forgets is just the last table.",
+  "trace_watch": [
+    "tip",
+    "total"
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "id": "037",
+  "skill": "counting-group-anagrams",
+  "title": "Sort the word piles",
+  "scenario": "Sort these words into piles where each pile holds words made of the same letters.",
+  "data": {
+    "name": "words",
+    "value": [
+      "eat",
+      "tea",
+      "tan",
+      "ate",
+      "nat",
+      "bat"
+    ]
+  },
+  "intro": {
+    "job": "Sort these words into piles where each pile holds words made of the same letters.",
+    "idea": {
+      "rule": "The pile isn't the first letter — it's the whole handful of letters, sorted.",
+      "detail": "Anagrams use the same letters in a different order, so sorting their letters makes them identical: 'eat', 'tea' and 'ate' all sort to 'aet'. Use that sorted string as the dict key and group words under it — the grouping trick from 003, with a smarter key."
+    },
+    "watch": {
+      "code": "groups = {}\nfor w in words:\n    key = ''.join(sorted(w))\n    groups.setdefault(key, []).append(w)\nprint(groups)",
+      "data": {
+        "name": "words",
+        "value": [
+          "cat",
+          "act",
+          "dog"
+        ]
+      },
+      "trace_watch": [
+        "w",
+        "key",
+        "groups"
+      ]
+    }
+  },
+  "model_restatement": "Group the words so that words made of exactly the same letters end up together.",
+  "clarify": [
+    {
+      "keywords": [
+        "order",
+        "sorted",
+        "same order",
+        "which pile first"
+      ],
+      "question": "Does order matter?",
+      "answer": "Keep words in the order they came in; piles in the order they first appear."
+    },
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase"
+      ],
+      "question": "Upper or lower case?",
+      "answer": "All lowercase today."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no words",
+        "nothing"
+      ],
+      "question": "What if there are no words?",
+      "answer": "Then an empty dict."
+    },
+    {
+      "keywords": [
+        "format",
+        "dict",
+        "lists",
+        "output",
+        "print",
+        "shape"
+      ],
+      "question": "What shape should the answer be?",
+      "answer": "A dict from a pile's key to its list of words."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each word, work out which pile it goes in from its letters — the first letter — and add it to that pile. Print the piles.",
+  "draft_code": "groups = {}\nfor w in words:\n    key = w[0]\n    groups.setdefault(key, []).append(w)\nprint(groups)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 ('eat'): what is key?",
+      "kind": "value",
+      "var": "key"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3 is 'tan'. After it, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "With the fix — iteration 1: what is key?",
+      "kind": "value",
+      "var": "key"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "w[0] files each word by its first letter only — so 'tan' lands with 'tea' (both start with t), while 'ate', made of the same letters as 'tea', goes to its own pile under 'a'.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Filing by first letter is shelving books by the first letter of the title — 'tea' and 'tan' share a shelf, and 'ate', the same letters as 'tea', ends up across the room.",
+    "bridge": "So what key would be identical for 'eat', 'tea' and 'ate' — and different for 'tan'?",
+    "fix": {
+      "rule": "''.join(sorted(w)) turns any anagram into the same key — 'eat', 'tea', 'ate' all become 'aet'.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "No piles yet."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next word."
+        },
+        {
+          "line": 3,
+          "gloss": "Sort its letters into a key: anagrams get identical keys."
+        },
+        {
+          "line": 4,
+          "gloss": "Add the word to that key's pile (making the pile if new)."
+        }
+      ],
+      "contrast": {
+        "wrong": "key = w[0]",
+        "wrong_note": "first letter only",
+        "right": "key = ''.join(sorted(w))",
+        "right_note": "all the letters, sorted"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "groups = {}\nfor w in words:\n    key = ''.join(sorted(w))\n    groups.setdefault(key, []).append(w)\nprint(groups)",
+    "alternatives": [
+      {
+        "code": "from collections import defaultdict\ngroups = defaultdict(list)\nfor w in words:\n    groups[''.join(sorted(w))].append(w)\nprint(dict(groups))",
+        "note": "defaultdict(list) — the same piles, with less setup."
+      }
+    ],
+    "hints": [
+      "After iteration 3, which pile is 'ate' going to end up in — and is that 'tea''s pile?",
+      "The first letter doesn't decide whether two words are anagrams. All the letters do.",
+      "key = ''.join(sorted(w))"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "words": [
+          "eat",
+          "tea",
+          "tan",
+          "ate",
+          "nat",
+          "bat"
+        ]
+      },
+      "expected": "{'aet': ['eat', 'tea', 'ate'], 'ant': ['tan', 'nat'], 'abt': ['bat']}"
+    },
+    {
+      "input": {
+        "words": [
+          "cat",
+          "act",
+          "dog"
+        ]
+      },
+      "expected": "{'act': ['cat', 'act'], 'dgo': ['dog']}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New words: ['listen', 'silent', 'enlist', 'hello'] — what are the piles?",
+    "data": {
+      "name": "words",
+      "value": [
+        "listen",
+        "silent",
+        "enlist",
+        "hello"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new words, what gets printed?"
+    },
+    "recommended": "groups = {}\nfor w in words:\n    key = ''.join(sorted(w))\n    groups.setdefault(key, []).append(w)\nprint(groups)",
+    "fix_hint": "Nothing to change — all three anagrams sort to 'eilnst'."
+  },
+  "one_liner": "The pile isn't the first letter — it's the whole handful of letters, sorted.",
+  "trace_watch": [
+    "w",
+    "key",
+    "groups"
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "id": "038",
+  "skill": "counting-majority",
+  "title": "Who wins the vote",
+  "scenario": "One number shows up more than half the time. Which one?",
+  "data": {
+    "name": "nums",
+    "value": [
+      3,
+      2,
+      2,
+      1,
+      2,
+      2,
+      2
+    ]
+  },
+  "intro": {
+    "job": "One number shows up more than half the time. Which one?",
+    "idea": {
+      "rule": "max over a dict asks for the biggest KEY — to find the biggest VALUE you have to look at the counts.",
+      "detail": "Count first: a dict from each number to how many times it appears. Then you want the key whose COUNT is biggest. max(counts) compares the keys themselves; max(counts, key=counts.get) compares each key by its count and hands back the key that wins."
+    },
+    "watch": {
+      "code": "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts, key=counts.get)\nprint(winner)",
+      "data": {
+        "name": "nums",
+        "value": [
+          1,
+          1,
+          2,
+          1,
+          3
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "counts",
+        "winner"
+      ]
+    }
+  },
+  "model_restatement": "Find the number that appears most — more than half the time — and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "always",
+        "guaranteed",
+        "no majority",
+        "none",
+        "tie"
+      ],
+      "question": "Is there always a majority?",
+      "answer": "Yes — one number always appears more than half the time."
+    },
+    {
+      "keywords": [
+        "count",
+        "how many",
+        "times"
+      ],
+      "question": "The number, or how many times?",
+      "answer": "Just the number."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no votes",
+        "nothing"
+      ],
+      "question": "Could the list be empty?",
+      "answer": "Not today."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count how often each number appears. Then take the biggest one from the counts and print it.",
+  "draft_code": "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts)\nprint(winner)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 7
+      },
+      "prompt": "After the counting loop (iteration 7), what is counts?",
+      "kind": "value",
+      "var": "counts"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "After line 4, what is winner?",
+      "kind": "value",
+      "var": "winner"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — after line 4, what is winner?",
+      "kind": "value",
+      "var": "winner"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max(counts) compares the dict's KEYS — 3, 2 and 1 — and 3 is the biggest key. It never looks at how many votes each one got.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "max(counts) reads the candidates' names off the ballot box and picks the biggest NAME — 3 — without ever opening the box to count votes.",
+    "bridge": "So how do you tell max to judge each number by its count instead?",
+    "fix": {
+      "rule": "max(counts, key=counts.get): still hands back a key, but chooses it by looking up each key's count.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty tally."
+        },
+        {
+          "line": 2,
+          "gloss": "Take each vote."
+        },
+        {
+          "line": 3,
+          "gloss": "Count it."
+        },
+        {
+          "line": 4,
+          "gloss": "Pick the number whose COUNT is biggest."
+        }
+      ],
+      "contrast": {
+        "wrong": "max(counts)",
+        "wrong_note": "the biggest number",
+        "right": "max(counts, key=counts.get)",
+        "right_note": "the number with the most votes"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts, key=counts.get)\nprint(winner)",
+    "alternatives": [
+      {
+        "code": "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = None\nfor x in counts:\n    if winner is None or counts[x] > counts[winner]:\n        winner = x\nprint(winner)",
+        "note": "Track the leader by hand — the same comparison, spelled out."
+      }
+    ],
+    "hints": [
+      "After line 4, is winner the number with the most votes — or just the biggest number?",
+      "max over a dict compares the keys. You want it to compare the counts.",
+      "winner = max(counts, key=counts.get)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          3,
+          2,
+          2,
+          1,
+          2,
+          2,
+          2
+        ]
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "nums": [
+          1,
+          1,
+          2,
+          1,
+          3
+        ]
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New votes: [9, 4, 4, 4, 1, 4, 2] — who wins?",
+    "data": {
+      "name": "nums",
+      "value": [
+        9,
+        4,
+        4,
+        4,
+        1,
+        4,
+        2
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new votes, what gets printed?"
+    },
+    "recommended": "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts, key=counts.get)\nprint(winner)",
+    "fix_hint": "Nothing to change — 4 has the most votes, even though 9 is the biggest number."
+  },
+  "one_liner": "max over a dict asks for the biggest KEY — to find the biggest VALUE you have to look at the counts.",
+  "trace_watch": [
+    "x",
+    "counts",
+    "winner"
+  ]
+}

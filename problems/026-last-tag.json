@@ -1,0 +1,173 @@
+{
+  "id": "026",
+  "skill": "strings-slicing",
+  "title": "Last tag",
+  "scenario": "The tag is the LAST two letters of the code.",
+  "data": {
+    "name": "code",
+    "value": "GOAT"
+  },
+  "intro": {
+    "job": "The tag is the LAST two letters of the code.",
+    "idea": {
+      "rule": "Negative indexes count from the end — [-2:] means 'from second-to-last to the finish'.",
+      "detail": "Seats can be counted from the back too: -1 is the last letter, -2 the one before it. [-2:] starts at seat -2 and, with no stop, runs to the end."
+    },
+    "watch": {
+      "code": "end = word[-3:]\nprint(end)",
+      "data": {
+        "name": "word",
+        "value": "PYTHON"
+      },
+      "trace_watch": [
+        "end"
+      ]
+    }
+  },
+  "model_restatement": "Take the last two letters of the code and print them.",
+  "clarify": [
+    {
+      "keywords": [
+        "short",
+        "shorter",
+        "fewer",
+        "one letter"
+      ],
+      "question": "Could a code be shorter than two letters?",
+      "answer": "Not today."
+    },
+    {
+      "keywords": [
+        "case",
+        "lowercase",
+        "uppercase"
+      ],
+      "question": "Upper or lower case?",
+      "answer": "Keep it exactly as it is."
+    },
+    {
+      "keywords": [
+        "quotes",
+        "format",
+        "print",
+        "output",
+        "give"
+      ],
+      "question": "How should I give the tag?",
+      "answer": "Just print it."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Take two letters of the code for the tag and print it.",
+  "draft_code": "tag = code[:2]\nprint(tag)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is tag?",
+      "kind": "value",
+      "var": "tag"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is tag?",
+      "kind": "value",
+      "var": "tag"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "code[:2] takes seats 0 and 1 — the FIRST two letters, GO — not the last two.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "[:2] counts from the front of the row: seats 0 and 1 are G and O — the wrong end of GOAT.",
+    "bridge": "So how do you start counting from the back of the row?",
+    "fix": {
+      "rule": "[-2:] starts at the second-to-last seat and runs to the end — A, T.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Start at seat -2 (second from the end) and take the rest."
+        },
+        {
+          "line": 2,
+          "gloss": "Show the tag."
+        }
+      ],
+      "contrast": {
+        "wrong": "code[:2]",
+        "wrong_note": "the first two",
+        "right": "code[-2:]",
+        "right_note": "the last two"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "tag = code[-2:]\nprint(tag)",
+    "alternatives": [
+      {
+        "code": "tag = code[len(code) - 2:]\nprint(tag)",
+        "note": "The same slice, counted from the front — longer, same answer."
+      }
+    ],
+    "hints": [
+      "Which letters are at seats 0 and 1?",
+      "Negative indexes count from the end.",
+      "tag = code[-2:]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "code": "GOAT"
+      },
+      "expected": "AT"
+    },
+    {
+      "input": {
+        "code": "DINK"
+      },
+      "expected": "NK"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What does your code give for 'GOL'?",
+    "data": {
+      "name": "code",
+      "value": "GOL"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With code = 'GOL', what gets printed?"
+    },
+    "recommended": "tag = code[-2:]\nprint(tag)",
+    "fix_hint": "The tag is the LAST two letters — with 'GOL', [-2:] gives 'OL', but the draft's [:2] gives the first two, 'GO'."
+  },
+  "one_liner": "Negative indexes count from the end — [-2:] means 'from second-to-last to the finish'.",
+  "trace_watch": [
+    "tag"
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "id": "073",
+  "skill": "numbers-operators",
+  "title": "Share the marbles",
+  "scenario": "31 marbles, 4 bags. Whole marbles per bag, and how many left over?",
+  "data": {
+    "name": "marbles",
+    "value": 31
+  },
+  "intro": {
+    "job": "31 marbles, 4 bags. Whole marbles per bag, and how many left over?",
+    "idea": {
+      "rule": "/ always makes a float; // is division that drops the fraction — use it when the answer must be whole things.",
+      "detail": "/ always makes a float, even when the division comes out even — 16 / 4 is 4.0, not 4. // drops the fraction: 31 // 4 is 7, the whole marbles per bag, and % gives what's left over: 31 % 4 is 3."
+    },
+    "watch": {
+      "code": "k = 4\nper = sweets // k\nleft = sweets % k\nexact = sweets / k\nprint((per, left, exact))",
+      "data": {
+        "name": "sweets",
+        "value": 13
+      },
+      "trace_watch": [
+        "per",
+        "left",
+        "exact"
+      ]
+    }
+  },
+  "model_restatement": "Split the marbles evenly into whole bags, and count what's left.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no marbles",
+        "none",
+        "zero"
+      ],
+      "question": "What if there are no marbles?",
+      "answer": "Then 0 per bag, and 0 left over."
+    },
+    {
+      "keywords": [
+        "uneven",
+        "unequal",
+        "different",
+        "fair",
+        "the same"
+      ],
+      "question": "Do all the bags get the same?",
+      "answer": "Yes — every bag gets the same whole count, and the rest is left over."
+    },
+    {
+      "keywords": [
+        "divmod",
+        "library",
+        "builtin",
+        "built-in"
+      ],
+      "question": "Can I use divmod()?",
+      "answer": "In real work, sure. Here, write the two lines — I want to see the mechanics."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Four bags. Work out the whole marbles per bag and what's left over. Print both.",
+  "draft_code": "bags = 4\nper = marbles / bags\nleft = marbles % bags\nprint((per, left))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "What is per?",
+      "kind": "value",
+      "var": "per"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "What is left?",
+      "kind": "value",
+      "var": "left"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — what is per?",
+      "kind": "value",
+      "var": "per"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "marbles / bags is 7.75 — you can't hand out three-quarters of a marble, and the leftover count is right but the per-bag count is a float.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "/ always makes a float — 31 / 4 is 7.75, not 7.",
+    "bridge": "So how do you divide and drop the fraction?",
+    "fix": {
+      "rule": "// is division that drops the fraction — 31 // 4 is 7 whole marbles per bag.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Four bags."
+        },
+        {
+          "line": 2,
+          "gloss": "Whole marbles per bag — drop the fraction."
+        },
+        {
+          "line": 3,
+          "gloss": "What's left over."
+        },
+        {
+          "line": 4,
+          "gloss": "Show both numbers."
+        }
+      ],
+      "contrast": {
+        "wrong": "marbles / bags",
+        "wrong_note": "7.75 — a fraction of a marble",
+        "right": "marbles // bags",
+        "right_note": "7 whole marbles"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "bags = 4\nper = marbles // bags\nleft = marbles % bags\nprint((per, left))",
+    "alternatives": [
+      {
+        "code": "bags = 4\nper, left = divmod(marbles, bags)\nprint((per, left))",
+        "note": "One call does both jobs."
+      },
+      {
+        "code": "bags = 4\nper = int(marbles / bags)\nleft = marbles % bags\nprint((per, left))",
+        "note": "Chop the fraction off after dividing — also fine."
+      }
+    ],
+    "hints": [
+      "per is 7.75 — can you hand out three-quarters of a marble?",
+      "/ always makes a float. You want whole marbles.",
+      "per = marbles // bags"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "marbles": 31
+      },
+      "expected": "(7, 3)"
+    },
+    {
+      "input": {
+        "marbles": 12
+      },
+      "expected": "(3, 0)"
+    },
+    {
+      "input": {
+        "marbles": 5
+      },
+      "expected": "(1, 1)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What does marbles % bags give when marbles is 16?",
+    "data": {
+      "name": "marbles",
+      "value": 16
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With 16 marbles, what gets printed?"
+    },
+    "recommended": "bags = 4\nper = marbles // bags\nleft = marbles % bags\nprint((per, left))",
+    "fix_hint": "16 splits evenly — nothing to change; the leftover is just 0."
+  },
+  "one_liner": "/ always makes a float; // is division that drops the fraction — use it when the answer must be whole things.",
+  "trace_watch": [
+    "per",
+    "left"
+  ]
+}

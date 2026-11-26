@@ -1,0 +1,380 @@
+{
+  "id": "136",
+  "skill": "graph-reachability",
+  "title": "Night crossing",
+  "scenario": "The night ferry runs a different set of routes between the quay and the lighthouse. Starting at the quay, can you reach the lighthouse?",
+  "data": {
+    "name": "trip",
+    "value": [
+      {
+        "quay": [
+          "marina"
+        ],
+        "marina": [
+          "quay",
+          "channel"
+        ],
+        "channel": [
+          "marina",
+          "beacon"
+        ],
+        "beacon": [
+          "channel",
+          "lighthouse"
+        ],
+        "shoal": [
+          "beacon"
+        ],
+        "lighthouse": [
+          "shoal"
+        ]
+      },
+      "quay",
+      "lighthouse"
+    ]
+  },
+  "intro": {
+    "job": "The night ferry runs a different set of routes between the quay and the lighthouse. Starting at the quay, can you reach the lighthouse?",
+    "idea": {
+      "rule": "The seen set is the memory — without it, the walk goes in circles forever.",
+      "detail": "Same question as Ferry routes, new map. Walk from the start: if you're at the target, yes; otherwise try each route out and ask the same question from there. Here almost every route has a partner running back the other way — the marina leads back to the quay — so a walk with no memory turns straight round. Keep a set of the stops you've been to, and never walk into one again."
+    },
+    "watch": {
+      "code": "def can_reach(graph, node, target, seen=None):\n    if seen is None:\n        seen = set()\n    if node == target:\n        return True\n    seen.add(node)\n    for nxt in graph[node]:\n        if nxt not in seen and can_reach(graph, nxt, target, seen):\n            return True\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+      "data": {
+        "name": "trip",
+        "value": [
+          {
+            "quay": [
+              "lighthouse"
+            ],
+            "lighthouse": []
+          },
+          "quay",
+          "lighthouse"
+        ]
+      },
+      "trace_watch": [
+        "node",
+        "seen"
+      ]
+    }
+  },
+  "model_restatement": "Say whether the lighthouse can be reached from the quay.",
+  "clarify": [
+    {
+      "keywords": [
+        "loop",
+        "loops",
+        "back"
+      ],
+      "question": "Can a route lead back to a stop I just left?",
+      "answer": "Yes — the marina's first route goes straight back to the quay. Your walk has to survive that."
+    },
+    {
+      "keywords": [
+        "no way",
+        "unreachable",
+        "can't reach"
+      ],
+      "question": "What if there's no way to reach the target?",
+      "answer": "Then print False."
+    },
+    {
+      "keywords": [
+        "dead end",
+        "no routes out",
+        "stuck"
+      ],
+      "question": "What about a dead end with no routes out?",
+      "answer": "Then that way fails — try the next route."
+    },
+    {
+      "keywords": [
+        "shortest",
+        "fewest",
+        "which way"
+      ],
+      "question": "Do I need the shortest way, or just whether I can get there?",
+      "answer": "Just whether you can get there: True or False."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "To reach the target from a stop: if this stop is the target, yes. Otherwise try each route out of it, and ask the same question from where it leads. If none works, no.",
+  "draft_code": "def can_reach(graph, node, target):\n    if node == target:\n        return True\n    for nxt in graph[node]:\n        if can_reach(graph, nxt, target):\n            return True\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "The first call reaches line 2. Which stop is node?",
+      "kind": "value",
+      "var": "node"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "The walk takes its first route. On the next call, which stop is node?",
+      "kind": "value",
+      "var": "node"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after the second stop is remembered, what is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft walks quay → marina → quay → marina… — the marina's first route leads back to the quay, so the walk never gets to the channel. A walk with no memory follows the loop forever.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "A walk with no memory is a ferry that forgets where it came from — at the marina, the route back to the quay looks as new as any other.",
+    "bridge": "The walk goes quay → marina → quay. What would it need to know at the marina to take the channel route instead?",
+    "fix": {
+      "rule": "Carry a seen set: add each stop as you leave it, and never walk into a stop that's already in it.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "The first call starts an empty memory..."
+        },
+        {
+          "line": 3,
+          "gloss": "...shared by every call after it."
+        },
+        {
+          "line": 6,
+          "gloss": "Remember this stop before walking on."
+        },
+        {
+          "line": 8,
+          "gloss": "Only walk to stops not already seen."
+        }
+      ],
+      "contrast": {
+        "wrong": "for nxt in graph[node]: if can_reach(...)",
+        "wrong_note": "bounces quay ↔ marina forever",
+        "right": "if nxt not in seen and can_reach(..., seen)",
+        "right_note": "each stop visited once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def can_reach(graph, node, target, seen=None):\n    if seen is None:\n        seen = set()\n    if node == target:\n        return True\n    seen.add(node)\n    for nxt in graph[node]:\n        if nxt not in seen and can_reach(graph, nxt, target, seen):\n            return True\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+    "alternatives": [
+      {
+        "code": "def can_reach(graph, start, target):\n    seen = set()\n    todo = [start]\n    while todo:\n        node = todo.pop()\n        if node == target:\n            return True\n        if node not in seen:\n            seen.add(node)\n            for nxt in graph[node]:\n                if nxt not in seen:\n                    todo.append(nxt)\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+        "note": "The same walk with an explicit to-do stack: a stop is marked seen when it's taken off the stack, and stops already seen are skipped."
+      }
+    ],
+    "hints": [
+      "Follow the draft from the quay. Where does the marina's first route lead?",
+      "Nothing stops the walk from going straight back to a stop it just left.",
+      "Pass a seen set along: seen.add(node), and only walk to nxt if nxt not in seen."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "trip": [
+          {
+            "quay": [
+              "marina"
+            ],
+            "marina": [
+              "quay",
+              "channel"
+            ],
+            "channel": [
+              "marina",
+              "beacon"
+            ],
+            "beacon": [
+              "channel",
+              "lighthouse"
+            ],
+            "shoal": [
+              "beacon"
+            ],
+            "lighthouse": [
+              "shoal"
+            ]
+          },
+          "quay",
+          "lighthouse"
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "trip": [
+          {
+            "quay": [
+              "marina"
+            ],
+            "marina": [
+              "quay",
+              "channel"
+            ],
+            "channel": [
+              "marina",
+              "beacon"
+            ],
+            "beacon": [
+              "channel",
+              "lighthouse"
+            ],
+            "shoal": [
+              "beacon"
+            ],
+            "lighthouse": [
+              "shoal"
+            ]
+          },
+          "beacon",
+          "shoal"
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "trip": [
+          {
+            "quay": [
+              "marina"
+            ],
+            "marina": [
+              "quay",
+              "channel"
+            ],
+            "channel": [
+              "marina",
+              "beacon"
+            ],
+            "beacon": [
+              "channel",
+              "lighthouse"
+            ],
+            "shoal": [
+              "beacon"
+            ],
+            "lighthouse": [
+              "shoal"
+            ]
+          },
+          "quay",
+          "quay"
+        ]
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Same map — start at the marina, target the beacon. What does your code print?",
+    "data": {
+      "name": "trip",
+      "value": [
+        {
+          "quay": [
+            "marina"
+          ],
+          "marina": [
+            "quay",
+            "channel"
+          ],
+          "channel": [
+            "marina",
+            "beacon"
+          ],
+          "beacon": [
+            "channel",
+            "lighthouse"
+          ],
+          "shoal": [
+            "beacon"
+          ],
+          "lighthouse": [
+            "shoal"
+          ]
+        },
+        "marina",
+        "beacon"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the marina as the start and the beacon as the target, what gets printed?"
+    },
+    "recommended": "def can_reach(graph, node, target, seen=None):\n    if seen is None:\n        seen = set()\n    if node == target:\n        return True\n    seen.add(node)\n    for nxt in graph[node]:\n        if nxt not in seen and can_reach(graph, nxt, target, seen):\n            return True\n    return False\n\nroutes, start, target = trip\nprint(can_reach(routes, start, target))",
+    "fix_hint": "The seen set lets it walk past the loop — marina → channel → beacon."
+  },
+  "one_liner": "The seen set is the memory — without it, the walk goes in circles forever.",
+  "trace_watch": [
+    "node",
+    "seen"
+  ],
+  "stage": {
+    "device": "graph",
+    "map": "map:graph",
+    "graph": "graph",
+    "current": "node",
+    "seen": "seen",
+    "candidate": "nxt",
+    "target": "target",
+    "positions": {
+      "quay": [
+        300,
+        360
+      ],
+      "marina": [
+        520,
+        220
+      ],
+      "channel": [
+        760,
+        360
+      ],
+      "beacon": [
+        520,
+        520
+      ],
+      "shoal": [
+        980,
+        200
+      ],
+      "lighthouse": [
+        1080,
+        430
+      ]
+    }
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "id": "039",
+  "skill": "two-pointers-reverse",
+  "title": "Flip the word",
+  "scenario": "Flip the letters backwards, in place.",
+  "data": {
+    "name": "letters",
+    "value": [
+      "h",
+      "e",
+      "l",
+      "l",
+      "o"
+    ]
+  },
+  "intro": {
+    "job": "Flip the letters backwards, in place.",
+    "idea": {
+      "rule": "Swap only halfway — walk the whole list and every swap gets undone.",
+      "detail": "Two fingers: one at the front (i), one at the back (n - 1 - i). Swap what they point at, then move both toward the middle. Once they meet, every letter is already in place — the first half of the swaps did the whole job. Keep going and the second half swaps everything straight back."
+    },
+    "watch": {
+      "code": "n = len(letters)\nfor i in range(n // 2):\n    letters[i], letters[n - 1 - i] = letters[n - 1 - i], letters[i]\nprint(letters)",
+      "data": {
+        "name": "letters",
+        "value": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "letters"
+      ]
+    }
+  },
+  "model_restatement": "Reverse the list of letters by swapping them in place, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "new list",
+        "copy",
+        "in place",
+        "reversed",
+        "[::-1]"
+      ],
+      "question": "Can I just make a reversed copy?",
+      "answer": "No — flip this list in place, by swapping."
+    },
+    {
+      "keywords": [
+        "empty",
+        "one letter",
+        "single"
+      ],
+      "question": "What about an empty list or one letter?",
+      "answer": "Not today — at least two letters."
+    },
+    {
+      "keywords": [
+        "odd",
+        "even",
+        "middle",
+        "length"
+      ],
+      "question": "Odd or even number of letters?",
+      "answer": "Could be either."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For every position, swap the letter there with its mirror at the other end. Print the letters.",
+  "draft_code": "n = len(letters)\nfor i in range(n):\n    letters[i], letters[n - 1 - i] = letters[n - 1 - i], letters[i]\nprint(letters)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "After the swap in iteration 2, what is letters?",
+      "kind": "value",
+      "var": "letters"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 4
+      },
+      "prompt": "Iteration 4 (i = 3): after its swap, what is letters?",
+      "kind": "value",
+      "var": "letters"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — when the loop is done, what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "After two swaps the word is already 'olleh'. The loop keeps going: i = 3 swaps back what i = 1 did, and i = 4 swaps back what i = 0 did — ending exactly where it started.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Two fingers that keep walking past the middle cross over and start undoing their own work — every swap after halfway is a swap that already happened, done backwards.",
+    "bridge": "So when should the two fingers stop?",
+    "fix": {
+      "rule": "range(n // 2): the fingers walk only until they meet in the middle — every pair is swapped exactly once.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "How many letters."
+        },
+        {
+          "line": 2,
+          "gloss": "Walk only the first half of the positions."
+        },
+        {
+          "line": 3,
+          "gloss": "Swap this letter with its mirror at the other end."
+        },
+        {
+          "line": 4,
+          "gloss": "Show the flipped word."
+        }
+      ],
+      "contrast": {
+        "wrong": "range(n)",
+        "wrong_note": "every swap done twice",
+        "right": "range(n // 2)",
+        "right_note": "every swap done once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "n = len(letters)\nfor i in range(n // 2):\n    letters[i], letters[n - 1 - i] = letters[n - 1 - i], letters[i]\nprint(letters)",
+    "alternatives": [
+      {
+        "code": "left, right = 0, len(letters) - 1\nwhile left < right:\n    letters[left], letters[right] = letters[right], letters[left]\n    left += 1\n    right -= 1\nprint(letters)",
+        "note": "Two explicit fingers that stop when they meet — the classic two-pointer shape."
+      }
+    ],
+    "hints": [
+      "After iteration 2, the word is already flipped. What does iteration 4 do to it?",
+      "Past the middle, each swap undoes an earlier one.",
+      "for i in range(n // 2):"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "letters": [
+          "h",
+          "e",
+          "l",
+          "l",
+          "o"
+        ]
+      },
+      "expected": "['o', 'l', 'l', 'e', 'h']"
+    },
+    {
+      "input": {
+        "letters": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "expected": "['c', 'b', 'a']"
+    }
+  ],
+  "follow_up": {
+    "prompt": "An even-length word: ['w', 'o', 'r', 'd'] — flipped?",
+    "data": {
+      "name": "letters",
+      "value": [
+        "w",
+        "o",
+        "r",
+        "d"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With ['w', 'o', 'r', 'd'], what gets printed?"
+    },
+    "recommended": "n = len(letters)\nfor i in range(n // 2):\n    letters[i], letters[n - 1 - i] = letters[n - 1 - i], letters[i]\nprint(letters)",
+    "fix_hint": "Nothing to change — 4 // 2 is 2 swaps, and there's no middle letter to worry about."
+  },
+  "one_liner": "Swap only halfway — walk the whole list and every swap gets undone.",
+  "trace_watch": [
+    "i",
+    "letters"
+  ]
+}

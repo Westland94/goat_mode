@@ -1,0 +1,206 @@
+{
+  "id": "065",
+  "skill": "tuples-unpacking",
+  "title": "Swap the captains",
+  "scenario": "Red and Blue swap captains. Red's captain goes to Blue and Blue's to Red.",
+  "data": {
+    "name": "pair",
+    "value": [
+      "red",
+      "blue"
+    ]
+  },
+  "intro": {
+    "job": "Red and Blue swap captains. Red's captain goes to Blue and Blue's to Red.",
+    "idea": {
+      "rule": "Swapping with one hand drops a cup — a, b = b, a trades both at once, nothing dropped.",
+      "detail": "first = second overwrites first straight away — the old value is gone before you can hand it to second. Python's a, b = b, a works differently: it reads BOTH values on the right first, then assigns them both, so nothing is lost mid-swap."
+    },
+    "watch": {
+      "code": "a, b = nums\na, b = b, a\nprint((a, b))",
+      "data": {
+        "name": "nums",
+        "value": [
+          7,
+          3
+        ]
+      },
+      "trace_watch": [
+        "a",
+        "b"
+      ]
+    }
+  },
+  "model_restatement": "Swap the two names, so whoever was first is now second and the other way round.",
+  "clarify": [
+    {
+      "keywords": [
+        "temp",
+        "temporary",
+        "extra variable",
+        "third variable"
+      ],
+      "question": "Can I use a temporary variable?",
+      "answer": "Sure — but Python has a one-line way too."
+    },
+    {
+      "keywords": [
+        "format",
+        "tuple",
+        "print",
+        "output",
+        "show"
+      ],
+      "question": "How should I show the result?",
+      "answer": "Print the pair as (first, second)."
+    },
+    {
+      "keywords": [
+        "more than two",
+        "three",
+        "length",
+        "exactly"
+      ],
+      "question": "Is it always exactly two teams?",
+      "answer": "Yes — always a pair."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Unpack the pair into first and second. Put second into first, then put first into second. Print them.",
+  "draft_code": "first, second = pair\nfirst = second\nsecond = first\nprint((first, second))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is first?",
+      "kind": "value",
+      "var": "first"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "After line 3, what is second?",
+      "kind": "value",
+      "var": "second"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is second?",
+      "kind": "value",
+      "var": "second"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Line 2 already overwrote first with 'blue', so line 3 copies 'blue' back into second — red is gone.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Swapping one at a time is juggling two cups with one hand: put blue's cup in red's spot and red's cup is already on the floor.",
+    "bridge": "So how could you move both at the same moment?",
+    "fix": {
+      "rule": "first, second = second, first reads both values first, then assigns both — nothing gets overwritten too early.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Unpack the pair into two names."
+        },
+        {
+          "line": 2,
+          "gloss": "Read both, then trade both, in one step."
+        },
+        {
+          "line": 3,
+          "gloss": "Show the swapped pair."
+        }
+      ],
+      "contrast": {
+        "wrong": "first = second\nsecond = first",
+        "wrong_note": "loses red on the first line",
+        "right": "first, second = second, first",
+        "right_note": "trades both at once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "first, second = pair\nfirst, second = second, first\nprint((first, second))",
+    "alternatives": [
+      {
+        "code": "first, second = pair\ntemp = first\nfirst = second\nsecond = temp\nprint((first, second))",
+        "note": "A spare cup to hold red while you move blue — also fine."
+      }
+    ],
+    "hints": [
+      "After line 2, what is first? What's left of red?",
+      "Line 2 overwrites first before second has copied it.",
+      "first, second = second, first"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pair": [
+          "red",
+          "blue"
+        ]
+      },
+      "expected": "('blue', 'red')"
+    },
+    {
+      "input": {
+        "pair": [
+          3,
+          7
+        ]
+      },
+      "expected": "(7, 3)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Swap ('x', 'y') — what's printed?",
+    "data": {
+      "name": "pair",
+      "value": [
+        "x",
+        "y"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With pair = ('x', 'y'), what gets printed?"
+    },
+    "recommended": "first, second = pair\nfirst, second = second, first\nprint((first, second))",
+    "fix_hint": "Nothing to change — swapping two different names trades them, same as the main problem."
+  },
+  "one_liner": "Swapping with one hand drops a cup — a, b = b, a trades both at once, nothing dropped.",
+  "trace_watch": [
+    "first",
+    "second"
+  ]
+}

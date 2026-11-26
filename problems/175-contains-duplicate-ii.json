@@ -1,0 +1,254 @@
+{
+  "id": "175",
+  "skill": "dicts-last-index",
+  "title": "Contains Duplicate II",
+  "section": "leetcode",
+  "lc": {
+    "number": 219,
+    "title": "Contains Duplicate II",
+    "difficulty": "Easy",
+    "slug": "contains-duplicate-ii"
+  },
+  "scenario": "You get a list of integers nums and an integer k. Return True if some value appears twice at positions i and j with abs(i - j) <= k — two equal values no more than k apart — otherwise False.\n\nExample 1:\nInput: nums = [1, 2, 3, 1], k = 3\nOutput: True\nWhy: the 1s are at positions 0 and 3, exactly 3 apart.\n\nExample 2:\nInput: nums = [1, 0, 1, 1], k = 1\nOutput: True\n\nExample 3:\nInput: nums = [1, 2, 3, 1, 2, 3], k = 2\nOutput: False\nWhy: every repeat is 3 apart — too far.\n\nConstraints:\n1 <= len(nums) <= 100000\n0 <= k <= 100000\n\nWrite: def contains_nearby_duplicate(nums, k) — the driver calls it on nums = [1, 2, 3, 1], k = 3 (case = [nums, k]) and prints the result.",
+  "data": {
+    "name": "case",
+    "value": [
+      [
+        1,
+        2,
+        3,
+        1
+      ],
+      3
+    ]
+  },
+  "intro": {
+    "job": "You get a list of integers nums and an integer k. Return True if some value appears twice at positions i and j with abs(i - j) <= k — two equal values no more than k apart — otherwise False.\n\nExample 1:\nInput: nums = [1, 2, 3, 1], k = 3\nOutput: True\nWhy: the 1s are at positions 0 and 3, exactly 3 apart.\n\nExample 2:\nInput: nums = [1, 0, 1, 1], k = 1\nOutput: True\n\nExample 3:\nInput: nums = [1, 2, 3, 1, 2, 3], k = 2\nOutput: False\nWhy: every repeat is 3 apart — too far.\n\nConstraints:\n1 <= len(nums) <= 100000\n0 <= k <= 100000\n\nWrite: def contains_nearby_duplicate(nums, k) — the driver calls it on nums = [1, 2, 3, 1], k = 3 (case = [nums, k]) and prints the result.",
+    "idea": {
+      "rule": "Close counts, not just repeats — remember where each value was last seen.",
+      "detail": "Like problem 141 (Contains Duplicate), you remember what you've seen — but now distance matters, so a set isn't enough: it knows a value came before, not WHERE. Like 140 (Two Sum), use a dict keyed by value, holding the index where you last saw it. When the value comes round again, it's a hit only if i - last[x] <= k; either way, update last[x] to the newer index."
+    },
+    "watch": {
+      "code": "def contains_nearby_duplicate(nums, k):\n    last = {}\n    for i, x in enumerate(nums):\n        if x in last and i - last[x] <= k:\n            return True\n        last[x] = i\n    return False\n\nnums, k = case\nprint(contains_nearby_duplicate(nums, k))",
+      "data": {
+        "name": "case",
+        "value": [
+          [
+            1,
+            2,
+            1
+          ],
+          2
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "x",
+        "last"
+      ]
+    }
+  },
+  "model_restatement": "Say whether some value repeats within k positions of itself.",
+  "clarify": [
+    {
+      "keywords": [
+        "exactly k",
+        "distance"
+      ],
+      "question": "Does exactly k apart count?",
+      "answer": "Yes — abs(i - j) <= k includes k."
+    },
+    {
+      "keywords": [
+        "zero",
+        "k = 0"
+      ],
+      "question": "What if k is zero?",
+      "answer": "Then no two different positions are close enough — the answer is False."
+    },
+    {
+      "keywords": [
+        "far apart",
+        "anywhere"
+      ],
+      "question": "Does a repeat far apart count?",
+      "answer": "No — only repeats within k positions."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Keep a set of the values seen so far; if a value shows up again, there's a duplicate.",
+  "draft_code": "def contains_nearby_duplicate(nums, k):\n    seen = set()\n    for x in nums:\n        if x in seen:\n            return True\n        seen.add(x)\n    return False\n\nnums, k = case\nprint(contains_nearby_duplicate(nums, k))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after line 6, what is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 4
+      },
+      "prompt": "Iteration 4: x is 1 again. What is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 3
+      },
+      "prompt": "With the fix — iteration 3: after line 6, what is last?",
+      "kind": "value",
+      "var": "last"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The set remembers THAT 1 was seen, not WHERE. On [1, 2, 3, 1] with k = 3 the repeat happens to be close enough — but with k = 2 on [1, 2, 3, 1, 2, 3] every repeat is 3 apart, and the draft still says True.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "A set is a guest list with no times on it — it knows someone came before, not whether they left an hour ago or just now.",
+    "bridge": "seen is {1, 2}. When 1 comes round again, how would the draft know how far back the first 1 was?",
+    "fix": {
+      "rule": "A dict of each value's last index: a repeat counts only when i - last[x] <= k; then record the newer index.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "value → where it was last seen."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk with the position."
+        },
+        {
+          "line": 4,
+          "gloss": "Seen before, and close enough?"
+        },
+        {
+          "line": 6,
+          "gloss": "Remember the newest position."
+        }
+      ],
+      "contrast": {
+        "wrong": "if x in seen",
+        "wrong_note": "any repeat, however far",
+        "right": "if x in last and i - last[x] <= k",
+        "right_note": "only close repeats"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def contains_nearby_duplicate(nums, k):\n    last = {}\n    for i, x in enumerate(nums):\n        if x in last and i - last[x] <= k:\n            return True\n        last[x] = i\n    return False\n\nnums, k = case\nprint(contains_nearby_duplicate(nums, k))",
+    "alternatives": [
+      {
+        "code": "def contains_nearby_duplicate(nums, k):\n    window = set()\n    for i, x in enumerate(nums):\n        if x in window:\n            return True\n        window.add(x)\n        if len(window) > k:\n            window.remove(nums[i - k])\n    return False\n\nnums, k = case\nprint(contains_nearby_duplicate(nums, k))",
+        "note": "A sliding-window set of the last k values: add each value, and once the set holds more than k, drop nums[i - k] — a hit inside the window is always close enough."
+      }
+    ],
+    "hints": [
+      "What does seen know about WHERE a value was?",
+      "A repeat only counts within k positions — you need each value's index, not just the value.",
+      "last = {}; for i, x in enumerate(nums): if x in last and i - last[x] <= k: return True; last[x] = i"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          [
+            1,
+            2,
+            3,
+            1
+          ],
+          3
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            1,
+            0,
+            1,
+            1
+          ],
+          1
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            1,
+            2,
+            3,
+            1,
+            2,
+            3
+          ],
+          2
+        ]
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [1, 2, 3, 4, 5, 1], k = 3 — what does your code print?",
+    "data": {
+      "name": "case",
+      "value": [
+        [
+          1,
+          2,
+          3,
+          4,
+          5,
+          1
+        ],
+        3
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def contains_nearby_duplicate(nums, k):\n    last = {}\n    for i, x in enumerate(nums):\n        if x in last and i - last[x] <= k:\n            return True\n        last[x] = i\n    return False\n\nnums, k = case\nprint(contains_nearby_duplicate(nums, k))",
+    "fix_hint": "The two 1s are 5 apart — more than 3 — so the answer is False."
+  },
+  "one_liner": "Close counts, not just repeats — remember where each value was last seen.",
+  "trace_watch": [
+    "x",
+    "seen",
+    "last"
+  ]
+}

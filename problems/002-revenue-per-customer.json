@@ -1,0 +1,349 @@
+{
+  "id": "002",
+  "skill": "dict-accumulation",
+  "title": "Revenue per customer",
+  "scenario": "The register exports today's sales as (customer, dollars) pairs. I need total spend per customer.",
+  "data": {
+    "name": "sales",
+    "value": [
+      [
+        "ana",
+        12
+      ],
+      [
+        "ben",
+        7
+      ],
+      [
+        "ana",
+        5
+      ],
+      [
+        "cy",
+        20
+      ],
+      [
+        "ben",
+        3
+      ]
+    ]
+  },
+  "intro": {
+    "job": "The register exports today's sales as (customer, dollars) pairs. I need total spend per customer.",
+    "idea": {
+      "rule": "You can't add to nothing — start the total at zero with .get(c, 0).",
+      "detail": "totals[c] += amt reads the old total first. The first time a customer appears there is no old total — the dict has no such key, so the read fails. .get(c, 0) says 'the total for c, or 0 if c isn't there yet' — so the first sale starts from zero and every later sale adds on."
+    },
+    "watch": {
+      "code": "totals = {}\nfor c, amt in sales:\n    totals[c] = totals.get(c, 0) + amt\nprint(totals)",
+      "data": {
+        "name": "sales",
+        "value": [
+          [
+            "di",
+            9
+          ],
+          [
+            "ev",
+            4
+          ],
+          [
+            "di",
+            1
+          ]
+        ]
+      },
+      "trace_watch": [
+        "c",
+        "amt",
+        "totals"
+      ]
+    }
+  },
+  "model_restatement": "Add up the dollars for each customer, so every name maps to its total.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no sales",
+        "none",
+        "nothing",
+        "zero sales"
+      ],
+      "question": "What if there are no sales?",
+      "answer": "Then return an empty dict."
+    },
+    {
+      "keywords": [
+        "refund",
+        "refunds",
+        "negative",
+        "negatives",
+        "minus"
+      ],
+      "question": "Can amounts be negative — refunds?",
+      "answer": "Not today. Every amount is positive."
+    },
+    {
+      "keywords": [
+        "sort",
+        "sorted",
+        "sorting",
+        "ordering",
+        "in order",
+        "output order",
+        "what order",
+        "which order",
+        "order matter",
+        "order matters"
+      ],
+      "question": "Does output order matter?",
+      "answer": "No — any order is fine."
+    },
+    {
+      "keywords": [
+        "more than once",
+        "repeat",
+        "repeats",
+        "multiple",
+        "twice",
+        "same customer",
+        "duplicate",
+        "duplicates",
+        "one row",
+        "per order"
+      ],
+      "question": "Can a customer show up more than once?",
+      "answer": "Yes — that's the whole point. One row per sale."
+    },
+    {
+      "keywords": [
+        "cents",
+        "float",
+        "floats",
+        "decimal",
+        "decimals",
+        "whole"
+      ],
+      "question": "Whole dollars, or cents too?",
+      "answer": "Whole dollars today."
+    },
+    {
+      "keywords": [
+        "counter",
+        "collections",
+        "library",
+        "built-in",
+        "builtin",
+        "import",
+        "defaultdict"
+      ],
+      "question": "Can I use a library?",
+      "answer": "In real work, sure. Here, write the loop — I want to see the mechanics."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Make an empty dict. For each sale, add the dollars to that customer's total. Print it.",
+  "draft_code": "totals = {}\nfor c, amt in sales:\n    totals[c] += amt\nprint(totals)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is amt?",
+      "kind": "value",
+      "var": "amt"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "What happens on line 3, that first time?",
+      "kind": "outcome",
+      "choices": [
+        {
+          "label": "totals becomes {'ana': 12}",
+          "match": {
+            "var": "totals",
+            "value": "{'ana': 12}"
+          }
+        },
+        {
+          "label": "totals becomes {'ana': 0}",
+          "match": {
+            "var": "totals",
+            "value": "{'ana': 0}"
+          }
+        },
+        {
+          "label": "an error",
+          "match": {
+            "error": true
+          },
+          "ask_which": true
+        },
+        {
+          "label": "nothing happens",
+          "match": {
+            "unchanged": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "After iteration 3, what is totals?",
+      "kind": "value",
+      "var": "totals"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "totals[c] += amt means totals[c] = totals[c] + amt — and totals['ana'] doesn't exist yet.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The first time you meet a customer, there IS no total yet — += tries to read it before it exists.",
+    "bridge": "So what puts a zero in totals['ana'] before the first add?",
+    "fix": {
+      "rule": "totals.get(c, 0) hands back the total — or 0 the first time — so the add always has something to add to.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Start with an empty dict."
+        },
+        {
+          "line": 2,
+          "gloss": "Take each sale in turn."
+        },
+        {
+          "line": 3,
+          "gloss": "Add the dollars to that customer's total, starting from 0 the first time."
+        },
+        {
+          "line": 4,
+          "gloss": "Show the totals."
+        }
+      ],
+      "contrast": {
+        "wrong": "totals[c] += amt",
+        "wrong_note": "reads a total that isn't there yet",
+        "right": "totals[c] = totals.get(c, 0) + amt",
+        "right_note": "starts from 0 the first time"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "totals = {}\nfor c, amt in sales:\n    totals[c] = totals.get(c, 0) + amt\nprint(totals)",
+    "alternatives": [
+      {
+        "code": "totals = {}\nfor c, amt in sales:\n    if c not in totals:\n        totals[c] = 0\n    totals[c] += amt\nprint(totals)",
+        "note": "Same idea, more lines."
+      },
+      {
+        "code": "from collections import defaultdict\ntotals = defaultdict(int)\nfor c, amt in sales:\n    totals[c] += amt\nprint(dict(totals))",
+        "note": "A dict that starts every total at zero by itself."
+      }
+    ],
+    "hints": [
+      "Same shape as the orders job. What's in totals when line 3 first runs?",
+      "+= reads the old total first. The first time you see 'ana', is there one?",
+      "totals[c] = totals.get(c, 0) + amt"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "sales": []
+      },
+      "expected": "{}"
+    },
+    {
+      "input": {
+        "sales": [
+          [
+            "ana",
+            12
+          ],
+          [
+            "ben",
+            7
+          ],
+          [
+            "ana",
+            5
+          ],
+          [
+            "cy",
+            20
+          ],
+          [
+            "ben",
+            3
+          ]
+        ]
+      },
+      "expected": "{'ana': 17, 'ben': 10, 'cy': 20}"
+    },
+    {
+      "input": {
+        "sales": [
+          [
+            "dee",
+            4
+          ]
+        ]
+      },
+      "expected": "{'dee': 4}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A refund comes in as a negative amount. Does your code still work? What changes?",
+    "data": {
+      "name": "sales",
+      "value": [
+        [
+          "ana",
+          12
+        ],
+        [
+          "ben",
+          7
+        ],
+        [
+          "ana",
+          -5
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the refund row, what gets printed?"
+    },
+    "recommended": "totals = {}\nfor c, amt in sales:\n    totals[c] = totals.get(c, 0) + amt\nprint(totals)",
+    "fix_hint": "Nothing structural changes — adding a negative number just makes the total go down."
+  },
+  "one_liner": "You can't add to nothing — start the total at zero with .get(c, 0).",
+  "trace_watch": [
+    "c",
+    "amt",
+    "totals"
+  ]
+}

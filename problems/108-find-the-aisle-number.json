@@ -1,0 +1,244 @@
+{
+  "id": "108",
+  "skill": "binary-search",
+  "title": "Find the aisle number",
+  "scenario": "These aisle numbers are sorted smallest to biggest. Find where 30 sits — without scanning them one by one.",
+  "data": {
+    "name": "pair",
+    "value": [
+      [
+        5,
+        9,
+        14,
+        18,
+        23,
+        30
+      ],
+      30
+    ]
+  },
+  "intro": {
+    "job": "These aisle numbers are sorted smallest to biggest. Find where 30 sits — without scanning them one by one.",
+    "idea": {
+      "rule": "Check the last aisle standing — the search runs while lo is still at or below hi, not just below.",
+      "detail": "Binary search keeps two fingers, lo and hi, around the part of the list that could still hold the target. Look at the middle: too small means the target is to the right (lo = mid + 1), too big means it's to the left (hi = mid - 1). Each look halves what's left. When lo and hi land on the same aisle, that aisle still needs checking — so the loop runs while lo <= hi."
+    },
+    "watch": {
+      "code": "nums, target = pair\nlo = 0\nhi = len(nums) - 1\nfound = -1\nwhile lo <= hi:\n    mid = (lo + hi) // 2\n    if nums[mid] == target:\n        found = mid\n        break\n    elif nums[mid] < target:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nprint(found)",
+      "data": {
+        "name": "pair",
+        "value": [
+          [
+            4,
+            8,
+            12,
+            16
+          ],
+          16
+        ]
+      },
+      "trace_watch": [
+        "lo",
+        "hi",
+        "mid",
+        "found"
+      ]
+    }
+  },
+  "model_restatement": "Find the position of the target in the sorted list by halving, and print it — or -1 if it isn't there.",
+  "clarify": [
+    {
+      "keywords": [
+        "not there",
+        "missing",
+        "not found",
+        "absent",
+        "target"
+      ],
+      "question": "What if the target isn't on any aisle?",
+      "answer": "Print -1."
+    },
+    {
+      "keywords": [
+        "duplicates",
+        "twice",
+        "repeat"
+      ],
+      "question": "Can a number appear twice?",
+      "answer": "No — every aisle number is different."
+    },
+    {
+      "keywords": [
+        "index",
+        "in",
+        "scan",
+        "one by one",
+        "linear"
+      ],
+      "question": "Can I just scan from the front?",
+      "answer": "It would work — but the job is to halve, not scan."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Keep lo and hi around the search area. While lo is below hi, look at the middle and move lo or hi toward the target. Print where you found it, or -1.",
+  "draft_code": "nums, target = pair\nlo = 0\nhi = len(nums) - 1\nfound = -1\nwhile lo < hi:\n    mid = (lo + hi) // 2\n    if nums[mid] == target:\n        found = mid\n        break\n    elif nums[mid] < target:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nprint(found)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "First look: what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 14,
+        "iteration": "after"
+      },
+      "prompt": "The loop has stopped. What is found?",
+      "kind": "value",
+      "var": "found"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 3
+      },
+      "prompt": "With the fix — iteration 3: after line 8, what is found?",
+      "kind": "value",
+      "var": "found"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "After two looks, lo and hi both sit on aisle 5 — but 'while lo < hi' is already False, so aisle 5 (the 30) is never checked and found stays -1.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "lo < hi stops the search when exactly ONE aisle is left — the very aisle that might hold the answer — so the last aisle standing never gets looked at.",
+    "bridge": "When lo and hi point at the same aisle, should the search stop or look?",
+    "fix": {
+      "rule": "while lo <= hi: keep looking while there's at least one aisle left, including the last one.",
+      "walk": [
+        {
+          "line": 5,
+          "gloss": "Keep going while there's at least one aisle in range — even just one."
+        },
+        {
+          "line": 6,
+          "gloss": "Look at the middle aisle."
+        },
+        {
+          "line": 7,
+          "gloss": "Is it the one?"
+        },
+        {
+          "line": 11,
+          "gloss": "Too small — the target is to the right, so drop everything up to mid."
+        }
+      ],
+      "contrast": {
+        "wrong": "while lo < hi:",
+        "wrong_note": "skips the last aisle",
+        "right": "while lo <= hi:",
+        "right_note": "checks it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "nums, target = pair\nlo = 0\nhi = len(nums) - 1\nfound = -1\nwhile lo <= hi:\n    mid = (lo + hi) // 2\n    if nums[mid] == target:\n        found = mid\n        break\n    elif nums[mid] < target:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nprint(found)",
+    "alternatives": [
+      {
+        "code": "nums, target = pair\nprint(nums.index(target) if target in nums else -1)",
+        "note": "Let Python find it — correct, but it scans one by one instead of halving."
+      }
+    ],
+    "hints": [
+      "When the loop stops, where are lo and hi — and was that aisle checked?",
+      "lo < hi is False when lo == hi, with one aisle still unchecked.",
+      "while lo <= hi:"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pair": [
+          [
+            5,
+            9,
+            14,
+            18,
+            23,
+            30
+          ],
+          30
+        ]
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "pair": [
+          [
+            4,
+            8,
+            12,
+            16
+          ],
+          16
+        ]
+      },
+      "expected": "3"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New aisles: [2, 6, 10, 14, 18], looking for 18 — where?",
+    "data": {
+      "name": "pair",
+      "value": [
+        [
+          2,
+          6,
+          10,
+          14,
+          18
+        ],
+        18
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new aisles, what gets printed?"
+    },
+    "recommended": "nums, target = pair\nlo = 0\nhi = len(nums) - 1\nfound = -1\nwhile lo <= hi:\n    mid = (lo + hi) // 2\n    if nums[mid] == target:\n        found = mid\n        break\n    elif nums[mid] < target:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nprint(found)",
+    "fix_hint": "Nothing to change — 18 is the last aisle standing, and <= checks it."
+  },
+  "one_liner": "Check the last aisle standing — the search runs while lo is still at or below hi, not just below.",
+  "trace_watch": [
+    "lo",
+    "hi",
+    "mid",
+    "found"
+  ]
+}

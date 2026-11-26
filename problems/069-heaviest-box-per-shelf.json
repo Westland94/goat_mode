@@ -1,0 +1,213 @@
+{
+  "id": "069",
+  "skill": "nested-data",
+  "title": "Heaviest box per shelf",
+  "scenario": "For each shelf, its single heaviest box.",
+  "data": {
+    "name": "shelves",
+    "value": {
+      "a": [
+        2,
+        9,
+        4
+      ],
+      "b": [
+        7
+      ]
+    }
+  },
+  "intro": {
+    "job": "For each shelf, its single heaviest box.",
+    "idea": {
+      "rule": "max(shelves) looks at the OUTER box — the shelf names. max(shelves[name]) opens that shelf's box of weights first.",
+      "detail": "shelves is a dict whose values are lists. shelves['a'] opens the outer box and hands you a's list [2, 9, 4]; one more step — max(...) — reaches into that list. Each pair of brackets opens one more box, so say what's in your hand after each one."
+    },
+    "watch": {
+      "code": "top = max(shelf['x'])\nprint(top)",
+      "data": {
+        "name": "shelf",
+        "value": {
+          "x": [
+            3,
+            8
+          ]
+        }
+      },
+      "trace_watch": [
+        "top"
+      ]
+    }
+  },
+  "model_restatement": "For every shelf, find the largest weight in its list of boxes.",
+  "clarify": [
+    {
+      "keywords": [
+        "no boxes",
+        "empty list",
+        "empty"
+      ],
+      "question": "Could a shelf have no boxes?",
+      "answer": "Not today — every shelf has at least one."
+    },
+    {
+      "keywords": [
+        "tie",
+        "ties",
+        "same weight",
+        "equal"
+      ],
+      "question": "What if two boxes tie for heaviest?",
+      "answer": "Then that weight — once."
+    },
+    {
+      "keywords": [
+        "format",
+        "dict",
+        "output",
+        "print",
+        "shape"
+      ],
+      "question": "What shape should the answer be?",
+      "answer": "A dict: shelf → heaviest weight."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each shelf, take the biggest of the boxes. Put it in a dict. Print it.",
+  "draft_code": "heaviest = {}\nfor name in shelves:\n    heaviest[name] = max(shelves)\nprint(heaviest)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1 (a), what is heaviest?",
+      "kind": "value",
+      "var": "heaviest"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after iteration 1, what is heaviest?",
+      "kind": "value",
+      "var": "heaviest"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max(shelves) is handed the whole dict of shelves — and max of a dict looks at its keys, so it picks the biggest NAME, 'b', not a weight.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "max(shelves) reaches into the wrong box: it opens the box of shelves and picks the biggest name tag — 'b' — instead of opening a's box of weights.",
+    "bridge": "So which box should max be handed — the box of shelves, or a's box of boxes?",
+    "fix": {
+      "rule": "max(shelves[name]): open the shelf's box, then hand the whole list to max.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty dict for the answers."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next shelf."
+        },
+        {
+          "line": 3,
+          "gloss": "Open their list of boxes and keep the heaviest."
+        },
+        {
+          "line": 4,
+          "gloss": "Show every shelf's heaviest box."
+        }
+      ],
+      "contrast": {
+        "wrong": "max(shelves)",
+        "wrong_note": "the biggest shelf name",
+        "right": "max(shelves[name])",
+        "right_note": "the heaviest box"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "heaviest = {}\nfor name in shelves:\n    heaviest[name] = max(shelves[name])\nprint(heaviest)",
+    "alternatives": [
+      {
+        "code": "print({name: max(weights) for name, weights in shelves.items()})",
+        "note": "A dict comprehension — the shortcut."
+      }
+    ],
+    "hints": [
+      "After iteration 1, did a get a weight — or a name?",
+      "max(shelves) looks at the dict's keys — the shelf names. Open this shelf's box first.",
+      "heaviest[name] = max(shelves[name])"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "shelves": {
+          "a": [
+            2,
+            9,
+            4
+          ],
+          "b": [
+            7
+          ]
+        }
+      },
+      "expected": "{'a': 9, 'b': 7}"
+    },
+    {
+      "input": {
+        "shelves": {
+          "x": [
+            1
+          ]
+        }
+      },
+      "expected": "{'x': 1}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One shelf, one box: {'z': [6]} — what's printed?",
+    "data": {
+      "name": "shelves",
+      "value": {
+        "z": [
+          6
+        ]
+      }
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelves, what gets printed?"
+    },
+    "recommended": "heaviest = {}\nfor name in shelves:\n    heaviest[name] = max(shelves[name])\nprint(heaviest)",
+    "fix_hint": "Nothing to change — max still finds the heaviest."
+  },
+  "one_liner": "max(shelves) looks at the OUTER box — the shelf names. max(shelves[name]) opens that shelf's box of weights first.",
+  "trace_watch": [
+    "name",
+    "heaviest"
+  ]
+}

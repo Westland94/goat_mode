@@ -1,0 +1,178 @@
+{
+  "id": "011",
+  "skill": "while-loops",
+  "title": "Fill the tank",
+  "scenario": "A pump adds 3 litres per run. Fill the tank to the target and print the level — it may go past the target.",
+  "data": {
+    "name": "target",
+    "value": 10
+  },
+  "intro": {
+    "job": "A pump adds 3 litres per run. Fill the tank to the target and print the level — it may go past the target.",
+    "idea": {
+      "rule": "In a while loop, the update line is the engine — if it isn't inside the loop, the loop never ends.",
+      "detail": "A while loop re-checks its condition before every run. Something inside the loop has to move toward making that condition false — here, level going up. Python decides what's inside the loop by indentation alone, so an update line that isn't indented never runs during the loop, and the condition is true forever."
+    },
+    "watch": {
+      "code": "level = 0\nwhile level < goal:\n    level += 3\nprint(level)",
+      "data": {
+        "name": "goal",
+        "value": 6
+      },
+      "trace_watch": [
+        "level"
+      ]
+    }
+  },
+  "model_restatement": "Keep running the pump, 3 litres at a time, until the level reaches the target, then print the level.",
+  "clarify": [
+    {
+      "keywords": [
+        "overflow",
+        "over",
+        "past",
+        "exactly",
+        "spill"
+      ],
+      "question": "Can the level go past the target?",
+      "answer": "Yes — stop as soon as it's at or above the target."
+    },
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "empty tank",
+        "begin"
+      ],
+      "question": "What does the tank start at?",
+      "answer": "Empty — 0 litres."
+    },
+    {
+      "keywords": [
+        "print",
+        "output",
+        "runs",
+        "how many"
+      ],
+      "question": "What should I print?",
+      "answer": "The final level."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start at 0. While the level is under the target, count a pump run. Then add 3 litres. Print the level.",
+  "draft_code": "level = 0\nruns = 0\nwhile level < target:\n    runs += 1\nlevel += 3\nprint(level)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — after line 4, what is level?",
+      "kind": "value",
+      "var": "level"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "With the fix — after line 5 in iteration 2, what is level?",
+      "kind": "value",
+      "var": "level"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "level += 3 isn't indented, so it's not inside the loop — level stays 0, level < target stays True, and the loop never ends.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The update line is the pump's engine — left outside the loop, the pump just clicks its counter forever and the tank never fills.",
+    "bridge": "So which line has to be inside the loop for the level to rise?",
+    "fix": {
+      "rule": "Indent level += 3 into the loop: every run adds 3, until level < target is False.",
+      "walk": [
+        {
+          "line": 3,
+          "gloss": "Check: is the tank still under the target?"
+        },
+        {
+          "line": 4,
+          "gloss": "Count this pump run."
+        },
+        {
+          "line": 5,
+          "gloss": "Add 3 litres — inside the loop, so it happens every run."
+        },
+        {
+          "line": 6,
+          "gloss": "Once the check fails, show the level."
+        }
+      ],
+      "contrast": {
+        "wrong": "level += 3   (not indented)",
+        "wrong_note": "runs after a loop that never ends",
+        "right": "    level += 3",
+        "right_note": "runs every time round"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "level = 0\nruns = 0\nwhile level < target:\n    runs += 1\n    level += 3\nprint(level)",
+    "alternatives": [],
+    "hints": [
+      "Which lines are inside the while loop?",
+      "Indentation decides what's inside. Is level += 3 indented?",
+      "Indent level += 3 under the while."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "target": 10
+      },
+      "expected": "12"
+    },
+    {
+      "input": {
+        "target": 6
+      },
+      "expected": "6"
+    }
+  ],
+  "follow_up": {
+    "prompt": "The target is 11. Last value?",
+    "data": {
+      "name": "target",
+      "value": 11
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With target = 11, what gets printed?"
+    },
+    "recommended": "level = 0\nruns = 0\nwhile level < target:\n    runs += 1\n    level += 3\nprint(level)",
+    "fix_hint": "Nothing to change — 0, 3, 6, 9, 12: the first level at or past 11 is 12."
+  },
+  "one_liner": "In a while loop, the update line is the engine — if it isn't inside the loop, the loop never ends.",
+  "trace_watch": [
+    "level",
+    "runs"
+  ]
+}

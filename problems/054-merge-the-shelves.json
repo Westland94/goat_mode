@@ -1,0 +1,260 @@
+{
+  "id": "054",
+  "skill": "merge-sorted",
+  "title": "Merge the shelves",
+  "scenario": "Two shelves are sorted smallest to biggest. Merge them into one sorted shelf.",
+  "data": {
+    "name": "pair",
+    "value": [
+      [
+        1,
+        3,
+        5
+      ],
+      [
+        2,
+        4,
+        6
+      ]
+    ]
+  },
+  "intro": {
+    "job": "Two shelves are sorted smallest to biggest. Merge them into one sorted shelf.",
+    "idea": {
+      "rule": "The leftovers still count — when one list runs out, append the rest of the other.",
+      "detail": "Two fingers, one at the front of each shelf. Compare the two items they point at, move the smaller one to the new shelf, and step that finger forward. When one shelf runs out the comparing is over — but the other shelf may still have items, already in order, that belong on the end."
+    },
+    "watch": {
+      "code": "a, b = pair\nout = []\ni = 0\nj = 0\nwhile i < len(a) and j < len(b):\n    if a[i] <= b[j]:\n        out.append(a[i])\n        i += 1\n    else:\n        out.append(b[j])\n        j += 1\nout = out + a[i:] + b[j:]\nprint(out)",
+      "data": {
+        "name": "pair",
+        "value": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "j",
+        "out"
+      ]
+    }
+  },
+  "model_restatement": "Combine the two sorted lists into one sorted list, keeping every item.",
+  "clarify": [
+    {
+      "keywords": [
+        "duplicates",
+        "same number",
+        "equal",
+        "tie"
+      ],
+      "question": "What if both shelves have the same number?",
+      "answer": "Keep both — either order is fine."
+    },
+    {
+      "keywords": [
+        "empty",
+        "one empty",
+        "no items"
+      ],
+      "question": "Could a shelf be empty?",
+      "answer": "Not today — each has at least one item."
+    },
+    {
+      "keywords": [
+        "sort",
+        "sorted(",
+        "library"
+      ],
+      "question": "Can I just sort everything?",
+      "answer": "That works — but here, use the order that's already there."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk both shelves with two fingers. While both have items, move the smaller one to the new shelf. Print the new shelf.",
+  "draft_code": "a, b = pair\nout = []\ni = 0\nj = 0\nwhile i < len(a) and j < len(b):\n    if a[i] <= b[j]:\n        out.append(a[i])\n        i += 1\n    else:\n        out.append(b[j])\n        j += 1\nprint(out)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: after line 7, what is out?",
+      "kind": "value",
+      "var": "out"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 12,
+        "iteration": "after"
+      },
+      "prompt": "The loop is done. What is out?",
+      "kind": "value",
+      "var": "out"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 13,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — on the print line, what is out?",
+      "kind": "value",
+      "var": "out"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The loop stops the moment the first shelf runs out (i reaches 3) — the 6 is still waiting on the second shelf, and nothing after the loop picks it up.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Stopping when one shelf is empty is closing up shop while customers are still in line — whatever's left on the other shelf never gets served.",
+    "bridge": "When the loop ends, which shelf still has items — and where do they go?",
+    "fix": {
+      "rule": "After the loop, out + a[i:] + b[j:] tacks on whatever's left — one of the two slices is empty, the other is already sorted.",
+      "walk": [
+        {
+          "line": 5,
+          "gloss": "While both shelves still have items..."
+        },
+        {
+          "line": 6,
+          "gloss": "...which front item is smaller?"
+        },
+        {
+          "line": 7,
+          "gloss": "Move it to the new shelf, and step that finger forward."
+        },
+        {
+          "line": 12,
+          "gloss": "One shelf ran out — add the rest of the other, already in order."
+        }
+      ],
+      "contrast": {
+        "wrong": "(nothing after the loop)",
+        "wrong_note": "leftovers dropped",
+        "right": "out = out + a[i:] + b[j:]",
+        "right_note": "leftovers appended"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "a, b = pair\nout = []\ni = 0\nj = 0\nwhile i < len(a) and j < len(b):\n    if a[i] <= b[j]:\n        out.append(a[i])\n        i += 1\n    else:\n        out.append(b[j])\n        j += 1\nout = out + a[i:] + b[j:]\nprint(out)",
+    "alternatives": [
+      {
+        "code": "a, b = pair\nprint(sorted(a + b))",
+        "note": "Let Python sort the combined list — correct, but it re-sorts instead of using the order that's already there."
+      }
+    ],
+    "hints": [
+      "When the loop stops, where are i and j — and what's still on the shelves?",
+      "The loop ends when EITHER shelf runs out.",
+      "After the loop: out = out + a[i:] + b[j:]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pair": [
+          [
+            1,
+            3,
+            5
+          ],
+          [
+            2,
+            4,
+            6
+          ]
+        ]
+      },
+      "expected": "[1, 2, 3, 4, 5, 6]"
+    },
+    {
+      "input": {
+        "pair": [
+          [
+            1,
+            4
+          ],
+          [
+            2,
+            3
+          ]
+        ]
+      },
+      "expected": "[1, 2, 3, 4]"
+    },
+    {
+      "input": {
+        "pair": [
+          [
+            1
+          ],
+          [
+            2,
+            3,
+            4
+          ]
+        ]
+      },
+      "expected": "[1, 2, 3, 4]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New shelves: [2, 5, 6] and [1, 3, 4] — merged?",
+    "data": {
+      "name": "pair",
+      "value": [
+        [
+          2,
+          5,
+          6
+        ],
+        [
+          1,
+          3,
+          4
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelves, what gets printed?"
+    },
+    "recommended": "a, b = pair\nout = []\ni = 0\nj = 0\nwhile i < len(a) and j < len(b):\n    if a[i] <= b[j]:\n        out.append(a[i])\n        i += 1\n    else:\n        out.append(b[j])\n        j += 1\nout = out + a[i:] + b[j:]\nprint(out)",
+    "fix_hint": "Nothing to change — this time the second shelf runs out first, and a[i:] picks up both 5 and 6."
+  },
+  "one_liner": "The leftovers still count — when one list runs out, append the rest of the other.",
+  "trace_watch": [
+    "i",
+    "j",
+    "out"
+  ]
+}

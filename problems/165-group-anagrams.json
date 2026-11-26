@@ -1,0 +1,233 @@
+{
+  "id": "165",
+  "skill": "dict-counting",
+  "title": "Group Anagrams",
+  "section": "leetcode",
+  "lc": {
+    "number": 49,
+    "title": "Group Anagrams",
+    "difficulty": "Medium",
+    "slug": "group-anagrams"
+  },
+  "scenario": "You get a list of words strs. Group the words that are anagrams of each other — the same letters, rearranged — and return the groups, in any order.\n\nExample 1:\nInput: strs = [\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]\nOutput: [[\"eat\", \"tea\", \"ate\"], [\"tan\", \"nat\"], [\"bat\"]]\n\nExample 2:\nInput: strs = [\"\"]\nOutput: [[\"\"]]\n\nExample 3:\nInput: strs = [\"a\"]\nOutput: [[\"a\"]]\n\nConstraints:\n1 <= len(strs) <= 10000\n0 <= len(strs[i]) <= 100\nEach word is lowercase English letters.\n\nWrite: def group_anagrams(strs) — the driver calls it on strs = [\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"] and prints the groups (each group in first-seen order).",
+  "data": {
+    "name": "strs",
+    "value": [
+      "eat",
+      "tea",
+      "tan",
+      "ate",
+      "nat",
+      "bat"
+    ]
+  },
+  "intro": {
+    "job": "You get a list of words strs. Group the words that are anagrams of each other — the same letters, rearranged — and return the groups, in any order.\n\nExample 1:\nInput: strs = [\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]\nOutput: [[\"eat\", \"tea\", \"ate\"], [\"tan\", \"nat\"], [\"bat\"]]\n\nExample 2:\nInput: strs = [\"\"]\nOutput: [[\"\"]]\n\nExample 3:\nInput: strs = [\"a\"]\nOutput: [[\"a\"]]\n\nConstraints:\n1 <= len(strs) <= 10000\n0 <= len(strs[i]) <= 100\nEach word is lowercase English letters.\n\nWrite: def group_anagrams(strs) — the driver calls it on strs = [\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"] and prints the groups (each group in first-seen order).",
+    "idea": {
+      "rule": "Anagrams share their letters, not their first letter — sort the letters and use that as the key.",
+      "detail": "Like problem 001 (Repeat customers), it's a dict whose keys decide who goes together — here, a dict of lists. The whole job is choosing the key. Two words are anagrams when they have the same letters in any order, so sorting each word's letters gives every anagram the same key: eat, tea and ate all sort to \"aet\". The first letter isn't enough — eat and tea start differently but belong together."
+    },
+    "watch": {
+      "code": "def group_anagrams(strs):\n    groups = {}\n    for s in strs:\n        key = \"\".join(sorted(s))\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(s)\n    return list(groups.values())\n\nprint(group_anagrams(strs))",
+      "data": {
+        "name": "strs",
+        "value": [
+          "ate",
+          "eta",
+          "bat"
+        ]
+      },
+      "trace_watch": [
+        "s",
+        "key",
+        "groups"
+      ]
+    }
+  },
+  "model_restatement": "Group the words that are made of the same letters, rearranged.",
+  "clarify": [
+    {
+      "keywords": [
+        "order",
+        "any order"
+      ],
+      "question": "Does the order of the groups matter?",
+      "answer": "No — any order. (The driver prints them in first-seen order.)"
+    },
+    {
+      "keywords": [
+        "empty",
+        "blank"
+      ],
+      "question": "Can a word be empty?",
+      "answer": "Yes — an empty word is its own group: [[\"\"]]."
+    },
+    {
+      "keywords": [
+        "case",
+        "uppercase",
+        "capital"
+      ],
+      "question": "Do I need to worry about upper case?",
+      "answer": "No — every word is lowercase letters."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Group the words by their first letter in a dict of lists, and return the lists.",
+  "draft_code": "def group_anagrams(strs):\n    groups = {}\n    for s in strs:\n        key = s[0]\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(s)\n    return list(groups.values())\n\nprint(group_anagrams(strs))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after line 4, what is key?",
+      "kind": "value",
+      "var": "key"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3: after appending, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2: after line 4, what is key?",
+      "kind": "value",
+      "var": "key"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft keys each word by its first letter, so \"eat\" goes under 'e' and \"tea\" under 't' — anagrams that start differently never meet, and \"tea\" lands with \"tan\", which isn't an anagram at all.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Grouping by first letter is filing people by the first letter of their name and calling it a family — it puts strangers together and splits up relatives.",
+    "bridge": "\"tea\" got the key 't'. Which word should \"tea\" be grouped with — and what do they have in common?",
+    "fix": {
+      "rule": "Key each word by its letters sorted: \"\".join(sorted(s)) — every anagram sorts to the same key.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "Sort the letters: eat, tea and ate all become \"aet\"."
+        },
+        {
+          "line": 5,
+          "gloss": "A key we haven't seen?"
+        },
+        {
+          "line": 6,
+          "gloss": "Start its group."
+        },
+        {
+          "line": 7,
+          "gloss": "Add the word to its anagram group."
+        }
+      ],
+      "contrast": {
+        "wrong": "key = s[0]",
+        "wrong_note": "groups by first letter",
+        "right": "key = \"\".join(sorted(s))",
+        "right_note": "groups by letters"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def group_anagrams(strs):\n    groups = {}\n    for s in strs:\n        key = \"\".join(sorted(s))\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(s)\n    return list(groups.values())\n\nprint(group_anagrams(strs))",
+    "alternatives": [
+      {
+        "code": "def group_anagrams(strs):\n    groups = {}\n    for s in strs:\n        count = [0] * 26\n        for ch in s:\n            count[ord(ch) - ord(\"a\")] += 1\n        key = tuple(count)\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(s)\n    return list(groups.values())\n\nprint(group_anagrams(strs))",
+        "note": "Key by letter counts instead: a tuple of 26 counts (how many a's, b's, ...) is the same for every anagram — no sorting needed."
+      }
+    ],
+    "hints": [
+      "Which key do \"eat\" and \"tea\" get?",
+      "Anagrams share all their letters, not their first letter.",
+      "key = \"\".join(sorted(s))"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "strs": [
+          "eat",
+          "tea",
+          "tan",
+          "ate",
+          "nat",
+          "bat"
+        ]
+      },
+      "expected": "[['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']]"
+    },
+    {
+      "input": {
+        "strs": [
+          "a"
+        ]
+      },
+      "expected": "[['a']]"
+    },
+    {
+      "input": {
+        "strs": [
+          "listen",
+          "silent",
+          "enlist",
+          "google"
+        ]
+      },
+      "expected": "[['listen', 'silent', 'enlist'], ['google']]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: strs = [\"bat\", \"tab\", \"cat\"] — what does your code print?",
+    "data": {
+      "name": "strs",
+      "value": [
+        "bat",
+        "tab",
+        "cat"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def group_anagrams(strs):\n    groups = {}\n    for s in strs:\n        key = \"\".join(sorted(s))\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(s)\n    return list(groups.values())\n\nprint(group_anagrams(strs))",
+    "fix_hint": "bat and tab both sort to \"abt\" — they share a group; cat is alone."
+  },
+  "one_liner": "Anagrams share their letters, not their first letter — sort the letters and use that as the key.",
+  "trace_watch": [
+    "s",
+    "key",
+    "groups"
+  ]
+}

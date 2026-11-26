@@ -1,0 +1,277 @@
+{
+  "id": "140",
+  "skill": "hashmap-two-sum",
+  "title": "Two Sum",
+  "section": "leetcode",
+  "lc": {
+    "number": 1,
+    "title": "Two Sum",
+    "difficulty": "Easy",
+    "slug": "two-sum"
+  },
+  "scenario": "Given a list of integers nums and an integer target, find the two different positions whose numbers add up to target, and return those two indices.\n\nEach input has exactly one answer, and the same position can't be used twice. Return the two indices smaller first.\n\nExample 1:\nInput: nums = [2, 7, 11, 15], target = 9\nOutput: [0, 1]\nWhy: nums[0] + nums[1] == 9.\n\nExample 2:\nInput: nums = [3, 2, 4], target = 6\nOutput: [1, 2]\n\nExample 3:\nInput: nums = [3, 3], target = 6\nOutput: [0, 1]\n\nConstraints:\n2 <= len(nums) <= 10^4\n-10^9 <= nums[i] <= 10^9\n-10^9 <= target <= 10^9\nExactly one valid answer exists.\n\nWrite: def two_sum(nums, target) — the driver calls it on Example 2 (case = [nums, target]) and prints the result.",
+  "data": {
+    "name": "case",
+    "value": [
+      [
+        3,
+        2,
+        4
+      ],
+      6
+    ]
+  },
+  "intro": {
+    "job": "Given a list of integers nums and an integer target, find the two different positions whose numbers add up to target, and return those two indices.\n\nEach input has exactly one answer, and the same position can't be used twice. Return the two indices smaller first.\n\nExample 1:\nInput: nums = [2, 7, 11, 15], target = 9\nOutput: [0, 1]\nWhy: nums[0] + nums[1] == 9.\n\nExample 2:\nInput: nums = [3, 2, 4], target = 6\nOutput: [1, 2]\n\nExample 3:\nInput: nums = [3, 3], target = 6\nOutput: [0, 1]\n\nConstraints:\n2 <= len(nums) <= 10^4\n-10^9 <= nums[i] <= 10^9\n-10^9 <= target <= 10^9\nExactly one valid answer exists.\n\nWrite: def two_sum(nums, target) — the driver calls it on Example 2 (case = [nums, target]) and prints the result.",
+    "idea": {
+      "rule": "Same pattern, exam clothes: look for the partner BEFORE you file the number — and never let a number pair with itself.",
+      "detail": "This is problem 032 (Pair the prices) in interview format: a function, a list and a target, and the answer as two indices. The trick is the same one-pass hashmap. Walk the list once, keeping a dict from each number you've already seen to its position. For each new number x, its partner is target - x — one lookup says whether you've met it. Look first, then file x, so the dict only ever holds numbers from BEFORE this one and nothing can pair with itself."
+    },
+    "watch": {
+      "code": "def two_sum(nums, target):\n    seen = {}\n    for i, x in enumerate(nums):\n        if target - x in seen:\n            return [seen[target - x], i]\n        seen[x] = i\n    return []\n\nnums, target = case\nprint(two_sum(nums, target))",
+      "data": {
+        "name": "case",
+        "value": [
+          [
+            1,
+            4,
+            5
+          ],
+          9
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "x",
+        "seen"
+      ]
+    }
+  },
+  "model_restatement": "Find two different positions whose numbers add up to target, and return their indices.",
+  "clarify": [
+    {
+      "keywords": [
+        "same element",
+        "itself",
+        "twice",
+        "same index",
+        "same position"
+      ],
+      "question": "Can I use the same element twice?",
+      "answer": "No — two different positions. (Two positions can hold the same value, like [3, 3].)"
+    },
+    {
+      "keywords": [
+        "order",
+        "which order",
+        "smaller first"
+      ],
+      "question": "In what order should the indices come back?",
+      "answer": "Smaller index first."
+    },
+    {
+      "keywords": [
+        "no pair",
+        "no answer",
+        "no solution",
+        "none"
+      ],
+      "question": "What if no pair adds up to target?",
+      "answer": "Not today — every input has exactly one answer."
+    },
+    {
+      "keywords": [
+        "fast",
+        "slow",
+        "time",
+        "n squared",
+        "big"
+      ],
+      "question": "Does it need to be fast?",
+      "answer": "Yes — aim for one pass. With up to 10^4 numbers, checking every pair is slow."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For every position i, try every position j. If nums[i] + nums[j] equals target, return [i, j].",
+  "draft_code": "def two_sum(nums, target):\n    for i in range(len(nums)):\n        for j in range(len(nums)):\n            if nums[i] + nums[j] == target:\n                return [i, j]\n    return []\n\nnums, target = case\nprint(two_sum(nums, target))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "On the very first pass, line 5 runs. What is j there? (i is 0.)",
+      "kind": "value",
+      "var": "j"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 6 on the first pass, what is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 3
+      },
+      "prompt": "With the fix — on the third pass, line 5 runs. What is seen there?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "j starts at 0 just like i, so on the very first pass the draft checks nums[0] + nums[0] — 3 + 3 = 6 — and hands back [0, 0]: one element paired with itself.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Letting j start where i is lets a number partner with its own reflection — 3 + 3 looks like a match, but it's one element counted twice.",
+    "bridge": "On the first pass, i and j are both 0. Should j ever be allowed to equal i?",
+    "fix": {
+      "rule": "One pass with a dict: look up target - x among the numbers already seen, then file x — a number can only meet partners that came before it.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "An empty dict: number → where it was."
+        },
+        {
+          "line": 3,
+          "gloss": "Take each number with its position."
+        },
+        {
+          "line": 4,
+          "gloss": "Has its partner already been seen?"
+        },
+        {
+          "line": 5,
+          "gloss": "Yes — return the partner's index, then this one."
+        },
+        {
+          "line": 6,
+          "gloss": "No — file this number, only after the lookup."
+        }
+      ],
+      "contrast": {
+        "wrong": "for j in range(len(nums)):",
+        "wrong_note": "j can equal i",
+        "right": "look up target - x before seen[x] = i",
+        "right_note": "never pairs with itself"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def two_sum(nums, target):\n    seen = {}\n    for i, x in enumerate(nums):\n        if target - x in seen:\n            return [seen[target - x], i]\n        seen[x] = i\n    return []\n\nnums, target = case\nprint(two_sum(nums, target))",
+    "alternatives": [
+      {
+        "code": "def two_sum(nums, target):\n    for i in range(len(nums)):\n        for j in range(i + 1, len(nums)):\n            if nums[i] + nums[j] == target:\n                return [i, j]\n    return []\n\nnums, target = case\nprint(two_sum(nums, target))",
+        "note": "Start j after i — correct, but it checks every pair (slow for 10^4 numbers)."
+      }
+    ],
+    "hints": [
+      "On the very first pass, what are i and j?",
+      "j must never land on i — or skip the pair loop entirely.",
+      "Use a dict: if target - x in seen: return [seen[target - x], i]; then seen[x] = i."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          [
+            2,
+            7,
+            11,
+            15
+          ],
+          9
+        ]
+      },
+      "expected": "[0, 1]"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            3,
+            2,
+            4
+          ],
+          6
+        ]
+      },
+      "expected": "[1, 2]"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            3,
+            3
+          ],
+          6
+        ]
+      },
+      "expected": "[0, 1]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [1, 5, 3, 5], target = 10 — what does two_sum return?",
+    "data": {
+      "name": "case",
+      "value": [
+        [
+          1,
+          5,
+          3,
+          5
+        ],
+        10
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def two_sum(nums, target):\n    seen = {}\n    for i, x in enumerate(nums):\n        if target - x in seen:\n            return [seen[target - x], i]\n        seen[x] = i\n    return []\n\nnums, target = case\nprint(two_sum(nums, target))",
+    "fix_hint": "Nothing to change — the two 5s are different positions, and the lookup finds the first one."
+  },
+  "one_liner": "Same pattern, exam clothes: look for the partner BEFORE you file the number — and never let a number pair with itself.",
+  "trace_watch": [
+    "i",
+    "j",
+    "x",
+    "seen"
+  ],
+  "complexity": {
+    "sizes": [
+      5,
+      10,
+      15,
+      20,
+      25
+    ]
+  }
+}

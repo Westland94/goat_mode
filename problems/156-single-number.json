@@ -1,0 +1,231 @@
+{
+  "id": "156",
+  "skill": "dict-counting",
+  "title": "Single Number",
+  "section": "leetcode",
+  "lc": {
+    "number": 136,
+    "title": "Single Number",
+    "difficulty": "Easy",
+    "slug": "single-number"
+  },
+  "scenario": "You get a non-empty list of integers nums. Every value shows up exactly twice — except one, which shows up only once. Return that lone value.\n\nExample 1:\nInput: nums = [2, 2, 1]\nOutput: 1\n\nExample 2:\nInput: nums = [4, 1, 2, 1, 2]\nOutput: 4\n\nExample 3:\nInput: nums = [1]\nOutput: 1\n\nConstraints:\n1 <= len(nums) <= 30000\n-30000 <= nums[i] <= 30000\nExactly one value appears once; every other value appears twice.\n\nWrite: def single_number(nums) — the driver calls it on nums = [4, 1, 2, 1, 2] and prints the result.",
+  "data": {
+    "name": "nums",
+    "value": [
+      4,
+      1,
+      2,
+      1,
+      2
+    ]
+  },
+  "intro": {
+    "job": "You get a non-empty list of integers nums. Every value shows up exactly twice — except one, which shows up only once. Return that lone value.\n\nExample 1:\nInput: nums = [2, 2, 1]\nOutput: 1\n\nExample 2:\nInput: nums = [4, 1, 2, 1, 2]\nOutput: 4\n\nExample 3:\nInput: nums = [1]\nOutput: 1\n\nConstraints:\n1 <= len(nums) <= 30000\n-30000 <= nums[i] <= 30000\nExactly one value appears once; every other value appears twice.\n\nWrite: def single_number(nums) — the driver calls it on nums = [4, 1, 2, 1, 2] and prints the result.",
+    "idea": {
+      "rule": "Pairs cancel — XOR every number together and only the lone one survives.",
+      "detail": "This starts like problem 001 (Repeat customers): count how often each number shows up. But the answer is the number that shows up LEAST — once — not the most. Counting works if you pick with min(), but there's a neater trick: x ^ x is 0 and x ^ 0 is x, so XOR-ing every number together cancels each pair and leaves only the single one."
+    },
+    "watch": {
+      "code": "def single_number(nums):\n    result = 0\n    for x in nums:\n        result ^= x\n    return result\n\nprint(single_number(nums))",
+      "data": {
+        "name": "nums",
+        "value": [
+          7,
+          3,
+          7
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "result"
+      ]
+    }
+  },
+  "model_restatement": "Find the one value in the list that appears only once — every other value appears twice.",
+  "clarify": [
+    {
+      "keywords": [
+        "sorted",
+        "order"
+      ],
+      "question": "Is the list sorted, or in any order?",
+      "answer": "Any order — pairs can be anywhere in the list."
+    },
+    {
+      "keywords": [
+        "three times",
+        "more than twice",
+        "twice"
+      ],
+      "question": "Can a value show up more than twice?",
+      "answer": "No — every other value appears exactly twice."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no single"
+      ],
+      "question": "Can the list be empty, or have no single number?",
+      "answer": "No — there's always exactly one value that appears once."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count how many times each number appears, then return the number with the biggest count.",
+  "draft_code": "def single_number(nums):\n    counts = {}\n    for x in nums:\n        counts[x] = counts.get(x, 0) + 1\n    return max(counts, key=counts.get)\n\nprint(single_number(nums))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after counting, what is counts?",
+      "kind": "value",
+      "var": "counts"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 5
+      },
+      "prompt": "Iteration 5: after counting, what is counts?",
+      "kind": "value",
+      "var": "counts"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2: after the XOR, what is result?",
+      "kind": "value",
+      "var": "result"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The counts come out right — {4: 1, 1: 2, 2: 2} — but max() picks the number seen MOST. 1 and 2 tie on 2, and max() returns the first of them it meets: 1. The single number is the one seen LEAST.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Asking max() for the loner is asking a crowd to point at whoever has the most friends — the one with nobody is the last person they'd pick.",
+    "bridge": "counts is {4: 1, 1: 2, 2: 2}. Which count belongs to the number you want — the biggest, or the smallest?",
+    "fix": {
+      "rule": "XOR every number into one result: each pair cancels to 0, and the single number is what's left.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Start from 0 — x ^ 0 is x."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk every number."
+        },
+        {
+          "line": 4,
+          "gloss": "Fold it in: a second copy cancels the first."
+        },
+        {
+          "line": 5,
+          "gloss": "Only the unpaired number survives."
+        }
+      ],
+      "contrast": {
+        "wrong": "max(counts, key=counts.get)",
+        "wrong_note": "the most frequent number",
+        "right": "result ^= x  (for every x)",
+        "right_note": "pairs cancel; the single one is left"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def single_number(nums):\n    result = 0\n    for x in nums:\n        result ^= x\n    return result\n\nprint(single_number(nums))",
+    "alternatives": [
+      {
+        "code": "def single_number(nums):\n    counts = {}\n    for x in nums:\n        counts[x] = counts.get(x, 0) + 1\n    return min(counts, key=counts.get)\n\nprint(single_number(nums))",
+        "note": "Keep the counting and swap max() for min() — the number with the smallest count is the one that appears once."
+      }
+    ],
+    "hints": [
+      "Look at counts at the end. Which number has count 1?",
+      "max() returns the number with the BIGGEST count — you want the smallest.",
+      "result = 0; for x in nums: result ^= x; return result   (or keep counts and use min)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          2,
+          2,
+          1
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "nums": [
+          4,
+          1,
+          2,
+          1,
+          2
+        ]
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "nums": [
+          1
+        ]
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [5, 5, 9, 9, 3] — what does your code print?",
+    "data": {
+      "name": "nums",
+      "value": [
+        5,
+        5,
+        9,
+        9,
+        3
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def single_number(nums):\n    result = 0\n    for x in nums:\n        result ^= x\n    return result\n\nprint(single_number(nums))",
+    "fix_hint": "The XOR still cancels 5 with 5 and 9 with 9 — 3 is what's left."
+  },
+  "one_liner": "Pairs cancel — XOR every number together and only the lone one survives.",
+  "trace_watch": [
+    "x",
+    "counts",
+    "result"
+  ]
+}

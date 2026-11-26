@@ -1,0 +1,200 @@
+{
+  "id": "110",
+  "skill": "stack-parentheses",
+  "title": "Close the brackets",
+  "scenario": "These brackets open and close — but do they match up in the right order, each closer with its own kind of opener?",
+  "data": {
+    "name": "s",
+    "value": "({)}"
+  },
+  "intro": {
+    "job": "These brackets open and close — but do they match up in the right order, each closer with its own kind of opener?",
+    "idea": {
+      "rule": "A closer has to match the opener on top — same kind, not just any opener.",
+      "detail": "A stack is a pile of plates: you only touch the top one. Push every opener on the pile. When a closer comes, the opener on top is the most recent one still open — and it must be the SAME kind. A ')' on top of '{' means the brackets cross. At the end, the pile must be empty."
+    },
+    "watch": {
+      "code": "pairs = {')': '(', ']': '[', '}': '{'}\nstack = []\nok = True\nfor c in s:\n    if c in '([{':\n        stack.append(c)\n    elif not stack or stack.pop() != pairs[c]:\n        ok = False\n        break\nprint(ok and not stack)",
+      "data": {
+        "name": "s",
+        "value": "{)"
+      },
+      "trace_watch": [
+        "c",
+        "stack",
+        "ok"
+      ]
+    }
+  },
+  "model_restatement": "Check that every opening bracket is closed by the same kind of bracket, in the right order.",
+  "clarify": [
+    {
+      "keywords": [
+        "other characters",
+        "letters",
+        "spaces",
+        "besides"
+      ],
+      "question": "Anything besides brackets?",
+      "answer": "Only ( ) [ ] { } today."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no brackets",
+        "nothing"
+      ],
+      "question": "What about an empty string?",
+      "answer": "Not today."
+    },
+    {
+      "keywords": [
+        "count",
+        "same number",
+        "balanced count"
+      ],
+      "question": "Isn't it enough to count openers and closers?",
+      "answer": "No — they have to close in the right order, with the right kind."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Push each opener on a stack. When a closer comes, take the top opener off. At the end, if the stack is empty, it all matched. Print that.",
+  "draft_code": "stack = []\nfor c in s:\n    if c in '([{':\n        stack.append(c)\n    else:\n        stack.pop()\nprint(len(stack) == 0)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "After the second opener, what is stack?",
+      "kind": "value",
+      "var": "stack"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3: c is ')'. After line 6, what is stack?",
+      "kind": "value",
+      "var": "stack"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 3
+      },
+      "prompt": "With the fix — iteration 3: after line 8, what is ok?",
+      "kind": "value",
+      "var": "ok"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "stack.pop() takes whatever is on top without looking — the ')' pops a '{' and the '}' pops a '(', so the pile empties and crossed brackets look matched.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Popping without looking is a coat-check clerk who hands back whichever coat is on top — the ')' walks off with the '{'.",
+    "bridge": "When ')' arrives, what must be on top of the pile for it to be a match?",
+    "fix": {
+      "rule": "Pop, then compare: the opener that comes off must be pairs[c] — the same kind as the closer.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Which opener each closer needs."
+        },
+        {
+          "line": 4,
+          "gloss": "Take each bracket in order."
+        },
+        {
+          "line": 6,
+          "gloss": "Opener? Put it on the pile."
+        },
+        {
+          "line": 7,
+          "gloss": "Closer? The pile must not be empty, and the opener on top must be its pair."
+        }
+      ],
+      "contrast": {
+        "wrong": "stack.pop()",
+        "wrong_note": "any opener will do",
+        "right": "stack.pop() != pairs[c]",
+        "right_note": "it must be the matching kind"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "pairs = {')': '(', ']': '[', '}': '{'}\nstack = []\nok = True\nfor c in s:\n    if c in '([{':\n        stack.append(c)\n    elif not stack or stack.pop() != pairs[c]:\n        ok = False\n        break\nprint(ok and not stack)",
+    "alternatives": [
+      {
+        "code": "t = s\nwhile True:\n    shorter = t.replace('()', '').replace('[]', '').replace('{}', '')\n    if shorter == t:\n        break\n    t = shorter\nprint(t == '')",
+        "note": "Peel off matching neighbours until none are left — correct, but it re-scans the whole string again and again."
+      }
+    ],
+    "hints": [
+      "Iteration 3: which opener does ')' take off the pile?",
+      "pop() doesn't check the kind. ')' needs '('.",
+      "Compare what you pop with pairs[c]; if it isn't the match, it's not valid."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "s": "({)}"
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "s": "(]"
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "s": "([])"
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New brackets: '[{]}' — matched?",
+    "data": {
+      "name": "s",
+      "value": "[{]}"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With s = '[{]}', what gets printed?"
+    },
+    "recommended": "pairs = {')': '(', ']': '[', '}': '{'}\nstack = []\nok = True\nfor c in s:\n    if c in '([{':\n        stack.append(c)\n    elif not stack or stack.pop() != pairs[c]:\n        ok = False\n        break\nprint(ok and not stack)",
+    "fix_hint": "Nothing to change — ']' finds '{' on top, and that's not its pair."
+  },
+  "one_liner": "A closer has to match the opener on top — same kind, not just any opener.",
+  "trace_watch": [
+    "c",
+    "stack",
+    "ok"
+  ]
+}

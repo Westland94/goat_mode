@@ -1,0 +1,207 @@
+{
+  "id": "074",
+  "skill": "strings-methods",
+  "title": "Tidy the titles",
+  "scenario": "Tidy the book titles: capitalize each word.",
+  "data": {
+    "name": "titles",
+    "value": [
+      "the hobbit",
+      "dune"
+    ]
+  },
+  "intro": {
+    "job": "Tidy the book titles: capitalize each word.",
+    "idea": {
+      "rule": "Strings never change in place — a method hands you a NEW string. Catch it or lose it.",
+      "detail": "A string method never changes the string it's called on — it builds a NEW string and hands it back. t.title() builds 'The Hobbit' and, if nobody catches it, the new string just vanishes. t = title.title() catches it in the box."
+    },
+    "watch": {
+      "code": "clean = word.title()\nprint(clean)",
+      "data": {
+        "name": "word",
+        "value": "dune"
+      },
+      "trace_watch": [
+        "word",
+        "clean"
+      ]
+    }
+  },
+  "model_restatement": "Capitalize every word of each title, and print the tidy list.",
+  "clarify": [
+    {
+      "keywords": [
+        "small words",
+        "little words",
+        "articles",
+        "short words"
+      ],
+      "question": "What about small words like 'the'?",
+      "answer": "title() capitalizes every word — even 'the'. That's the rule today."
+    },
+    {
+      "keywords": [
+        "already",
+        "tidy",
+        "caps",
+        "capital"
+      ],
+      "question": "What if a title is already tidy?",
+      "answer": "Then title() hands back the same letters."
+    },
+    {
+      "keywords": [
+        "original",
+        "change",
+        "list",
+        "in place"
+      ],
+      "question": "Does title() change the original list?",
+      "answer": "No — strings never change in place, and the list keeps the old titles until you build a new one."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each title, build its tidy version and keep it in a list. Print the list.",
+  "draft_code": "tidy = []\nfor title in titles:\n    t = title\n    t.title()\n    tidy.append(t)\nprint(tidy)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "After line 4, what is t?",
+      "kind": "value",
+      "var": "t"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "After line 5, what is tidy?",
+      "kind": "value",
+      "var": "tidy"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 4, what is tidy?",
+      "kind": "value",
+      "var": "tidy"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "t.title() builds 'The Hobbit' and throws it away — t still holds 'the hobbit', so the tidy list is just the old titles.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Strings never change in place — t.title() hands you a new string, and the old t doesn't move.",
+    "bridge": "So where does the new string go?",
+    "fix": {
+      "rule": "Catch it: t = title.title() puts the new string in the box.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the tidy titles."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next title."
+        },
+        {
+          "line": 3,
+          "gloss": "Build the tidy version — and catch it in t."
+        },
+        {
+          "line": 4,
+          "gloss": "Keep it."
+        }
+      ],
+      "contrast": {
+        "wrong": "t.title()",
+        "wrong_note": "builds it, drops it",
+        "right": "t = title.title()",
+        "right_note": "builds it, keeps it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "tidy = []\nfor title in titles:\n    t = title.title()\n    tidy.append(t)\nprint(tidy)",
+    "alternatives": [
+      {
+        "code": "tidy = []\nfor title in titles:\n    t = title\n    t = t.title()\n    tidy.append(t)\nprint(tidy)",
+        "note": "Catch it on its own line — same result."
+      },
+      {
+        "code": "tidy = [title.title() for title in titles]\nprint(tidy)",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "After line 4, what is t — did .title() change it?",
+      "A method hands you a NEW string. You have to catch it.",
+      "t = title.title()"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "titles": [
+          "the hobbit",
+          "dune"
+        ]
+      },
+      "expected": "['The Hobbit', 'Dune']"
+    },
+    {
+      "input": {
+        "titles": []
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Mixed case: ['the HOBBIT'] — what's tidied?",
+    "data": {
+      "name": "titles",
+      "value": [
+        "the HOBBIT"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With ['the HOBBIT'], what gets printed?"
+    },
+    "recommended": "tidy = []\nfor title in titles:\n    t = title.title()\n    tidy.append(t)\nprint(tidy)",
+    "fix_hint": "Nothing to change — title() fixes every word, whatever case it starts in."
+  },
+  "one_liner": "Strings never change in place — a method hands you a NEW string. Catch it or lose it.",
+  "trace_watch": [
+    "title",
+    "t",
+    "tidy"
+  ]
+}

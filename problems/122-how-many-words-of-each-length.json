@@ -1,0 +1,220 @@
+{
+  "id": "122",
+  "skill": "combo-group-by-length",
+  "title": "How many words of each length?",
+  "scenario": "Four words on a card. How many words of each length are there?",
+  "data": {
+    "name": "words",
+    "value": [
+      "sun",
+      "moon",
+      "star",
+      "sky"
+    ]
+  },
+  "intro": {
+    "job": "Four words on a card. How many words of each length are there?",
+    "idea": {
+      "rule": "Group by the length, not by the word — the key is what you count by.",
+      "detail": "Two patterns chained: len (015) turns each word into its length; grouping (003) files each word under that length and counts the pile. The draft files each word under itself, so every pile has exactly one word and the counts say nothing."
+    },
+    "watch": {
+      "code": "groups = {}\nfor w in words:\n    k = len(w)\n    if k not in groups:\n        groups[k] = 0\n    groups[k] += 1\nprint(groups)",
+      "data": {
+        "name": "words",
+        "value": [
+          "a",
+          "be",
+          "see"
+        ]
+      },
+      "trace_watch": [
+        "groups"
+      ]
+    }
+  },
+  "model_restatement": "Count how many words there are of each length.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no words",
+        "none"
+      ],
+      "question": "What if there are no words?",
+      "answer": "Not today — there's always at least one word."
+    },
+    {
+      "keywords": [
+        "same length",
+        "ties"
+      ],
+      "question": "What if two words have the same length?",
+      "answer": "They share a pile — that's the point of grouping by length."
+    },
+    {
+      "keywords": [
+        "count",
+        "how many"
+      ],
+      "question": "Do we count the words or the lengths?",
+      "answer": "The words, filed under their lengths — the piles are the answer."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk the words. File each word under its own name and count the pile. Print the piles.",
+  "draft_code": "groups = {}\nfor w in words:\n    if w not in groups:\n        groups[w] = 0\n    groups[w] += 1\nprint(groups)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 4
+      },
+      "prompt": "After the fourth word, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "On the print line, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 4
+      },
+      "prompt": "With the fix — after the fourth word, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft files each word under its own name, so every pile holds exactly one word — the counts say 'one of each' instead of 'two of length 3, two of length 4'.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Filing words under their own names is like sorting laundry by putting each sock in its own drawer — every drawer has one sock and you've learned nothing.",
+    "bridge": "What should the piles be keyed by — the word itself, or something about the word?",
+    "fix": {
+      "rule": "Key the pile by len(word): the length is the label, the words are the contents.",
+      "walk": [
+        {
+          "line": 3,
+          "gloss": "How long is this word?"
+        },
+        {
+          "line": 4,
+          "gloss": "No pile for that length yet?"
+        },
+        {
+          "line": 5,
+          "gloss": "Start one."
+        },
+        {
+          "line": 6,
+          "gloss": "Drop the word in its length's pile."
+        }
+      ],
+      "contrast": {
+        "wrong": "file each word under its own name",
+        "wrong_note": "every pile has one word",
+        "right": "file each word under its length",
+        "right_note": "piles of 2 and 2"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "groups = {}\nfor w in words:\n    k = len(w)\n    if k not in groups:\n        groups[k] = 0\n    groups[k] += 1\nprint(groups)",
+    "alternatives": [
+      {
+        "code": "from collections import Counter\nprint(dict(Counter(len(w) for w in words)))",
+        "note": "Counter does the grouping in one line — the key is still the length, not the word."
+      }
+    ],
+    "hints": [
+      "What is each pile supposed to count?",
+      "The word itself is the wrong label — what property groups sun with sky?",
+      "Key by len(w): groups[len(w)] += 1."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "words": [
+          "sun",
+          "moon",
+          "star",
+          "sky"
+        ]
+      },
+      "expected": "{3: 2, 4: 2}"
+    },
+    {
+      "input": {
+        "words": [
+          "a",
+          "be",
+          "see"
+        ]
+      },
+      "expected": "{1: 1, 2: 1, 3: 1}"
+    },
+    {
+      "input": {
+        "words": [
+          "aa",
+          "bb",
+          "cc"
+        ]
+      },
+      "expected": "{2: 3}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more card: ['red', 'blue', 'green', 'pink'] — how many words of each length?",
+    "data": {
+      "name": "words",
+      "value": [
+        "red",
+        "blue",
+        "green",
+        "pink"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new card, what gets printed?"
+    },
+    "recommended": "groups = {}\nfor w in words:\n    k = len(w)\n    if k not in groups:\n        groups[k] = 0\n    groups[k] += 1\nprint(groups)",
+    "fix_hint": "Nothing to change — the piles are keyed by length, whatever the words are."
+  },
+  "one_liner": "Group by the length, not by the word — the key is what you count by.",
+  "trace_watch": [
+    "groups"
+  ]
+}

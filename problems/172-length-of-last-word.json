@@ -1,0 +1,183 @@
+{
+  "id": "172",
+  "skill": "strings-methods",
+  "title": "Length of Last Word",
+  "section": "leetcode",
+  "lc": {
+    "number": 58,
+    "title": "Length of Last Word",
+    "difficulty": "Easy",
+    "slug": "length-of-last-word"
+  },
+  "scenario": "You get a string s of words and spaces. Return the length of the last word — the last run of non-space characters. There's always at least one word.\n\nExample 1:\nInput: s = \"Hello World\"\nOutput: 5\n\nExample 2:\nInput: s = \"   fly me   to   the moon  \"\nOutput: 4\nWhy: the last word is \"moon\" — the spaces after it don't count.\n\nExample 3:\nInput: s = \"luffy is still joyboy\"\nOutput: 6\n\nConstraints:\n1 <= len(s) <= 10000\ns holds only English letters and spaces, with at least one word.\n\nWrite: def length_of_last_word(s) — the driver calls it on s = \"Hello World\" and prints the length.",
+  "data": {
+    "name": "s",
+    "value": "Hello World"
+  },
+  "intro": {
+    "job": "You get a string s of words and spaces. Return the length of the last word — the last run of non-space characters. There's always at least one word.\n\nExample 1:\nInput: s = \"Hello World\"\nOutput: 5\n\nExample 2:\nInput: s = \"   fly me   to   the moon  \"\nOutput: 4\nWhy: the last word is \"moon\" — the spaces after it don't count.\n\nExample 3:\nInput: s = \"luffy is still joyboy\"\nOutput: 6\n\nConstraints:\n1 <= len(s) <= 10000\ns holds only English letters and spaces, with at least one word.\n\nWrite: def length_of_last_word(s) — the driver calls it on s = \"Hello World\" and prints the length.",
+    "idea": {
+      "rule": "Spaces can trail the last word — split into words first, then measure the last one.",
+      "detail": "Like problem 007 (Name tags), split() is the tool: with no argument it breaks on any run of spaces and throws empty pieces away, so leading, doubled and trailing spaces all vanish. Measuring from the last space instead (like problem 026's slicing) works only when nothing comes after the last word — one trailing space and the 'word' you measure is empty."
+    },
+    "watch": {
+      "code": "def length_of_last_word(s):\n    words = s.split()\n    return len(words[-1])\n\nprint(length_of_last_word(s))",
+      "data": {
+        "name": "s",
+        "value": "hi there  "
+      },
+      "trace_watch": [
+        "words"
+      ]
+    }
+  },
+  "model_restatement": "Return the length of the last word in the string, ignoring any spaces around it.",
+  "clarify": [
+    {
+      "keywords": [
+        "trailing",
+        "end",
+        "after"
+      ],
+      "question": "Can there be spaces after the last word?",
+      "answer": "Yes — any number. They don't count."
+    },
+    {
+      "keywords": [
+        "one word",
+        "single word",
+        "no space"
+      ],
+      "question": "What if the string is a single word?",
+      "answer": "Then that word is the last word."
+    },
+    {
+      "keywords": [
+        "empty",
+        "only spaces"
+      ],
+      "question": "Can the string be only spaces?",
+      "answer": "No — there's always at least one word."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Find the last space; the last word is everything after it, so its length is len(s) minus that position minus 1.",
+  "draft_code": "def length_of_last_word(s):\n    last_space = s.rfind(\" \")\n    return len(s) - last_space - 1\n\nprint(length_of_last_word(s))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is last_space?",
+      "kind": "value",
+      "var": "last_space"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is words?",
+      "kind": "value",
+      "var": "words"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Measuring from the last space works on \"Hello World\" — the last space is right before \"World\". But in \"a \" the last space is the trailing one, so the draft measures what comes after it: nothing — 0.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Measuring from the last space is reading the last word off a sign by finding its last gap — a stray gap after the word leaves you reading empty board.",
+    "bridge": "last_space is 5, the gap before \"World\". Where would the last space be in \"a \" — and what comes after it?",
+    "fix": {
+      "rule": "Split on whitespace — it drops empty pieces — and take the length of the last word.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Break on any run of spaces; empty pieces disappear."
+        },
+        {
+          "line": 3,
+          "gloss": "The last word's length."
+        }
+      ],
+      "contrast": {
+        "wrong": "len(s) - s.rfind(\" \") - 1",
+        "wrong_note": "trailing spaces break it",
+        "right": "len(s.split()[-1])",
+        "right_note": "spaces can't fool it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def length_of_last_word(s):\n    words = s.split()\n    return len(words[-1])\n\nprint(length_of_last_word(s))",
+    "alternatives": [
+      {
+        "code": "def length_of_last_word(s):\n    i = len(s) - 1\n    while i >= 0 and s[i] == \" \":\n        i -= 1\n    length = 0\n    while i >= 0 and s[i] != \" \":\n        length += 1\n        i -= 1\n    return length\n\nprint(length_of_last_word(s))",
+        "note": "Walk back from the end: skip trailing spaces, then count characters until the next space — no list needed."
+      }
+    ],
+    "hints": [
+      "Where is the last space in a string that ends with a space?",
+      "Measuring from the last space breaks the moment a space trails the last word.",
+      "words = s.split(); return len(words[-1])"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "s": "Hello World"
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "s": "   fly me   to   the moon  "
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "s": "luffy is still joyboy"
+      },
+      "expected": "6"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: s = \"a \" — what does your code print?",
+    "data": {
+      "name": "s",
+      "value": "a "
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def length_of_last_word(s):\n    words = s.split()\n    return len(words[-1])\n\nprint(length_of_last_word(s))",
+    "fix_hint": "split() drops the trailing space: the words are ['a'], and the last one has length 1."
+  },
+  "one_liner": "Spaces can trail the last word — split into words first, then measure the last one.",
+  "trace_watch": [
+    "last_space",
+    "words"
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "id": "161",
+  "skill": "numbers-operators",
+  "title": "Palindrome Number",
+  "section": "leetcode",
+  "lc": {
+    "number": 9,
+    "title": "Palindrome Number",
+    "difficulty": "Easy",
+    "slug": "palindrome-number"
+  },
+  "scenario": "You get an integer x. Return True if x reads the same forwards and backwards, and False otherwise.\n\nExample 1:\nInput: x = 121\nOutput: True\n\nExample 2:\nInput: x = -121\nOutput: False\nWhy: backwards it reads 121- — the minus sign ends up on the wrong side.\n\nExample 3:\nInput: x = 10\nOutput: False\nWhy: backwards it reads 01.\n\nConstraints:\n-2^31 <= x <= 2^31 - 1\n\nWrite: def is_palindrome(x) — the driver calls it on x = -121 and prints the result.",
+  "data": {
+    "name": "x",
+    "value": -121
+  },
+  "intro": {
+    "job": "You get an integer x. Return True if x reads the same forwards and backwards, and False otherwise.\n\nExample 1:\nInput: x = 121\nOutput: True\n\nExample 2:\nInput: x = -121\nOutput: False\nWhy: backwards it reads 121- — the minus sign ends up on the wrong side.\n\nExample 3:\nInput: x = 10\nOutput: False\nWhy: backwards it reads 01.\n\nConstraints:\n-2^31 <= x <= 2^31 - 1\n\nWrite: def is_palindrome(x) — the driver calls it on x = -121 and prints the result.",
+    "idea": {
+      "rule": "The minus sign is part of how the number reads — a negative number can never read the same backwards.",
+      "detail": "Like problem 005 (Split the candies), this is about what a number really is, not how it looks once you tidy it up. Reading -121 backwards gives 121- — the sign moves to the end, so no negative number is a palindrome. Throwing the sign away with abs() turns -121 into 121, which IS a palindrome — and gets the wrong answer. Rule negatives out first, then compare the digits with their reverse."
+    },
+    "watch": {
+      "code": "def is_palindrome(x):\n    if x < 0:\n        return False\n    s = str(x)\n    return s == s[::-1]\n\nprint(is_palindrome(x))",
+      "data": {
+        "name": "x",
+        "value": 1221
+      },
+      "trace_watch": [
+        "x",
+        "s"
+      ]
+    }
+  },
+  "model_restatement": "Say whether the number reads the same forwards and backwards, sign included.",
+  "clarify": [
+    {
+      "keywords": [
+        "negative",
+        "minus",
+        "sign"
+      ],
+      "question": "Does a negative number count as a palindrome?",
+      "answer": "Never — backwards, the minus sign ends up at the end."
+    },
+    {
+      "keywords": [
+        "zero"
+      ],
+      "question": "Is zero a palindrome?",
+      "answer": "Yes — 0 reads the same both ways."
+    },
+    {
+      "keywords": [
+        "string",
+        "str"
+      ],
+      "question": "Can I turn it into a string?",
+      "answer": "Yes — any way that gets the right answer is fine."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Turn the number into a string without its sign, and check whether the string equals its reverse.",
+  "draft_code": "def is_palindrome(x):\n    s = str(abs(x))\n    return s == s[::-1]\n\nprint(is_palindrome(x))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is s?",
+      "kind": "value",
+      "var": "s"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — line 2 checks the sign. What is x?",
+      "kind": "value",
+      "var": "x"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "abs(-121) throws the minus sign away, so the draft checks '121' — which is a palindrome. But -121 backwards reads 121-, which isn't.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Dropping the sign before you compare is checking a word for symmetry after rubbing out its first letter — what's left might read the same, but the word didn't.",
+    "bridge": "s is '121'. Where did the minus sign go — and would -121 read the same backwards with it?",
+    "fix": {
+      "rule": "Negatives are never palindromes: return False for x < 0, then compare str(x) with its reverse.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "A negative number?"
+        },
+        {
+          "line": 3,
+          "gloss": "Backwards, its sign lands at the end — never a palindrome."
+        },
+        {
+          "line": 4,
+          "gloss": "Now the digits, sign and all..."
+        },
+        {
+          "line": 5,
+          "gloss": "...read forwards and backwards."
+        }
+      ],
+      "contrast": {
+        "wrong": "s = str(abs(x))",
+        "wrong_note": "the sign is thrown away",
+        "right": "if x < 0: return False",
+        "right_note": "negatives ruled out first"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def is_palindrome(x):\n    if x < 0:\n        return False\n    s = str(x)\n    return s == s[::-1]\n\nprint(is_palindrome(x))",
+    "alternatives": [
+      {
+        "code": "def is_palindrome(x):\n    if x < 0:\n        return False\n    original, rev = x, 0\n    while x > 0:\n        rev = rev * 10 + x % 10\n        x //= 10\n    return rev == original\n\nprint(is_palindrome(x))",
+        "note": "Reverse the digits with arithmetic instead of a string — x % 10 peels the last digit, x //= 10 drops it — after the same negative guard."
+      }
+    ],
+    "hints": [
+      "What does abs() do to -121?",
+      "abs() throws the minus sign away — but the sign is part of how the number reads.",
+      "if x < 0: return False; s = str(x); return s == s[::-1]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "x": 121
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "x": -121
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "x": 10
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: x = -101 — what does your code print?",
+    "data": {
+      "name": "x",
+      "value": -101
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def is_palindrome(x):\n    if x < 0:\n        return False\n    s = str(x)\n    return s == s[::-1]\n\nprint(is_palindrome(x))",
+    "fix_hint": "The negative guard catches it — -101 backwards is 101-."
+  },
+  "one_liner": "The minus sign is part of how the number reads — a negative number can never read the same backwards.",
+  "trace_watch": [
+    "x",
+    "s"
+  ]
+}

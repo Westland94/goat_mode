@@ -1,0 +1,219 @@
+{
+  "id": "125",
+  "skill": "combo-filter-sum",
+  "title": "Add up only the even prices",
+  "scenario": "A till receipt lists every price scanned. How much do just the even prices add up to?",
+  "data": {
+    "name": "prices",
+    "value": [
+      3,
+      8,
+      5,
+      10,
+      7
+    ]
+  },
+  "intro": {
+    "job": "A till receipt lists every price scanned. How much do just the even prices add up to?",
+    "idea": {
+      "rule": "Add only the even prices — the odd ones don't count.",
+      "detail": "Two patterns chained: the even test (019) picks which prices count; the running total (004) adds only those. The draft does the second half without the first, so the odd prices get charged too."
+    },
+    "watch": {
+      "code": "total = 0\nfor p in prices:\n    if p % 2 == 0:\n        total += p\nprint(total)",
+      "data": {
+        "name": "prices",
+        "value": [
+          2,
+          3,
+          4
+        ]
+      },
+      "trace_watch": [
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Add up the even prices — and print the total.",
+  "clarify": [
+    {
+      "keywords": [
+        "no even",
+        "none",
+        "empty"
+      ],
+      "question": "What if there are no even prices?",
+      "answer": "Then the total is 0 — the loop adds nothing."
+    },
+    {
+      "keywords": [
+        "order",
+        "sorted"
+      ],
+      "question": "Does the order matter?",
+      "answer": "No — addition doesn't care about order, only about which prices count."
+    },
+    {
+      "keywords": [
+        "remainder",
+        "mod",
+        "divide"
+      ],
+      "question": "What does the remainder check mean?",
+      "answer": "No remainder after dividing by 2 — that's what even means. p % 2 == 0 is the test."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk the prices. Add a price only if it's even. Print the total.",
+  "draft_code": "total = 0\nfor p in prices:\n    total += p\nprint(total)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "After the second price, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "On the print line, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 4
+      },
+      "prompt": "With the fix — after the fourth price, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft adds every price it sees — the odd 3, 5 and 7 get charged too, so the total counts five prices instead of two evens.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A total adds what the loop hands it — hand it every price and the odd ones ride along.",
+    "bridge": "Which prices should the total count — and what test keeps the odd ones out?",
+    "fix": {
+      "rule": "Filter first, then add: if p % 2 == 0: total += p.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Walk the prices."
+        },
+        {
+          "line": 3,
+          "gloss": "Even?"
+        },
+        {
+          "line": 4,
+          "gloss": "Add it — only the evens reach this line."
+        }
+      ],
+      "contrast": {
+        "wrong": "add every price",
+        "wrong_note": "odd prices ride along",
+        "right": "add only the evens",
+        "right_note": "the total counts two prices"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "total = 0\nfor p in prices:\n    if p % 2 == 0:\n        total += p\nprint(total)",
+    "alternatives": [
+      {
+        "code": "print(sum(p for p in prices if p % 2 == 0))",
+        "note": "Sum only the evens in one line — the filter lives inside the sum."
+      }
+    ],
+    "hints": [
+      "Which prices should count?",
+      "The total adds everything it sees — what test keeps the odd ones out?",
+      "if p % 2 == 0: total += p."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "prices": [
+          3,
+          8,
+          5,
+          10,
+          7
+        ]
+      },
+      "expected": "18"
+    },
+    {
+      "input": {
+        "prices": [
+          2,
+          2,
+          2
+        ]
+      },
+      "expected": "6"
+    },
+    {
+      "input": {
+        "prices": [
+          1,
+          3,
+          5
+        ]
+      },
+      "expected": "0"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more receipt: [6, 1, 4, 9] — what do the even prices add up to?",
+    "data": {
+      "name": "prices",
+      "value": [
+        6,
+        1,
+        4,
+        9
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new receipt, what gets printed?"
+    },
+    "recommended": "total = 0\nfor p in prices:\n    if p % 2 == 0:\n        total += p\nprint(total)",
+    "fix_hint": "Nothing to change — the even test picks 6 and 4, whatever the receipt is."
+  },
+  "one_liner": "Add only the even prices — the odd ones don't count.",
+  "trace_watch": [
+    "total"
+  ]
+}

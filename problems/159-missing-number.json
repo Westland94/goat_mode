@@ -1,0 +1,226 @@
+{
+  "id": "159",
+  "skill": "numbers-operators",
+  "title": "Missing Number",
+  "section": "leetcode",
+  "lc": {
+    "number": 268,
+    "title": "Missing Number",
+    "difficulty": "Easy",
+    "slug": "missing-number"
+  },
+  "scenario": "You get a list nums of n distinct numbers, all taken from 0 to n. Exactly one number in that range is missing. Return it.\n\nExample 1:\nInput: nums = [3, 0, 1]\nOutput: 2\n\nExample 2:\nInput: nums = [0, 1]\nOutput: 2\nWhy: n is 2, so the range is 0 to 2 — and 2 isn't there.\n\nExample 3:\nInput: nums = [9, 6, 4, 2, 3, 5, 7, 0, 1]\nOutput: 8\n\nConstraints:\n1 <= n <= 10000\n0 <= nums[i] <= n\nAll the numbers are distinct.\n\nWrite: def missing_number(nums) — the driver calls it on nums = [3, 0, 1] and prints the result.",
+  "data": {
+    "name": "nums",
+    "value": [
+      3,
+      0,
+      1
+    ]
+  },
+  "intro": {
+    "job": "You get a list nums of n distinct numbers, all taken from 0 to n. Exactly one number in that range is missing. Return it.\n\nExample 1:\nInput: nums = [3, 0, 1]\nOutput: 2\n\nExample 2:\nInput: nums = [0, 1]\nOutput: 2\nWhy: n is 2, so the range is 0 to 2 — and 2 isn't there.\n\nExample 3:\nInput: nums = [9, 6, 4, 2, 3, 5, 7, 0, 1]\nOutput: 8\n\nConstraints:\n1 <= n <= 10000\n0 <= nums[i] <= n\nAll the numbers are distinct.\n\nWrite: def missing_number(nums) — the driver calls it on nums = [3, 0, 1] and prints the result.",
+    "idea": {
+      "rule": "0 to n is n + 1 numbers — range(n + 1) reaches n, range(n) stops one short.",
+      "detail": "Like problem 005 (Split the candies), this is arithmetic, not searching: add up everything that SHOULD be there, subtract what IS there, and the difference is the missing number. The catch is the range: the numbers run from 0 to n, which is n + 1 values. range(n) stops at n - 1 and leaves the top number out of the total."
+    },
+    "watch": {
+      "code": "def missing_number(nums):\n    n = len(nums)\n    expected = sum(range(n + 1))\n    return expected - sum(nums)\n\nprint(missing_number(nums))",
+      "data": {
+        "name": "nums",
+        "value": [
+          1,
+          0
+        ]
+      },
+      "trace_watch": [
+        "n",
+        "expected"
+      ]
+    }
+  },
+  "model_restatement": "Find the one number from 0 to n that isn't in the list.",
+  "clarify": [
+    {
+      "keywords": [
+        "twice",
+        "duplicate",
+        "repeat",
+        "distinct"
+      ],
+      "question": "Can a number appear twice?",
+      "answer": "No — all the numbers are distinct."
+    },
+    {
+      "keywords": [
+        "zero",
+        "start"
+      ],
+      "question": "Does the range start at 0 or 1?",
+      "answer": "At 0 — it runs from 0 up to and including n."
+    },
+    {
+      "keywords": [
+        "sorted",
+        "order"
+      ],
+      "question": "Is the list sorted?",
+      "answer": "No — any order."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Add up the numbers from 0 to n with range, subtract the sum of the list, and return the difference.",
+  "draft_code": "def missing_number(nums):\n    n = len(nums)\n    expected = sum(range(n))\n    return expected - sum(nums)\n\nprint(missing_number(nums))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "After line 3, what is expected?",
+      "kind": "value",
+      "var": "expected"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 3, what is expected?",
+      "kind": "value",
+      "var": "expected"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "range(3) is 0, 1, 2 — it stops before 3. The numbers should run 0 to 3, so the total misses the 3: expected is 3 instead of 6, and the answer comes out 3 too low (-1).",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "range(n) is a fence that stops one post short: it counts 0 up to n - 1, and the top post n is never counted.",
+    "bridge": "expected is 3. What's 0 + 1 + 2 + 3?",
+    "fix": {
+      "rule": "The range has to reach n: sum(range(n + 1)) is the total of 0 to n.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "n numbers in the list..."
+        },
+        {
+          "line": 3,
+          "gloss": "...taken from 0 to n — n + 1 values in all."
+        },
+        {
+          "line": 4,
+          "gloss": "What should be there, minus what is."
+        }
+      ],
+      "contrast": {
+        "wrong": "sum(range(n))",
+        "wrong_note": "stops at n - 1",
+        "right": "sum(range(n + 1))",
+        "right_note": "reaches n"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def missing_number(nums):\n    n = len(nums)\n    expected = sum(range(n + 1))\n    return expected - sum(nums)\n\nprint(missing_number(nums))",
+    "alternatives": [
+      {
+        "code": "def missing_number(nums):\n    n = len(nums)\n    missing = set(range(n + 1)) - set(nums)\n    return missing.pop()\n\nprint(missing_number(nums))",
+        "note": "Set difference: build every number from 0 to n as a set, take away the set of nums, and the one number left is the answer."
+      }
+    ],
+    "hints": [
+      "What numbers does range(3) give you?",
+      "range stops BEFORE its stop value — range(n) never reaches n.",
+      "expected = sum(range(n + 1)); return expected - sum(nums)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          3,
+          0,
+          1
+        ]
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "nums": [
+          0,
+          1
+        ]
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "nums": [
+          9,
+          6,
+          4,
+          2,
+          3,
+          5,
+          7,
+          0,
+          1
+        ]
+      },
+      "expected": "8"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [0, 1] — what does your code print?",
+    "data": {
+      "name": "nums",
+      "value": [
+        0,
+        1
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def missing_number(nums):\n    n = len(nums)\n    expected = sum(range(n + 1))\n    return expected - sum(nums)\n\nprint(missing_number(nums))",
+    "fix_hint": "The range reaches 2 now: 0 + 1 + 2 is 3, minus 1 leaves 2."
+  },
+  "one_liner": "0 to n is n + 1 numbers — range(n + 1) reaches n, range(n) stops one short.",
+  "trace_watch": [
+    "n",
+    "expected"
+  ]
+}

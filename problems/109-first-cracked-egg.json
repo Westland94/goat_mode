@@ -1,0 +1,224 @@
+{
+  "id": "109",
+  "skill": "binary-search-first-bad",
+  "title": "First cracked egg",
+  "scenario": "Six eggs in a row, some bad. Find the first bad one — the one that went bad and took the rest with it.",
+  "data": {
+    "name": "bad",
+    "value": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "intro": {
+    "job": "Six eggs in a row, some bad. Find the first bad one — the one that went bad and took the rest with it.",
+    "idea": {
+      "rule": "When an egg is bad, the first bad one is at or before it — never step past it.",
+      "detail": "Once an egg is bad, every later one is bad too — so the row is all good, then all bad. Halve it: if the middle is good, the first bad one is to the right (lo = mid + 1). If the middle is bad, the first bad one is the middle itself or something earlier — so hi = mid, not mid - 1. When lo and hi meet, that's it."
+    },
+    "watch": {
+      "code": "lo = 0\nhi = len(bad) - 1\nwhile lo < hi:\n    mid = (lo + hi) // 2\n    if bad[mid]:\n        hi = mid\n    else:\n        lo = mid + 1\nprint(lo)",
+      "data": {
+        "name": "bad",
+        "value": [
+          false,
+          true,
+          true
+        ]
+      },
+      "trace_watch": [
+        "lo",
+        "hi",
+        "mid"
+      ]
+    }
+  },
+  "model_restatement": "Find the position of the first bad egg by halving, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "all good",
+        "no bad",
+        "none bad",
+        "no egg"
+      ],
+      "question": "What if no egg is bad?",
+      "answer": "Not today — at least one is bad."
+    },
+    {
+      "keywords": [
+        "good after",
+        "fixed later",
+        "pattern",
+        "mixed",
+        "come after"
+      ],
+      "question": "Could a good egg come after a bad one?",
+      "answer": "No — once it goes bad, everything after it is bad."
+    },
+    {
+      "keywords": [
+        "number",
+        "index",
+        "position",
+        "egg number"
+      ],
+      "question": "Position or egg number?",
+      "answer": "Print the position in the row (counting from 0)."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Halve the eggs. If the middle one is bad, the answer is before it — move hi to just before the middle. Otherwise move lo past it. Print lo.",
+  "draft_code": "lo = 0\nhi = len(bad) - 1\nwhile lo < hi:\n    mid = (lo + hi) // 2\n    if bad[mid]:\n        hi = mid - 1\n    else:\n        lo = mid + 1\nprint(lo)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "First look: what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "mid is bad. After line 6, what is hi?",
+      "kind": "value",
+      "var": "hi"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 6, what is hi?",
+      "kind": "value",
+      "var": "hi"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Egg 2 is bad, so the first bad one is 2 or earlier — but hi = mid - 1 drops hi to 1, throwing egg 2 out of the search for good.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "hi = mid - 1 steps past a bad egg as if it couldn't be the answer — but the bad one you're standing on might be the FIRST bad one.",
+    "bridge": "If mid is bad, could mid itself be the first bad egg?",
+    "fix": {
+      "rule": "hi = mid: keep the bad middle in range — the first bad one is at mid or before it.",
+      "walk": [
+        {
+          "line": 3,
+          "gloss": "Until lo and hi meet..."
+        },
+        {
+          "line": 4,
+          "gloss": "...look at the middle egg."
+        },
+        {
+          "line": 6,
+          "gloss": "Bad? The first bad one is here or earlier — keep mid in range."
+        },
+        {
+          "line": 8,
+          "gloss": "Good? The first bad one is after it."
+        }
+      ],
+      "contrast": {
+        "wrong": "hi = mid - 1",
+        "wrong_note": "throws the bad middle away",
+        "right": "hi = mid",
+        "right_note": "keeps it in range"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "lo = 0\nhi = len(bad) - 1\nwhile lo < hi:\n    mid = (lo + hi) // 2\n    if bad[mid]:\n        hi = mid\n    else:\n        lo = mid + 1\nprint(lo)",
+    "alternatives": [
+      {
+        "code": "print(next(i for i, b in enumerate(bad) if b))",
+        "note": "Walk from the front until the first bad one — correct, but it checks every egg instead of halving."
+      }
+    ],
+    "hints": [
+      "After line 6, is egg 2 still in the range lo..hi?",
+      "A bad middle might be the first bad one — don't step past it.",
+      "hi = mid"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "bad": [
+          false,
+          false,
+          true,
+          true,
+          true,
+          true
+        ]
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "bad": [
+          false,
+          true,
+          true
+        ]
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Four eggs: [False, True, True, True] — first bad?",
+    "data": {
+      "name": "bad",
+      "value": [
+        false,
+        true,
+        true,
+        true
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new eggs, what gets printed?"
+    },
+    "recommended": "lo = 0\nhi = len(bad) - 1\nwhile lo < hi:\n    mid = (lo + hi) // 2\n    if bad[mid]:\n        hi = mid\n    else:\n        lo = mid + 1\nprint(lo)",
+    "fix_hint": "Nothing to change — hi = mid keeps the bad middle until lo meets it."
+  },
+  "one_liner": "When an egg is bad, the first bad one is at or before it — never step past it.",
+  "trace_watch": [
+    "lo",
+    "hi",
+    "mid"
+  ]
+}

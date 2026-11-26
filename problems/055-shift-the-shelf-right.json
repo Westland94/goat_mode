@@ -1,0 +1,243 @@
+{
+  "id": "055",
+  "skill": "rotate-array",
+  "title": "Shift the shelf right",
+  "scenario": "Shift this shelf 2 places to the right — the end wraps around to the front.",
+  "data": {
+    "name": "pair",
+    "value": [
+      [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      2
+    ]
+  },
+  "intro": {
+    "job": "Shift this shelf 2 places to the right — the end wraps around to the front.",
+    "idea": {
+      "rule": "Rotating right takes from the end — a negative slice grabs the tail.",
+      "detail": "Shifting right by k means the last k items wrap around to the front, and everything else moves along behind them. nums[-k:] is the tail — the last k items — and nums[:-k] is everything before it. Tail first, then the rest. Slicing from the front (nums[k:]) moves things LEFT instead."
+    },
+    "watch": {
+      "code": "nums, k = pair\nanswer = nums[-k:] + nums[:-k]\nprint(answer)",
+      "data": {
+        "name": "pair",
+        "value": [
+          [
+            1,
+            2,
+            3,
+            4
+          ],
+          1
+        ]
+      },
+      "trace_watch": [
+        "answer"
+      ]
+    }
+  },
+  "model_restatement": "Move every item k places to the right, with the last k wrapping around to the front.",
+  "clarify": [
+    {
+      "keywords": [
+        "left",
+        "direction",
+        "which way"
+      ],
+      "question": "Right or left?",
+      "answer": "Right — the end wraps around to the front."
+    },
+    {
+      "keywords": [
+        "bigger than",
+        "k larger",
+        "more than length"
+      ],
+      "question": "Could k be bigger than the shelf?",
+      "answer": "Not today."
+    },
+    {
+      "keywords": [
+        "in place",
+        "new list",
+        "copy"
+      ],
+      "question": "In place, or a new list?",
+      "answer": "A new list is fine today."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Cut the shelf at k: the part after the cut goes first, then the part before it. Print it.",
+  "draft_code": "nums, k = pair\nanswer = nums[k:] + nums[:k]\nprint(answer)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is k?",
+      "kind": "value",
+      "var": "k"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "On the print line, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "With the fix — on the print line, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "nums[k:] + nums[:k] puts everything from position 2 on first and moves the front two to the end — that's a LEFT shift. Shifting right takes the last two to the front.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Cutting from the front is turning the dial the wrong way — the front items slide off the end instead of the end items wrapping round to the front.",
+    "bridge": "Shifting right, which two items should end up at the front?",
+    "fix": {
+      "rule": "nums[-k:] + nums[:-k]: the last k items first, then everything before them.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The shelf and how far to shift."
+        },
+        {
+          "line": 2,
+          "gloss": "The tail (last k) goes first, then the rest."
+        },
+        {
+          "line": 3,
+          "gloss": "Show the shifted shelf."
+        }
+      ],
+      "contrast": {
+        "wrong": "nums[k:] + nums[:k]",
+        "wrong_note": "shifts left",
+        "right": "nums[-k:] + nums[:-k]",
+        "right_note": "shifts right"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "nums, k = pair\nanswer = nums[-k:] + nums[:-k]\nprint(answer)",
+    "alternatives": [
+      {
+        "code": "nums, k = pair\nfor _ in range(k):\n    nums.insert(0, nums.pop())\nprint(nums)",
+        "note": "Move the last shelf to the front, k times — correct, and it shows what the slice is doing."
+      }
+    ],
+    "hints": [
+      "Which items are at the front of answer — the end of the shelf, or the middle?",
+      "Slicing from the front moves things left. Right takes from the end.",
+      "answer = nums[-k:] + nums[:-k]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pair": [
+          [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          2
+        ]
+      },
+      "expected": "[4, 5, 1, 2, 3]"
+    },
+    {
+      "input": {
+        "pair": [
+          [
+            1,
+            2,
+            3,
+            4
+          ],
+          1
+        ]
+      },
+      "expected": "[4, 1, 2, 3]"
+    },
+    {
+      "input": {
+        "pair": [
+          [
+            1,
+            2,
+            3
+          ],
+          0
+        ]
+      },
+      "expected": "[1, 2, 3]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A longer shelf: [10, 20, 30, 40, 50, 60], shifted 4 — what's printed?",
+    "data": {
+      "name": "pair",
+      "value": [
+        [
+          10,
+          20,
+          30,
+          40,
+          50,
+          60
+        ],
+        4
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelf, what gets printed?"
+    },
+    "recommended": "nums, k = pair\nanswer = nums[-k:] + nums[:-k]\nprint(answer)",
+    "fix_hint": "Nothing to change — the last 4 wrap round to the front."
+  },
+  "one_liner": "Rotating right takes from the end — a negative slice grabs the tail.",
+  "trace_watch": [
+    "k",
+    "answer"
+  ]
+}

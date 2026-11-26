@@ -1,0 +1,219 @@
+{
+  "id": "100",
+  "skill": "two-pointers-reverse",
+  "title": "Flip the playlist",
+  "scenario": "Flip the playlist backwards, in place.",
+  "data": {
+    "name": "songs",
+    "value": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e"
+    ]
+  },
+  "intro": {
+    "job": "Flip the playlist backwards, in place.",
+    "idea": {
+      "rule": "Swap only halfway — walk the whole list and every swap gets undone.",
+      "detail": "Two fingers: one at the front (i), one at the back (n - 1 - i). Swap what they point at, then move both toward the middle. Once they meet, every song is already in place — the first half of the swaps did the whole job. Keep going and the second half swaps everything straight back."
+    },
+    "watch": {
+      "code": "n = len(songs)\nfor i in range(n // 2):\n    songs[i], songs[n - 1 - i] = songs[n - 1 - i], songs[i]\nprint(songs)",
+      "data": {
+        "name": "songs",
+        "value": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "songs"
+      ]
+    }
+  },
+  "model_restatement": "Reverse the list of songs by swapping them in place, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "new list",
+        "copy",
+        "in place",
+        "reversed",
+        "[::-1]"
+      ],
+      "question": "Can I just make a reversed copy?",
+      "answer": "No — flip this list in place, by swapping."
+    },
+    {
+      "keywords": [
+        "empty",
+        "one song",
+        "single"
+      ],
+      "question": "What about an empty list or one song?",
+      "answer": "Not today — at least two songs."
+    },
+    {
+      "keywords": [
+        "odd",
+        "even",
+        "middle",
+        "length"
+      ],
+      "question": "Odd or even number of songs?",
+      "answer": "Could be either."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For every position, swap the song there with its mirror at the other end. Print the songs.",
+  "draft_code": "n = len(songs)\nfor i in range(n):\n    songs[i], songs[n - 1 - i] = songs[n - 1 - i], songs[i]\nprint(songs)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "After the swap in iteration 2, what is songs?",
+      "kind": "value",
+      "var": "songs"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 4
+      },
+      "prompt": "Iteration 4 (i = 3): after its swap, what is songs?",
+      "kind": "value",
+      "var": "songs"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — when the loop is done, what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "After two swaps the playlist is already ['e', 'd', 'c', 'b', 'a']. The loop keeps going: i = 3 swaps back what i = 1 did, and i = 4 swaps back what i = 0 did — ending exactly where it started.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Two fingers that keep walking past the middle cross over and start undoing their own work — every swap after halfway is a swap that already happened, done backwards.",
+    "bridge": "So when should the two fingers stop?",
+    "fix": {
+      "rule": "range(n // 2): the fingers walk only until they meet in the middle — every pair is swapped exactly once.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "How many songs."
+        },
+        {
+          "line": 2,
+          "gloss": "Walk only the first half of the positions."
+        },
+        {
+          "line": 3,
+          "gloss": "Swap this song with its mirror at the other end."
+        },
+        {
+          "line": 4,
+          "gloss": "Show the flipped playlist."
+        }
+      ],
+      "contrast": {
+        "wrong": "range(n)",
+        "wrong_note": "every swap done twice",
+        "right": "range(n // 2)",
+        "right_note": "every swap done once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "n = len(songs)\nfor i in range(n // 2):\n    songs[i], songs[n - 1 - i] = songs[n - 1 - i], songs[i]\nprint(songs)",
+    "alternatives": [
+      {
+        "code": "left, right = 0, len(songs) - 1\nwhile left < right:\n    songs[left], songs[right] = songs[right], songs[left]\n    left += 1\n    right -= 1\nprint(songs)",
+        "note": "Two explicit fingers that stop when they meet — the classic two-pointer shape."
+      }
+    ],
+    "hints": [
+      "After iteration 2, the playlist is already flipped. What does iteration 4 do to it?",
+      "Past the middle, each swap undoes an earlier one.",
+      "for i in range(n // 2):"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "songs": [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e"
+        ]
+      },
+      "expected": "['e', 'd', 'c', 'b', 'a']"
+    },
+    {
+      "input": {
+        "songs": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "expected": "['z', 'y', 'x']"
+    }
+  ],
+  "follow_up": {
+    "prompt": "An even-length playlist: ['p', 'q', 'r', 's'] — flipped?",
+    "data": {
+      "name": "songs",
+      "value": [
+        "p",
+        "q",
+        "r",
+        "s"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With ['p', 'q', 'r', 's'], what gets printed?"
+    },
+    "recommended": "n = len(songs)\nfor i in range(n // 2):\n    songs[i], songs[n - 1 - i] = songs[n - 1 - i], songs[i]\nprint(songs)",
+    "fix_hint": "Nothing to change — 4 // 2 is 2 swaps, and there's no middle song to worry about."
+  },
+  "one_liner": "Swap only halfway — walk the whole list and every swap gets undone.",
+  "trace_watch": [
+    "i",
+    "songs"
+  ]
+}

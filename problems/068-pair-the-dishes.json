@@ -1,0 +1,203 @@
+{
+  "id": "068",
+  "skill": "enumerate-zip",
+  "title": "Pair the dishes",
+  "scenario": "Pair each dish with its price, in order.",
+  "data": {
+    "name": "dishes",
+    "value": [
+      "soup",
+      "salad"
+    ]
+  },
+  "intro": {
+    "job": "Pair each dish with its price, in order.",
+    "idea": {
+      "rule": "zip walks two lists holding hands — no indexes, no off-by-one.",
+      "detail": "zip(a, b) hands you the first of a with the first of b, then the second with the second, and so on — as pairs you can unpack straight into two names. There's no index to get wrong. If one list is longer, zip simply stops when the shorter one runs out."
+    },
+    "watch": {
+      "code": "out = []\nfor n, p in zip(a, [3, 4]):\n    out.append((n, p))\nprint(out)",
+      "data": {
+        "name": "a",
+        "value": [
+          "x",
+          "y"
+        ]
+      },
+      "trace_watch": [
+        "n",
+        "p",
+        "out"
+      ]
+    }
+  },
+  "model_restatement": "Match each dish with the price at the same position and print the pairs.",
+  "clarify": [
+    {
+      "keywords": [
+        "same length",
+        "different length",
+        "lengths",
+        "more dishes",
+        "more prices"
+      ],
+      "question": "Are the two lists always the same length?",
+      "answer": "Today, yes."
+    },
+    {
+      "keywords": [
+        "format",
+        "tuples",
+        "print",
+        "output",
+        "pairs"
+      ],
+      "question": "How should the pairs look?",
+      "answer": "A list of (dish, price) tuples."
+    },
+    {
+      "keywords": [
+        "order",
+        "sorted",
+        "cheapest",
+        "sort"
+      ],
+      "question": "Sort by price?",
+      "answer": "No — keep them in menu order."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each position i, pair the dish at i with the next price. Print the pairs.",
+  "draft_code": "prices = [5, 8]\npairs = []\nfor i in range(len(dishes)):\n    pairs.append((dishes[i], prices[i + 1]))\nprint(pairs)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1, what is pairs?",
+      "kind": "value",
+      "var": "pairs"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after iteration 1, what is pairs?",
+      "kind": "value",
+      "var": "pairs"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "prices[i + 1] is one ahead: soup gets salad's 8, and on salad's turn prices[2] doesn't exist.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Indexing one ahead is two kids walking out of step — soup grabs salad's price, and by salad's turn there's no hand left to hold.",
+    "bridge": "So how could the two lists walk in step, without you counting positions at all?",
+    "fix": {
+      "rule": "zip pairs the first with the first, the second with the second — and you never touch an index.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The prices."
+        },
+        {
+          "line": 2,
+          "gloss": "An empty list for the pairs."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk both lists in step: a dish and its price together."
+        },
+        {
+          "line": 4,
+          "gloss": "Keep the pair."
+        }
+      ],
+      "contrast": {
+        "wrong": "prices[i + 1]",
+        "wrong_note": "one ahead — off by one",
+        "right": "zip(dishes, prices)",
+        "right_note": "in step, no index"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "prices = [5, 8]\npairs = []\nfor name, p in zip(dishes, prices):\n    pairs.append((name, p))\nprint(pairs)",
+    "alternatives": [
+      {
+        "code": "prices = [5, 8]\npairs = []\nfor i in range(len(dishes)):\n    pairs.append((dishes[i], prices[i]))\nprint(pairs)",
+        "note": "Index both with the same i — works, but zip has no index to get wrong."
+      }
+    ],
+    "hints": [
+      "Iteration 1: which price does soup get?",
+      "prices[i + 1] is one ahead of dishes[i].",
+      "for name, p in zip(dishes, prices):"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "dishes": [
+          "soup",
+          "salad"
+        ]
+      },
+      "expected": "[('soup', 5), ('salad', 8)]"
+    },
+    {
+      "input": {
+        "dishes": [
+          "pie"
+        ]
+      },
+      "expected": "[('pie', 5)]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Three dishes but only two prices: ['soup', 'salad', 'pie']. What does zip do?",
+    "data": {
+      "name": "dishes",
+      "value": [
+        "soup",
+        "salad",
+        "pie"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With three dishes and two prices, what gets printed?"
+    },
+    "recommended": "prices = [5, 8]\npairs = []\nfor name, p in zip(dishes, prices):\n    pairs.append((name, p))\nprint(pairs)",
+    "fix_hint": "Nothing to change — zip stops when the shorter list runs out."
+  },
+  "one_liner": "zip walks two lists holding hands — no indexes, no off-by-one.",
+  "trace_watch": [
+    "i",
+    "name",
+    "p",
+    "pairs"
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "id": "142",
+  "skill": "counting-anagram",
+  "title": "Valid Anagram",
+  "section": "leetcode",
+  "lc": {
+    "number": 242,
+    "title": "Valid Anagram",
+    "difficulty": "Easy",
+    "slug": "valid-anagram"
+  },
+  "scenario": "Given two strings s and t, return True if t uses exactly the same letters as s, each the same number of times (just rearranged), and False otherwise.\n\nExample 1:\nInput: s = \"anagram\", t = \"nagaram\"\nOutput: True\n\nExample 2:\nInput: s = \"rat\", t = \"car\"\nOutput: False\n\nConstraints:\n1 <= len(s), len(t) <= 5 * 10^4\ns and t contain only lowercase English letters.\n\nWrite: def is_anagram(s, t) — the driver calls it on Example 2 (pair = [s, t]) and prints the result.",
+  "data": {
+    "name": "pair",
+    "value": [
+      "rat",
+      "car"
+    ]
+  },
+  "intro": {
+    "job": "Given two strings s and t, return True if t uses exactly the same letters as s, each the same number of times (just rearranged), and False otherwise.\n\nExample 1:\nInput: s = \"anagram\", t = \"nagaram\"\nOutput: True\n\nExample 2:\nInput: s = \"rat\", t = \"car\"\nOutput: False\n\nConstraints:\n1 <= len(s), len(t) <= 5 * 10^4\ns and t contain only lowercase English letters.\n\nWrite: def is_anagram(s, t) — the driver calls it on Example 2 (pair = [s, t]) and prints the result.",
+    "idea": {
+      "rule": "Every letter's count has to end at exactly zero — checking only s's letters for negatives lets t's extras slip through.",
+      "detail": "This is problem 036 (Same letters?) in interview format. Count up for every letter of s, count down for every letter of t. If the words are anagrams, every count lands on exactly 0. A letter only t has goes negative; a letter only s has stays positive — both mean 'not an anagram', so the final check must look at every count, not just some."
+    },
+    "watch": {
+      "code": "def is_anagram(s, t):\n    counts = {}\n    for ch in s:\n        counts[ch] = counts.get(ch, 0) + 1\n    for ch in t:\n        counts[ch] = counts.get(ch, 0) - 1\n    for ch in counts:\n        if counts[ch] != 0:\n            return False\n    return True\n\ns, t = pair\nprint(is_anagram(s, t))",
+      "data": {
+        "name": "pair",
+        "value": [
+          "ab",
+          "ba"
+        ]
+      },
+      "trace_watch": [
+        "ch",
+        "counts"
+      ]
+    }
+  },
+  "model_restatement": "Say whether t is a rearrangement of s, using every letter the same number of times.",
+  "clarify": [
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase"
+      ],
+      "question": "Does case matter?",
+      "answer": "Not today — both are lowercase."
+    },
+    {
+      "keywords": [
+        "length",
+        "different lengths",
+        "longer"
+      ],
+      "question": "What if they're different lengths?",
+      "answer": "Then they can't be anagrams — False."
+    },
+    {
+      "keywords": [
+        "sort",
+        "sorted"
+      ],
+      "question": "Can I just sort both and compare?",
+      "answer": "That works too — here, practise counting."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count up each letter of s, count down each letter of t. Then go through s's letters: if any count is below zero, return False. Otherwise return True.",
+  "draft_code": "def is_anagram(s, t):\n    counts = {}\n    for ch in s:\n        counts[ch] = counts.get(ch, 0) + 1\n    for ch in t:\n        counts[ch] = counts.get(ch, 0) - 1\n    for ch in s:\n        if counts[ch] < 0:\n            return False\n    return True\n\ns, t = pair\nprint(is_anagram(s, t))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "After t's first letter ('c') is counted down, what is counts?",
+      "kind": "value",
+      "var": "counts"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 9,
+        "iteration": 3
+      },
+      "prompt": "With the fix — the loop over counts stops at line 9. Which letter is ch?",
+      "kind": "value",
+      "var": "ch"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The final loop only looks at s's letters — r, a, t — and only for negatives. 'c' (only in t) went to -1 and 't' (only in s) stayed at 1, but neither check sees a problem, so it returns True.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Checking only s's letters for negatives is a stock-take that only counts the shelves you own — the stranger's box ('c') and your missing item ('t') never get looked at.",
+    "bridge": "After both count loops, counts is {'r': 0, 'a': 0, 't': 1, 'c': -1}. Which of those does the draft's final loop ever inspect?",
+    "fix": {
+      "rule": "Check every count in the dict, and demand exactly zero — any leftover, positive or negative, means not an anagram.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "An empty tally."
+        },
+        {
+          "line": 4,
+          "gloss": "Count up for each letter of s."
+        },
+        {
+          "line": 6,
+          "gloss": "Count down for each letter of t."
+        },
+        {
+          "line": 7,
+          "gloss": "Now look at EVERY letter in the tally."
+        },
+        {
+          "line": 8,
+          "gloss": "Anything not exactly zero — not an anagram."
+        }
+      ],
+      "contrast": {
+        "wrong": "for ch in s: if counts[ch] < 0",
+        "wrong_note": "only s's letters, only negatives",
+        "right": "for ch in counts: if counts[ch] != 0",
+        "right_note": "every letter, exactly zero"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def is_anagram(s, t):\n    counts = {}\n    for ch in s:\n        counts[ch] = counts.get(ch, 0) + 1\n    for ch in t:\n        counts[ch] = counts.get(ch, 0) - 1\n    for ch in counts:\n        if counts[ch] != 0:\n            return False\n    return True\n\ns, t = pair\nprint(is_anagram(s, t))",
+    "alternatives": [
+      {
+        "code": "def is_anagram(s, t):\n    return sorted(s) == sorted(t)\n\ns, t = pair\nprint(is_anagram(s, t))",
+        "note": "Sort both and compare — same letters, same counts, same sorted string."
+      }
+    ],
+    "hints": [
+      "Which letters does the draft's last loop check?",
+      "A letter only in t never appears in a loop over s.",
+      "for ch in counts: if counts[ch] != 0: return False"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pair": [
+          "anagram",
+          "nagaram"
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "pair": [
+          "rat",
+          "car"
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "pair": [
+          "a",
+          "ab"
+        ]
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: s = \"hello\", t = \"bello\" — anagrams?",
+    "data": {
+      "name": "pair",
+      "value": [
+        "hello",
+        "bello"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def is_anagram(s, t):\n    counts = {}\n    for ch in s:\n        counts[ch] = counts.get(ch, 0) + 1\n    for ch in t:\n        counts[ch] = counts.get(ch, 0) - 1\n    for ch in counts:\n        if counts[ch] != 0:\n            return False\n    return True\n\ns, t = pair\nprint(is_anagram(s, t))",
+    "fix_hint": "Nothing to change — 'h' stays at 1 and 'b' goes to -1, and the fix checks both."
+  },
+  "one_liner": "Every letter's count has to end at exactly zero — checking only s's letters for negatives lets t's extras slip through.",
+  "trace_watch": [
+    "ch",
+    "counts"
+  ]
+}

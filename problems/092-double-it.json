@@ -1,0 +1,175 @@
+{
+  "id": "092",
+  "skill": "functions-return",
+  "title": "Double it",
+  "scenario": "Write a helper that doubles a price. The register then adds a $3 fee and prints the total.",
+  "data": {
+    "name": "n",
+    "value": 8
+  },
+  "intro": {
+    "job": "Write a helper that doubles a price. The register then adds a $3 fee and prints the total.",
+    "idea": {
+      "rule": "print shows YOU the number; return hands it back — a function that only prints is a dead end.",
+      "detail": "print(n * 2) shows the doubled number on the screen — and then it's gone. The caller gets nothing back: price is None, and None + 3 crashes. return n * 2 hands the doubled number back to the caller, so price holds 16 and the fee can be added."
+    },
+    "watch": {
+      "code": "def double(n):\n    return n * 2\nresult = double(x)\nprint(result)",
+      "data": {
+        "name": "x",
+        "value": 4
+      },
+      "trace_watch": [
+        "result"
+      ]
+    }
+  },
+  "model_restatement": "Double the number, add the $3 fee, and print the total.",
+  "clarify": [
+    {
+      "keywords": [
+        "fee",
+        "how much",
+        "add",
+        "3"
+      ],
+      "question": "What's the fee?",
+      "answer": "$3, added on top."
+    },
+    {
+      "keywords": [
+        "zero",
+        "0",
+        "negative",
+        "nothing"
+      ],
+      "question": "What if n is 0?",
+      "answer": "Then the total is just the $3 fee."
+    },
+    {
+      "keywords": [
+        "give back",
+        "return",
+        "hand back",
+        "result"
+      ],
+      "question": "What should double give back?",
+      "answer": "The doubled number — so the register can use it."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Write double: multiply the number by 2 and show it. Then add 3 and print the total.",
+  "draft_code": "def double(n):\n    print(n * 2)\nprice = double(n)\ntotal = price + 3\nprint(total)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 0
+      },
+      "prompt": "After line 3, what is price?",
+      "kind": "value",
+      "var": "price"
+    },
+    {
+      "id": "P2",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 4, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "print(n * 2) shows 16 and hands back nothing — price is None, and None + 3 crashes.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "double prints 16 for you to see — but the caller gets None, and None + 3 has nothing to add to.",
+    "bridge": "So how does the doubled number get from inside double back to price?",
+    "fix": {
+      "rule": "return n * 2 hands 16 back: price holds it, and the fee adds cleanly.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Hand the doubled number back."
+        },
+        {
+          "line": 3,
+          "gloss": "price is now 16."
+        },
+        {
+          "line": 4,
+          "gloss": "Add the $3 fee."
+        },
+        {
+          "line": 5,
+          "gloss": "Show the total."
+        }
+      ],
+      "contrast": {
+        "wrong": "print(n * 2)",
+        "wrong_note": "shows 16, hands back nothing",
+        "right": "return n * 2",
+        "right_note": "hands 16 back"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def double(n):\n    return n * 2\nprice = double(n)\ntotal = price + 3\nprint(total)",
+    "alternatives": [
+      {
+        "code": "def double(n):\n    return n + n\nprice = double(n)\ntotal = price + 3\nprint(total)",
+        "note": "Doubling is adding the number to itself."
+      }
+    ],
+    "hints": [
+      "After line 3, what is price — and what did double hand back?",
+      "print shows the number; it doesn't hand it back.",
+      "return n * 2"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 8
+      },
+      "expected": "19"
+    },
+    {
+      "input": {
+        "n": 0
+      },
+      "expected": "3"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What if n is 0?",
+    "data": {
+      "name": "n",
+      "value": 0
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 0, what gets printed?"
+    },
+    "recommended": "def double(n):\n    return n * 2\nprice = double(n)\ntotal = price + 3\nprint(total)",
+    "fix_hint": "Nothing to change — double(0) is 0, plus the $3 fee is 3."
+  },
+  "one_liner": "print shows YOU the number; return hands it back — a function that only prints is a dead end.",
+  "trace_watch": [
+    "price",
+    "total"
+  ]
+}

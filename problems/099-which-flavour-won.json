@@ -1,0 +1,231 @@
+{
+  "id": "099",
+  "skill": "counting-majority",
+  "title": "Which flavour won",
+  "scenario": "One flavour sold more than half the scoops. Which flavour?",
+  "data": {
+    "name": "sales",
+    "value": [
+      5,
+      1,
+      1,
+      4,
+      1,
+      1,
+      1
+    ]
+  },
+  "intro": {
+    "job": "One flavour sold more than half the scoops. Which flavour?",
+    "idea": {
+      "rule": "max over a dict asks for the biggest KEY — to find the biggest VALUE you have to look at the counts.",
+      "detail": "Count first: a dict from each flavour to how many scoops it sold. Then you want the key whose COUNT is biggest. max(counts) compares the keys themselves; max(counts, key=counts.get) compares each key by its count and hands back the key that wins."
+    },
+    "watch": {
+      "code": "counts = {}\nfor x in sales:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts, key=counts.get)\nprint(winner)",
+      "data": {
+        "name": "sales",
+        "value": [
+          2,
+          2,
+          3,
+          2,
+          4
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "counts",
+        "winner"
+      ]
+    }
+  },
+  "model_restatement": "Find the flavour that sold most — more than half the time — and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "always",
+        "guaranteed",
+        "no majority",
+        "none",
+        "tie"
+      ],
+      "question": "Is there always a majority?",
+      "answer": "Yes — one flavour always sells more than half the scoops."
+    },
+    {
+      "keywords": [
+        "count",
+        "how many",
+        "times"
+      ],
+      "question": "The flavour, or how many scoops?",
+      "answer": "Just the flavour."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no sales",
+        "nothing"
+      ],
+      "question": "Could the list be empty?",
+      "answer": "Not today."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count how often each flavour appears. Then take the biggest one from the counts and print it.",
+  "draft_code": "counts = {}\nfor x in sales:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts)\nprint(winner)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 7
+      },
+      "prompt": "After the counting loop (iteration 7), what is counts?",
+      "kind": "value",
+      "var": "counts"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "After line 4, what is winner?",
+      "kind": "value",
+      "var": "winner"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — after line 4, what is winner?",
+      "kind": "value",
+      "var": "winner"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max(counts) compares the dict's KEYS — 5, 1 and 4 — and 5 is the biggest key. It never looks at how many scoops each one sold.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "max(counts) reads the flavours' numbers off the tub and picks the biggest NUMBER — 5 — without ever counting how many scoops each one sold.",
+    "bridge": "So how do you tell max to judge each flavour by its count instead?",
+    "fix": {
+      "rule": "max(counts, key=counts.get): still hands back a key, but chooses it by looking up each key's count.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty tally."
+        },
+        {
+          "line": 2,
+          "gloss": "Take each sale."
+        },
+        {
+          "line": 3,
+          "gloss": "Count it."
+        },
+        {
+          "line": 4,
+          "gloss": "Pick the flavour whose COUNT is biggest."
+        }
+      ],
+      "contrast": {
+        "wrong": "max(counts)",
+        "wrong_note": "the biggest flavour number",
+        "right": "max(counts, key=counts.get)",
+        "right_note": "the flavour with the most scoops"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "counts = {}\nfor x in sales:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts, key=counts.get)\nprint(winner)",
+    "alternatives": [
+      {
+        "code": "counts = {}\nfor x in sales:\n    counts[x] = counts.get(x, 0) + 1\nwinner = None\nfor x in counts:\n    if winner is None or counts[x] > counts[winner]:\n        winner = x\nprint(winner)",
+        "note": "Track the leader by hand — the same comparison, spelled out."
+      }
+    ],
+    "hints": [
+      "After line 4, is winner the flavour with the most scoops — or just the biggest flavour number?",
+      "max over a dict compares the keys. You want it to compare the counts.",
+      "winner = max(counts, key=counts.get)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "sales": [
+          5,
+          1,
+          1,
+          4,
+          1,
+          1,
+          1
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "sales": [
+          2,
+          2,
+          3,
+          2,
+          4
+        ]
+      },
+      "expected": "2"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New sales: [8, 3, 3, 3, 2, 3, 1] — which flavour?",
+    "data": {
+      "name": "sales",
+      "value": [
+        8,
+        3,
+        3,
+        3,
+        2,
+        3,
+        1
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new sales, what gets printed?"
+    },
+    "recommended": "counts = {}\nfor x in sales:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts, key=counts.get)\nprint(winner)",
+    "fix_hint": "Nothing to change — 3 has the most scoops, even though 8 is the biggest number."
+  },
+  "one_liner": "max over a dict asks for the biggest KEY — to find the biggest VALUE you have to look at the counts.",
+  "trace_watch": [
+    "x",
+    "counts",
+    "winner"
+  ]
+}

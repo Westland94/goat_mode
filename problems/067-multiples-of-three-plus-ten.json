@@ -1,0 +1,199 @@
+{
+  "id": "067",
+  "skill": "comprehensions",
+  "title": "Multiples of three, plus ten",
+  "scenario": "Take the multiples of 3 and add 10 to each.",
+  "data": {
+    "name": "nums",
+    "value": [
+      3,
+      4,
+      6,
+      7
+    ]
+  },
+  "intro": {
+    "job": "Take the multiples of 3 and add 10 to each.",
+    "idea": {
+      "rule": "The if in a comprehension picks who gets in — if x % 3 lets in everything that ISN'T a multiple of 3.",
+      "detail": "[x + 10 for x in nums if CONDITION] is a for loop squeezed onto one line: take each x, let it in only if the condition is True, and put x + 10 in the new list. Read it as: 'x plus 10, for every x in nums, if x is a multiple of 3.' The if decides WHO gets in — so it has to test the right thing."
+    },
+    "watch": {
+      "code": "added = [v + 10 for v in vals if v % 3 == 0]\nprint(added)",
+      "data": {
+        "name": "vals",
+        "value": [
+          5,
+          6
+        ]
+      },
+      "trace_watch": [
+        "added"
+      ]
+    }
+  },
+  "model_restatement": "Keep only the multiples of 3, add 10 to each one, and print the new list.",
+  "clarify": [
+    {
+      "keywords": [
+        "zero",
+        "negative",
+        "negatives"
+      ],
+      "question": "Could there be zero or negative numbers?",
+      "answer": "Not today — positive whole numbers only."
+    },
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "sorted"
+      ],
+      "question": "Should the result keep the original order?",
+      "answer": "Yes — same order as nums."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no multiples",
+        "none"
+      ],
+      "question": "What if there are no multiples of 3?",
+      "answer": "Then an empty list."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Make a new list: each number plus 10, keeping only the numbers that pass the check. Print it.",
+  "draft_code": "out = [x + 10 for x in nums if x % 3]\nprint(out)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "When the comprehension is done, what is out?",
+      "kind": "value",
+      "var": "out"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — what is out?",
+      "kind": "value",
+      "var": "out"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "if x % 3 is truthy for the non-multiples — 4 and 7 get in, 3 and 6 stay out — exactly backwards.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "The bouncer lets in whoever is truthy — and x % 3 is truthy for the non-multiples, so 4 and 7 stroll in and the multiples stay out.",
+    "bridge": "So what question would only let the multiples of 3 in?",
+    "fix": {
+      "rule": "x % 3 == 0 is the multiple-of-3 test: the remainder after dividing by 3 is 0 only for multiples of 3.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "For each x, let it in only if it's a multiple of 3, and put x + 10 in the list."
+        },
+        {
+          "line": 2,
+          "gloss": "Show the new list."
+        }
+      ],
+      "contrast": {
+        "wrong": "if x % 3",
+        "wrong_note": "truthy for non-multiples — lets the wrong ones in",
+        "right": "if x % 3 == 0",
+        "right_note": "lets only multiples of 3 in"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "out = [x + 10 for x in nums if x % 3 == 0]\nprint(out)",
+    "alternatives": [
+      {
+        "code": "out = []\nfor x in nums:\n    if x % 3 == 0:\n        out.append(x + 10)\nprint(out)",
+        "note": "The same thing as a plain loop — four lines instead of one."
+      }
+    ],
+    "hints": [
+      "What does x % 3 give for 3, 4, 6, 7 — and which of those are truthy?",
+      "The if is the filter. You want 'x is a multiple of 3'.",
+      "if x % 3 == 0"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          3,
+          4,
+          6,
+          7
+        ]
+      },
+      "expected": "[13, 16]"
+    },
+    {
+      "input": {
+        "nums": [
+          3
+        ]
+      },
+      "expected": "[13]"
+    },
+    {
+      "input": {
+        "nums": [
+          4,
+          5
+        ]
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "No multiples of 3: [4, 5, 7] — what's printed?",
+    "data": {
+      "name": "nums",
+      "value": [
+        4,
+        5,
+        7
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With nums = [4, 5, 7], what gets printed?"
+    },
+    "recommended": "out = [x + 10 for x in nums if x % 3 == 0]\nprint(out)",
+    "fix_hint": "Nothing to change — no multiples of 3 in the list, so nothing gets 10 added."
+  },
+  "one_liner": "The if in a comprehension picks who gets in — if x % 3 lets in everything that ISN'T a multiple of 3.",
+  "trace_watch": [
+    "x",
+    "out"
+  ]
+}

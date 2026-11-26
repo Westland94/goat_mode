@@ -1,0 +1,203 @@
+{
+  "id": "020",
+  "skill": "enumerate-zip",
+  "title": "Pair the lanes",
+  "scenario": "Pair each swimmer with their lane time, in order.",
+  "data": {
+    "name": "names",
+    "value": [
+      "ana",
+      "ben"
+    ]
+  },
+  "intro": {
+    "job": "Pair each swimmer with their lane time, in order.",
+    "idea": {
+      "rule": "zip walks two lists holding hands — no indexes, no off-by-one.",
+      "detail": "zip(a, b) hands you the first of a with the first of b, then the second with the second, and so on — as pairs you can unpack straight into two names. There's no index to get wrong. If one list is longer, zip simply stops when the shorter one runs out."
+    },
+    "watch": {
+      "code": "out = []\nfor n, t in zip(a, [9, 8]):\n    out.append((n, t))\nprint(out)",
+      "data": {
+        "name": "a",
+        "value": [
+          "x",
+          "y"
+        ]
+      },
+      "trace_watch": [
+        "n",
+        "t",
+        "out"
+      ]
+    }
+  },
+  "model_restatement": "Match each swimmer with the time at the same position and print the pairs.",
+  "clarify": [
+    {
+      "keywords": [
+        "same length",
+        "different length",
+        "lengths",
+        "more names",
+        "more times"
+      ],
+      "question": "Are the two lists always the same length?",
+      "answer": "Today, yes."
+    },
+    {
+      "keywords": [
+        "format",
+        "tuples",
+        "print",
+        "output",
+        "pairs"
+      ],
+      "question": "How should the pairs look?",
+      "answer": "A list of (name, time) tuples."
+    },
+    {
+      "keywords": [
+        "order",
+        "sorted",
+        "fastest",
+        "sort"
+      ],
+      "question": "Sort by time?",
+      "answer": "No — keep them in lane order."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each position i, pair the swimmer at i with the next time. Print the pairs.",
+  "draft_code": "times = [12, 15]\npairs = []\nfor i in range(len(names)):\n    pairs.append((names[i], times[i + 1]))\nprint(pairs)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1, what is pairs?",
+      "kind": "value",
+      "var": "pairs"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after iteration 1, what is pairs?",
+      "kind": "value",
+      "var": "pairs"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "times[i + 1] is one ahead: ana gets ben's 15, and on ben's turn times[2] doesn't exist.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Indexing one ahead is two kids walking out of step — ana grabs ben's time, and by ben's turn there's no hand left to hold.",
+    "bridge": "So how could the two lists walk in step, without you counting positions at all?",
+    "fix": {
+      "rule": "zip pairs the first with the first, the second with the second — and you never touch an index.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The lane times."
+        },
+        {
+          "line": 2,
+          "gloss": "An empty list for the pairs."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk both lists in step: a name and its time together."
+        },
+        {
+          "line": 4,
+          "gloss": "Keep the pair."
+        }
+      ],
+      "contrast": {
+        "wrong": "times[i + 1]",
+        "wrong_note": "one ahead — off by one",
+        "right": "zip(names, times)",
+        "right_note": "in step, no index"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "times = [12, 15]\npairs = []\nfor name, t in zip(names, times):\n    pairs.append((name, t))\nprint(pairs)",
+    "alternatives": [
+      {
+        "code": "times = [12, 15]\npairs = []\nfor i in range(len(names)):\n    pairs.append((names[i], times[i]))\nprint(pairs)",
+        "note": "Index both with the same i — works, but zip has no index to get wrong."
+      }
+    ],
+    "hints": [
+      "Iteration 1: which time does ana get?",
+      "times[i + 1] is one ahead of names[i].",
+      "for name, t in zip(names, times):"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "names": [
+          "ana",
+          "ben"
+        ]
+      },
+      "expected": "[('ana', 12), ('ben', 15)]"
+    },
+    {
+      "input": {
+        "names": [
+          "cy"
+        ]
+      },
+      "expected": "[('cy', 12)]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Three swimmers but only two times: ['ana', 'ben', 'cy']. What does zip do?",
+    "data": {
+      "name": "names",
+      "value": [
+        "ana",
+        "ben",
+        "cy"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With three names and two times, what gets printed?"
+    },
+    "recommended": "times = [12, 15]\npairs = []\nfor name, t in zip(names, times):\n    pairs.append((name, t))\nprint(pairs)",
+    "fix_hint": "Nothing to change — zip stops when the shorter list runs out."
+  },
+  "one_liner": "zip walks two lists holding hands — no indexes, no off-by-one.",
+  "trace_watch": [
+    "i",
+    "name",
+    "t",
+    "pairs"
+  ]
+}

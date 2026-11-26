@@ -1,0 +1,357 @@
+{
+  "id": "133",
+  "skill": "graph-bfs",
+  "title": "Fewest stops",
+  "scenario": "The ferry company wants the shortest trip: how many stops is it from the depot to the lighthouse?",
+  "data": {
+    "name": "trip",
+    "value": [
+      {
+        "depot": [
+          "market",
+          "cove"
+        ],
+        "market": [
+          "harbor"
+        ],
+        "harbor": [
+          "cliff"
+        ],
+        "cliff": [
+          "light"
+        ],
+        "cove": [
+          "light"
+        ],
+        "light": []
+      },
+      "depot",
+      "light"
+    ]
+  },
+  "intro": {
+    "job": "The ferry company wants the shortest trip: how many stops is it from the depot to the lighthouse?",
+    "idea": {
+      "rule": "A queue walks outward in rings — the first time you reach a stop is the fewest stops to it.",
+      "detail": "In 132 the seen set kept the walk from looping. But a depth-first walk takes the first road at every fork and goes as deep as it can, so the first way it finds can be the long way round. To find the fewest stops, walk outward in rings instead: a queue holds the stops still to visit, nearest first. Take a stop off the front, put its unseen neighbours on the back with one more stop, and mark them seen right away. The first time the target comes off the queue, its count is the fewest stops."
+    },
+    "watch": {
+      "code": "from collections import deque\n\ndef fewest_stops(graph, start, target):\n    seen = {start}\n    queue = deque([(start, 0)])\n    while queue:\n        node, stops = queue.popleft()\n        if node == target:\n            return stops\n        for nxt in graph[node]:\n            if nxt not in seen:\n                seen.add(nxt)\n                queue.append((nxt, stops + 1))\n    return -1\n\nroutes, start, target = trip\nprint(fewest_stops(routes, start, target))",
+      "data": {
+        "name": "trip",
+        "value": [
+          {
+            "depot": [
+              "light"
+            ],
+            "light": []
+          },
+          "depot",
+          "light"
+        ]
+      },
+      "trace_watch": [
+        "node",
+        "queue"
+      ]
+    }
+  },
+  "model_restatement": "Say how many stops the shortest trip from the start stop to the target stop takes.",
+  "clarify": [
+    {
+      "keywords": [
+        "fewest",
+        "shortest",
+        "least"
+      ],
+      "question": "Do you want the fewest stops, or just any way there?",
+      "answer": "The fewest stops — the shortest trip, counted in stops."
+    },
+    {
+      "keywords": [
+        "queue",
+        "order"
+      ],
+      "question": "Does the order I visit stops in matter — should I use a queue?",
+      "answer": "Yes. A queue visits stops in rings, nearest first, so the first time you reach the target is the fewest stops."
+    },
+    {
+      "keywords": [
+        "no way",
+        "unreachable",
+        "can't reach"
+      ],
+      "question": "What if there's no way to reach the target?",
+      "answer": "Then print -1."
+    },
+    {
+      "keywords": [
+        "revisit",
+        "twice",
+        "same stop"
+      ],
+      "question": "Can the walk come to the same stop twice — should I revisit it?",
+      "answer": "Never revisit. The first time you reach a stop is already its fewest stops, so mark it seen right then."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk from the start, take each route out and go as deep as it leads, counting stops. The first time you reach the target, return the count.",
+  "draft_code": "def fewest_stops(graph, node, target, seen=None, stops=0):\n    if seen is None:\n        seen = set()\n    if node == target:\n        return stops\n    seen.add(node)\n    for nxt in graph[node]:\n        if nxt not in seen:\n            found = fewest_stops(graph, nxt, target, seen, stops + 1)\n            if found is not None:\n                return found\n    return None\n\nroutes, start, target = trip\nprint(fewest_stops(routes, start, target))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "The first call reaches line 2. Which stop is node?",
+      "kind": "value",
+      "var": "node"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "The walk takes its first route. On the next call, which stop is node?",
+      "kind": "value",
+      "var": "node"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": 2
+      },
+      "prompt": "With the fix — the second stop comes off the front of the queue. Which stop is node?",
+      "kind": "value",
+      "var": "node"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft walks deep first: depot → market → harbor → cliff → light is 4 stops — but the cove shortcut (depot → cove → light) is 2. Depth-first returns the first way it finds, not the fewest.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "A depth-first walk is a driver who takes the first turn at every junction and only turns back at a dead end — the first way it finds isn't the shortest.",
+    "bridge": "The walk goes depot → market → harbor → cliff → light. What would it have to do to try the cove road before going that deep?",
+    "fix": {
+      "rule": "Walk outward in rings with a queue: take stops off the front, put new ones on the back one stop further out, and mark each stop seen when you first reach it.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "The start is seen before anything else."
+        },
+        {
+          "line": 7,
+          "gloss": "Take the nearest stop off the front of the queue."
+        },
+        {
+          "line": 12,
+          "gloss": "Mark a stop seen the moment it's first reached — that's its fewest stops."
+        },
+        {
+          "line": 13,
+          "gloss": "New stops go on the back, one stop further out."
+        }
+      ],
+      "contrast": {
+        "wrong": "found = fewest_stops(graph, nxt, ...); return found",
+        "wrong_note": "returns the first way found",
+        "right": "node, stops = queue.popleft()",
+        "right_note": "nearest stops first"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "from collections import deque\n\ndef fewest_stops(graph, start, target):\n    seen = {start}\n    queue = deque([(start, 0)])\n    while queue:\n        node, stops = queue.popleft()\n        if node == target:\n            return stops\n        for nxt in graph[node]:\n            if nxt not in seen:\n                seen.add(nxt)\n                queue.append((nxt, stops + 1))\n    return -1\n\nroutes, start, target = trip\nprint(fewest_stops(routes, start, target))",
+    "alternatives": [
+      {
+        "code": "def fewest_stops(graph, start, target):\n    seen = {start}\n    queue = [(start, 0)]\n    while queue:\n        node, stops = queue.pop(0)\n        if node == target:\n            return stops\n        for nxt in graph[node]:\n            if nxt not in seen:\n                seen.add(nxt)\n                queue.append((nxt, stops + 1))\n    return -1\n\nroutes, start, target = trip\nprint(fewest_stops(routes, start, target))",
+        "note": "The same rings with a plain list: pop(0) takes from the front. Fine for small maps; deque.popleft() is the fast way."
+      }
+    ],
+    "hints": [
+      "Follow the draft from the depot. Which route does it try first — and does it ever get to the cove road?",
+      "Depth-first returns the first way it finds, not the one with the fewest stops.",
+      "Use a queue: deque([(start, 0)]), popleft() the nearest stop, and append each unseen neighbour with stops + 1, marking it seen."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "trip": [
+          {
+            "depot": [
+              "market",
+              "cove"
+            ],
+            "market": [
+              "harbor"
+            ],
+            "harbor": [
+              "cliff"
+            ],
+            "cliff": [
+              "light"
+            ],
+            "cove": [
+              "light"
+            ],
+            "light": []
+          },
+          "depot",
+          "light"
+        ]
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "trip": [
+          {
+            "depot": [
+              "market",
+              "cove"
+            ],
+            "market": [
+              "harbor"
+            ],
+            "harbor": [
+              "cliff"
+            ],
+            "cliff": [
+              "light"
+            ],
+            "cove": [
+              "light"
+            ],
+            "light": []
+          },
+          "cove",
+          "cliff"
+        ]
+      },
+      "expected": "-1"
+    },
+    {
+      "input": {
+        "trip": [
+          {
+            "depot": [
+              "market",
+              "cove"
+            ],
+            "market": [
+              "harbor"
+            ],
+            "harbor": [
+              "cliff"
+            ],
+            "cliff": [
+              "light"
+            ],
+            "cove": [
+              "light"
+            ],
+            "light": []
+          },
+          "market",
+          "light"
+        ]
+      },
+      "expected": "3"
+    }
+  ],
+  "follow_up": {
+    "prompt": "The cliff road is closed for repairs — same map, harbor goes straight to the light. Fewest stops from the depot to the light now?",
+    "data": {
+      "name": "trip",
+      "value": [
+        {
+          "depot": [
+            "market",
+            "cove"
+          ],
+          "market": [
+            "harbor"
+          ],
+          "harbor": [
+            "light"
+          ],
+          "cove": [
+            "light"
+          ],
+          "cliff": [],
+          "light": []
+        },
+        "depot",
+        "light"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the harbor going straight to the light, what gets printed?"
+    },
+    "recommended": "from collections import deque\n\ndef fewest_stops(graph, start, target):\n    seen = {start}\n    queue = deque([(start, 0)])\n    while queue:\n        node, stops = queue.popleft()\n        if node == target:\n            return stops\n        for nxt in graph[node]:\n            if nxt not in seen:\n                seen.add(nxt)\n                queue.append((nxt, stops + 1))\n    return -1\n\nroutes, start, target = trip\nprint(fewest_stops(routes, start, target))",
+    "fix_hint": "The cove road still wins: depot → cove → light is 2 stops; the draft's deep walk takes 3."
+  },
+  "one_liner": "A queue walks outward in rings — the first time you reach a stop is the fewest stops to it.",
+  "trace_watch": [
+    "node",
+    "queue"
+  ],
+  "stage": {
+    "device": "graph",
+    "map": "map:graph",
+    "graph": "graph",
+    "current": "node",
+    "seen": "seen",
+    "candidate": "nxt",
+    "target": "target",
+    "positions": {
+      "depot": [
+        300,
+        360
+      ],
+      "market": [
+        520,
+        220
+      ],
+      "harbor": [
+        760,
+        360
+      ],
+      "cliff": [
+        520,
+        520
+      ],
+      "cove": [
+        980,
+        200
+      ],
+      "light": [
+        1080,
+        430
+      ]
+    }
+  }
+}

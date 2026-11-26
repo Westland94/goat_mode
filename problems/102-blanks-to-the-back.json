@@ -1,0 +1,222 @@
+{
+  "id": "102",
+  "skill": "two-pointers-move-zeroes",
+  "title": "Blanks to the back",
+  "scenario": "Move every empty seat to the end, keeping the names in their order.",
+  "data": {
+    "name": "seats",
+    "value": [
+      "",
+      "",
+      "ana",
+      "ben",
+      "cy"
+    ]
+  },
+  "intro": {
+    "job": "Move every empty seat to the end, keeping the names in their order.",
+    "idea": {
+      "rule": "Don't change a list while you're walking it — the walker steps over whatever slides into the spot it just left.",
+      "detail": "A for loop walks a list by position: first spot, second spot, and so on. Remove something and everything behind it slides forward one spot — so the item that slides into the spot you just checked never gets looked at. Walk one list, and build the answer somewhere else."
+    },
+    "watch": {
+      "code": "kept = []\nblanks = 0\nfor x in seats:\n    if x == \"\":\n        blanks += 1\n    else:\n        kept.append(x)\nprint(kept + [\"\"] * blanks)",
+      "data": {
+        "name": "seats",
+        "value": [
+          "",
+          "di",
+          "",
+          "ev"
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "kept",
+        "blanks"
+      ]
+    }
+  },
+  "model_restatement": "Move every blank to the end, keeping the names in their original order.",
+  "clarify": [
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "keep order",
+        "sorted"
+      ],
+      "question": "Do the other names keep their order?",
+      "answer": "Yes — exactly the order they came in."
+    },
+    {
+      "keywords": [
+        "in place",
+        "new list",
+        "copy"
+      ],
+      "question": "In place, or a new list?",
+      "answer": "Either is fine today — just print the result."
+    },
+    {
+      "keywords": [
+        "spaces",
+        "space",
+        "blank name"
+      ],
+      "question": "Could a name be just a space?",
+      "answer": "Not today — blanks are empty strings."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk through the seats; whenever you meet a blank, take it out. Print the seats.",
+  "draft_code": "for x in seats:\n    if x == \"\":\n        seats.remove(x)\nprint(seats)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: after the remove, what is seats?",
+      "kind": "value",
+      "var": "seats"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: what is x?",
+      "kind": "value",
+      "var": "x"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": 3
+      },
+      "prompt": "With the fix — after iteration 3, what is kept?",
+      "kind": "value",
+      "var": "kept"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Removing the first blank slides everything forward — the second blank moves into spot 0, which the loop has already visited, so the loop's next look (spot 1) lands on 'ana'. The second blank is never checked.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Removing while walking is pulling a chair out of a row while you count chairs — everyone shuffles up one seat, and you step right past the person who just sat down behind you.",
+    "bridge": "So what if you walked the list without changing it, and built the answer in a new list?",
+    "fix": {
+      "rule": "Walk seats untouched; keep the names in a new list and count the blanks — then glue the blanks on the end.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "A new list for the names we keep."
+        },
+        {
+          "line": 2,
+          "gloss": "A tally of blanks."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk the original — nothing in it moves."
+        },
+        {
+          "line": 4,
+          "gloss": "A blank? Count it instead of removing it."
+        }
+      ],
+      "contrast": {
+        "wrong": "seats.remove(x)  (inside the loop)",
+        "wrong_note": "the list shifts under the walker",
+        "right": "kept.append(x) / blanks += 1",
+        "right_note": "the walked list never changes"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "kept = []\nblanks = 0\nfor x in seats:\n    if x == \"\":\n        blanks += 1\n    else:\n        kept.append(x)\nprint(kept + [\"\"] * blanks)",
+    "alternatives": [
+      {
+        "code": "write = 0\nfor x in seats:\n    if x != \"\":\n        seats[write] = x\n        write += 1\nfor i in range(write, len(seats)):\n    seats[i] = \"\"\nprint(seats)",
+        "note": "In place with a write pointer — the classic two-pointer answer; it never removes anything."
+      }
+    ],
+    "hints": [
+      "Iteration 2: is x the second blank?",
+      "Removing the first blank shifted the second one into the spot the loop already passed.",
+      "Don't remove while looping — collect the names in a new list, then add the blanks."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "seats": [
+          "",
+          "",
+          "ana",
+          "ben",
+          "cy"
+        ]
+      },
+      "expected": "['ana', 'ben', 'cy', '', '']"
+    },
+    {
+      "input": {
+        "seats": [
+          "",
+          "di",
+          "",
+          "ev"
+        ]
+      },
+      "expected": "['di', 'ev', '', '']"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Three blanks in a row: ['', '', '', 'zo'] — what's printed?",
+    "data": {
+      "name": "seats",
+      "value": [
+        "",
+        "",
+        "",
+        "zo"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With seats = ['', '', '', 'zo'], what gets printed?"
+    },
+    "recommended": "kept = []\nblanks = 0\nfor x in seats:\n    if x == \"\":\n        blanks += 1\n    else:\n        kept.append(x)\nprint(kept + [\"\"] * blanks)",
+    "fix_hint": "Nothing to change — the walked list never shifts, so every blank is counted."
+  },
+  "one_liner": "Don't change a list while you're walking it — the walker steps over whatever slides into the spot it just left.",
+  "trace_watch": [
+    "x",
+    "seats",
+    "kept",
+    "blanks"
+  ]
+}

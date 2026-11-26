@@ -1,0 +1,288 @@
+{
+  "id": "154",
+  "skill": "merge-sorted",
+  "title": "Merge Sorted Array",
+  "section": "leetcode",
+  "lc": {
+    "number": 88,
+    "title": "Merge Sorted Array",
+    "difficulty": "Easy",
+    "slug": "merge-sorted-array"
+  },
+  "scenario": "nums1 and nums2 are both sorted in increasing order. nums1 has m real numbers followed by n zeros of spare room; nums2 has n numbers. Merge nums2 into nums1 so that nums1 holds all m + n numbers, sorted. Change nums1 in place — don't return a new list.\n\nExample 1:\nInput: nums1 = [1, 2, 3, 0, 0, 0], m = 3, nums2 = [2, 5, 6], n = 3\nOutput: [1, 2, 2, 3, 5, 6]\n\nExample 2:\nInput: nums1 = [1], m = 1, nums2 = [], n = 0\nOutput: [1]\n\nExample 3:\nInput: nums1 = [0], m = 0, nums2 = [1], n = 1\nOutput: [1]\n\nConstraints:\nlen(nums1) == m + n, len(nums2) == n\n0 <= m, n <= 200\n-10^9 <= nums1[i], nums2[j] <= 10^9\n\nWrite: def merge(nums1, m, nums2, n) — it changes nums1 in place; the driver runs Example 1 (case = [nums1, m, nums2, n]) and prints nums1.",
+  "data": {
+    "name": "case",
+    "value": [
+      [
+        1,
+        2,
+        3,
+        0,
+        0,
+        0
+      ],
+      3,
+      [
+        2,
+        5,
+        6
+      ],
+      3
+    ]
+  },
+  "intro": {
+    "job": "nums1 and nums2 are both sorted in increasing order. nums1 has m real numbers followed by n zeros of spare room; nums2 has n numbers. Merge nums2 into nums1 so that nums1 holds all m + n numbers, sorted. Change nums1 in place — don't return a new list.\n\nExample 1:\nInput: nums1 = [1, 2, 3, 0, 0, 0], m = 3, nums2 = [2, 5, 6], n = 3\nOutput: [1, 2, 2, 3, 5, 6]\n\nExample 2:\nInput: nums1 = [1], m = 1, nums2 = [], n = 0\nOutput: [1]\n\nExample 3:\nInput: nums1 = [0], m = 0, nums2 = [1], n = 1\nOutput: [1]\n\nConstraints:\nlen(nums1) == m + n, len(nums2) == n\n0 <= m, n <= 200\n-10^9 <= nums1[i], nums2[j] <= 10^9\n\nWrite: def merge(nums1, m, nums2, n) — it changes nums1 in place; the driver runs Example 1 (case = [nums1, m, nums2, n]) and prints nums1.",
+    "idea": {
+      "rule": "The leftovers still count — merge by comparing, and fill nums1 from the BACK so nothing gets overwritten.",
+      "detail": "This is problem 054 (Merge the shelves) in interview format, with one twist: the answer must land in nums1, whose spare room is at the end. So merge from the back: compare the last real number of nums1 with the last of nums2, put the bigger one in the last free slot, and step that pointer back. Pasting nums2 onto the end without comparing leaves the shelf unsorted."
+    },
+    "watch": {
+      "code": "def merge(nums1, m, nums2, n):\n    i, j, k = m - 1, n - 1, m + n - 1\n    while j >= 0:\n        if i >= 0 and nums1[i] > nums2[j]:\n            nums1[k] = nums1[i]\n            i -= 1\n        else:\n            nums1[k] = nums2[j]\n            j -= 1\n        k -= 1\n\nnums1, m, nums2, n = case\nmerge(nums1, m, nums2, n)\nprint(nums1)",
+      "data": {
+        "name": "case",
+        "value": [
+          [
+            2,
+            4,
+            0,
+            0
+          ],
+          2,
+          [
+            1,
+            3
+          ],
+          2
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "j",
+        "k",
+        "nums1"
+      ]
+    }
+  },
+  "model_restatement": "Combine nums2 into nums1 so nums1 ends up holding every number, sorted.",
+  "clarify": [
+    {
+      "keywords": [
+        "new list",
+        "return",
+        "copy"
+      ],
+      "question": "Can I return a new list?",
+      "answer": "No — change nums1 in place."
+    },
+    {
+      "keywords": [
+        "zeros",
+        "spare",
+        "room"
+      ],
+      "question": "What are the zeros at the end of nums1?",
+      "answer": "Spare room — exactly n slots for nums2's numbers."
+    },
+    {
+      "keywords": [
+        "sort",
+        "sorted("
+      ],
+      "question": "Can I paste nums2 in and call sort()?",
+      "answer": "It works — here, merge by comparing, from the back."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Copy nums2 into the spare room at the end of nums1. Print nums1.",
+  "draft_code": "def merge(nums1, m, nums2, n):\n    for j in range(n):\n        nums1[m + j] = nums2[j]\n\nnums1, m, nums2, n = case\nmerge(nums1, m, nums2, n)\nprint(nums1)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "After the first copy, what is nums1?",
+      "kind": "value",
+      "var": "nums1"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after the first placement, what is nums1?",
+      "kind": "value",
+      "var": "nums1"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 3
+      },
+      "prompt": "With the fix — third placement: after line 5, what is nums1?",
+      "kind": "value",
+      "var": "nums1"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft just pastes nums2 into the zeros: [1, 2, 3] then [2, 5, 6]. Nothing compares the 2 with the 3, so the result isn't sorted.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Pasting the second shelf onto the end of the first is stacking two sorted piles on top of each other — each half is in order, the whole thing isn't.",
+    "bridge": "After the first copy, nums1 ends ..., 3, 2. Should a 2 ever come after a 3?",
+    "fix": {
+      "rule": "From the back: put the bigger of nums1[i] and nums2[j] in slot k, step that pointer back, and stop once nums2 is used up.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "i: last real number of nums1; j: last of nums2; k: last slot."
+        },
+        {
+          "line": 3,
+          "gloss": "While nums2 still has numbers..."
+        },
+        {
+          "line": 4,
+          "gloss": "...is nums1's current number the bigger one?"
+        },
+        {
+          "line": 5,
+          "gloss": "Yes — move it to slot k."
+        },
+        {
+          "line": 8,
+          "gloss": "No — nums2's number goes in slot k."
+        },
+        {
+          "line": 10,
+          "gloss": "Step back to the next free slot."
+        }
+      ],
+      "contrast": {
+        "wrong": "nums1[m + j] = nums2[j]",
+        "wrong_note": "pasted, never compared",
+        "right": "fill from the back, bigger first",
+        "right_note": "sorted in place"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def merge(nums1, m, nums2, n):\n    i, j, k = m - 1, n - 1, m + n - 1\n    while j >= 0:\n        if i >= 0 and nums1[i] > nums2[j]:\n            nums1[k] = nums1[i]\n            i -= 1\n        else:\n            nums1[k] = nums2[j]\n            j -= 1\n        k -= 1\n\nnums1, m, nums2, n = case\nmerge(nums1, m, nums2, n)\nprint(nums1)",
+    "alternatives": [
+      {
+        "code": "def merge(nums1, m, nums2, n):\n    nums1[m:] = nums2\n    nums1.sort()\n\nnums1, m, nums2, n = case\nmerge(nums1, m, nums2, n)\nprint(nums1)",
+        "note": "Paste then sort — correct, but it re-sorts what was already in order."
+      }
+    ],
+    "hints": [
+      "After the first copy, is nums1 still in order?",
+      "The copy never compares nums2's numbers with nums1's.",
+      "Merge from the back: i = m - 1, j = n - 1, k = m + n - 1."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          [
+            1,
+            2,
+            3,
+            0,
+            0,
+            0
+          ],
+          3,
+          [
+            2,
+            5,
+            6
+          ],
+          3
+        ]
+      },
+      "expected": "[1, 2, 2, 3, 5, 6]"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            1
+          ],
+          1,
+          [],
+          0
+        ]
+      },
+      "expected": "[1]"
+    },
+    {
+      "input": {
+        "case": [
+          [
+            0
+          ],
+          0,
+          [
+            1
+          ],
+          1
+        ]
+      },
+      "expected": "[1]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums1 = [1, 2, 3, 0], m = 3, nums2 = [1], n = 1 — merged?",
+    "data": {
+      "name": "case",
+      "value": [
+        [
+          1,
+          2,
+          3,
+          0
+        ],
+        3,
+        [
+          1
+        ],
+        1
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def merge(nums1, m, nums2, n):\n    i, j, k = m - 1, n - 1, m + n - 1\n    while j >= 0:\n        if i >= 0 and nums1[i] > nums2[j]:\n            nums1[k] = nums1[i]\n            i -= 1\n        else:\n            nums1[k] = nums2[j]\n            j -= 1\n        k -= 1\n\nnums1, m, nums2, n = case\nmerge(nums1, m, nums2, n)\nprint(nums1)",
+    "fix_hint": "Nothing to change — the 1 from nums2 slides in after nums1's 1."
+  },
+  "one_liner": "The leftovers still count — merge by comparing, and fill nums1 from the BACK so nothing gets overwritten.",
+  "trace_watch": [
+    "i",
+    "j",
+    "k",
+    "nums1"
+  ]
+}

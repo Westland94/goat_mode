@@ -1,0 +1,228 @@
+{
+  "id": "043",
+  "skill": "one-pass-stock",
+  "title": "Buy low, sell high",
+  "scenario": "One share, one buy, one sell. What's the best profit you could have made?",
+  "data": {
+    "name": "prices",
+    "value": [
+      7,
+      1,
+      5,
+      3,
+      6,
+      4
+    ]
+  },
+  "intro": {
+    "job": "One share, one buy, one sell. What's the best profit you could have made?",
+    "idea": {
+      "rule": "The cheapest price so far is the only buy that matters — update it every day, then ask what selling today would make.",
+      "detail": "One pass, two things remembered: the lowest price seen so far, and the best profit so far. Each day, first update the low (could today be a cheaper buy?), then ask: if I sold today, having bought at that low, would that beat my best?"
+    },
+    "watch": {
+      "code": "low = prices[0]\nbest = 0\nfor p in prices:\n    low = min(low, p)\n    best = max(best, p - low)\nprint(best)",
+      "data": {
+        "name": "prices",
+        "value": [
+          3,
+          2,
+          6,
+          1,
+          4
+        ]
+      },
+      "trace_watch": [
+        "p",
+        "low",
+        "best"
+      ]
+    }
+  },
+  "model_restatement": "Find the biggest gain from buying on one day and selling on a later day.",
+  "clarify": [
+    {
+      "keywords": [
+        "same day",
+        "sell before",
+        "order",
+        "later",
+        "buy before"
+      ],
+      "question": "Must I buy before I sell?",
+      "answer": "Yes — buy on one day, sell on a later day."
+    },
+    {
+      "keywords": [
+        "lose",
+        "loss",
+        "negative",
+        "no profit"
+      ],
+      "question": "What if every sale would lose money?",
+      "answer": "Then don't trade: the best profit is 0."
+    },
+    {
+      "keywords": [
+        "more than once",
+        "multiple",
+        "several trades",
+        "twice"
+      ],
+      "question": "Can I trade more than once?",
+      "answer": "No — one buy, one sell."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Buy at the first price. For each day, see what selling would make and keep the best. Print it.",
+  "draft_code": "low = prices[0]\nbest = 0\nfor p in prices:\n    best = max(best, p - low)\nprint(best)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 (price 7): after line 4, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2 (price 1): after line 4, what is low?",
+      "kind": "value",
+      "var": "low"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 5
+      },
+      "prompt": "With the fix — iteration 5 (price 6): after line 5, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "low is set to the first price, 7, and never changes — so every later price minus 7 is a loss, and the $1 day goes by without ever becoming the buy.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Buying on day one and never looking again is a shopper who ignores the sale — the $1 day walks right past while low still says 7.",
+    "bridge": "So what has to happen to low on a day that's cheaper than anything before it?",
+    "fix": {
+      "rule": "low = min(low, p) every day keeps the cheapest buy so far; then p - low is the best you could sell for today.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Start with the first price as the cheapest so far."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk the days once."
+        },
+        {
+          "line": 4,
+          "gloss": "Is today a cheaper buy? Then it's the new low."
+        },
+        {
+          "line": 5,
+          "gloss": "If I sold today, would that beat my best?"
+        }
+      ],
+      "contrast": {
+        "wrong": "low = prices[0]  (never updated)",
+        "wrong_note": "stuck with day one's price",
+        "right": "low = min(low, p)  (every day)",
+        "right_note": "the cheapest buy so far"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "low = prices[0]\nbest = 0\nfor p in prices:\n    low = min(low, p)\n    best = max(best, p - low)\nprint(best)",
+    "alternatives": [
+      {
+        "code": "best = 0\nfor i in range(len(prices)):\n    for j in range(i + 1, len(prices)):\n        best = max(best, prices[j] - prices[i])\nprint(best)",
+        "note": "Try every buy/sell pair — correct, but it re-checks again and again (slow on long lists)."
+      }
+    ],
+    "hints": [
+      "Iteration 2, price 1: what is low?",
+      "low never changes after line 1.",
+      "Add low = min(low, p) before the best line."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "prices": [
+          7,
+          1,
+          5,
+          3,
+          6,
+          4
+        ]
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "prices": [
+          3,
+          2,
+          6,
+          1,
+          4
+        ]
+      },
+      "expected": "4"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New prices: [2, 4, 1, 5] — best profit?",
+    "data": {
+      "name": "prices",
+      "value": [
+        2,
+        4,
+        1,
+        5
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new prices, what gets printed?"
+    },
+    "recommended": "low = prices[0]\nbest = 0\nfor p in prices:\n    low = min(low, p)\n    best = max(best, p - low)\nprint(best)",
+    "fix_hint": "Nothing to change — the low drops to 1 on day 3, and selling at 5 makes 4."
+  },
+  "one_liner": "The cheapest price so far is the only buy that matters — update it every day, then ask what selling today would make.",
+  "trace_watch": [
+    "p",
+    "low",
+    "best"
+  ]
+}

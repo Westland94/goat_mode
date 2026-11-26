@@ -1,0 +1,189 @@
+{
+  "id": "084",
+  "skill": "classes",
+  "title": "Two piggy banks",
+  "scenario": "Two piggy banks, A and B. Add n coins to A only, then print both counts.",
+  "data": {
+    "name": "n",
+    "value": 5
+  },
+  "intro": {
+    "job": "Two piggy banks, A and B. Add n coins to A only, then print both counts.",
+    "idea": {
+      "rule": "Class attributes are the shared whiteboard; self. attributes are each bank's own label — write on the wrong one and everyone sees it.",
+      "detail": "Anything set directly in the class body (coins = 0) belongs to the class — every bank reads the same one. self.coins = 0 inside __init__ runs once per new bank and gives THAT bank its own coins. Inside a method, self.coins means 'this bank's coins'; Piggy.coins means 'the shared one'."
+    },
+    "watch": {
+      "code": "class Piggy:\n    def __init__(self):\n        self.coins = 0\n    def add(self, n):\n        self.coins += n\na = Piggy()\nb = Piggy()\na.add(k)\na_coins = a.coins\nb_coins = b.coins\nprint((a_coins, b_coins))",
+      "data": {
+        "name": "k",
+        "value": 2
+      },
+      "trace_watch": [
+        "a_coins",
+        "b_coins"
+      ]
+    }
+  },
+  "model_restatement": "Make two piggy banks, add coins to bank A only, and show both counts — B should still be 0.",
+  "clarify": [
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "begin",
+        "empty bank"
+      ],
+      "question": "What does a piggy bank start with?",
+      "answer": "Every bank starts empty: 0 coins."
+    },
+    {
+      "keywords": [
+        "remove",
+        "take",
+        "spend",
+        "negative"
+      ],
+      "question": "Can you take coins out?",
+      "answer": "Not today — only add."
+    },
+    {
+      "keywords": [
+        "format",
+        "print",
+        "output",
+        "both"
+      ],
+      "question": "What should I print?",
+      "answer": "Both counts, as (A's coins, B's coins)."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "A Piggy has coins that start at 0, and add puts n more in. Make banks A and B, add n to A, and print both counts.",
+  "draft_code": "class Piggy:\n    coins = 0\n    def add(self, n):\n        Piggy.coins += n\na = Piggy()\nb = Piggy()\na.add(n)\na_coins = a.coins\nb_coins = b.coins\nprint((a_coins, b_coins))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 8,
+        "iteration": 0
+      },
+      "prompt": "After line 8, what is a_coins?",
+      "kind": "value",
+      "var": "a_coins"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 9,
+        "iteration": 0
+      },
+      "prompt": "After line 9, what is b_coins?",
+      "kind": "value",
+      "var": "b_coins"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 10,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 10, what is b_coins?",
+      "kind": "value",
+      "var": "b_coins"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "coins lives on the class and add changes Piggy.coins — there's only one count, shared by every bank, so B reads the 5 too.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Piggy.coins is the whiteboard in the kitchen: write 5 on it for bank A, and bank B — reading the same board — says 5 as well.",
+    "bridge": "So where should each bank keep its own count?",
+    "fix": {
+      "rule": "self.coins = 0 in __init__ gives each new bank its own label; self.coins += n writes only on this bank's label.",
+      "walk": [
+        {
+          "line": 6,
+          "gloss": "Make bank A — __init__ gives it its own coins of 0."
+        },
+        {
+          "line": 7,
+          "gloss": "Make bank B — its own coins of 0 too."
+        },
+        {
+          "line": 8,
+          "gloss": "Add n to A's coins only."
+        },
+        {
+          "line": 10,
+          "gloss": "Read B's own coins — still 0."
+        }
+      ],
+      "contrast": {
+        "wrong": "Piggy.coins += n",
+        "wrong_note": "the shared whiteboard",
+        "right": "self.coins += n",
+        "right_note": "this bank's own label"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "class Piggy:\n    def __init__(self):\n        self.coins = 0\n    def add(self, n):\n        self.coins += n\na = Piggy()\nb = Piggy()\na.add(n)\na_coins = a.coins\nb_coins = b.coins\nprint((a_coins, b_coins))",
+    "alternatives": [],
+    "hints": [
+      "After line 9, what is b_coins — and why would B have coins?",
+      "coins is set on the class, and add changes Piggy.coins — one count for everyone.",
+      "Give each bank self.coins = 0 in __init__, and add to self.coins."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 5
+      },
+      "expected": "(5, 0)"
+    },
+    {
+      "input": {
+        "n": 2
+      },
+      "expected": "(2, 0)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Add 0 to bank A — does B change?",
+    "data": {
+      "name": "n",
+      "value": 0
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 0, what gets printed?"
+    },
+    "recommended": "class Piggy:\n    def __init__(self):\n        self.coins = 0\n    def add(self, n):\n        self.coins += n\na = Piggy()\nb = Piggy()\na.add(n)\na_coins = a.coins\nb_coins = b.coins\nprint((a_coins, b_coins))",
+    "fix_hint": "Nothing to change — adding zero changes nothing, so both banks stay at 0."
+  },
+  "one_liner": "Class attributes are the shared whiteboard; self. attributes are each bank's own label — write on the wrong one and everyone sees it.",
+  "trace_watch": [
+    "a_coins",
+    "b_coins"
+  ]
+}

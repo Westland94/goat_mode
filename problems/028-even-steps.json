@@ -1,0 +1,194 @@
+{
+  "id": "028",
+  "skill": "for-range",
+  "title": "Even steps",
+  "scenario": "Print the even numbers from 2 to 10, including both.",
+  "data": {
+    "name": "n",
+    "value": 10
+  },
+  "intro": {
+    "job": "Print the even numbers from 2 to 10, including both.",
+    "idea": {
+      "rule": "A step doesn't move the fence — range(2, 10, 2) still stops before 10, so say n + 1.",
+      "detail": "range(start, stop, step) jumps by step, but it still never reaches stop itself. To include n, the stop has to be past it: n + 1."
+    },
+    "watch": {
+      "code": "out = []\nfor i in range(3, m + 1, 3):\n    out.append(i)\nprint(out)",
+      "data": {
+        "name": "m",
+        "value": 9
+      },
+      "trace_watch": [
+        "i",
+        "out"
+      ]
+    }
+  },
+  "model_restatement": "List 2, 4, … up to n, including n, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "odd",
+        "odd n",
+        "n is odd"
+      ],
+      "question": "What if n is odd?",
+      "answer": "Today n is always even."
+    },
+    {
+      "keywords": [
+        "include",
+        "including",
+        "inclusive",
+        "up to"
+      ],
+      "question": "Does it include n itself?",
+      "answer": "Yes — 10 is in."
+    },
+    {
+      "keywords": [
+        "format",
+        "list",
+        "print",
+        "output",
+        "give"
+      ],
+      "question": "How should I give them?",
+      "answer": "Print them as one list."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count from 2 to n in steps of 2. Put each number in a list and print it.",
+  "draft_code": "evens = []\nfor i in range(2, n, 2):\n    evens.append(i)\nprint(evens)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "The loop has finished. What is i now?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — when the loop has finished, what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "range(2, n, 2) stops before n, so with n = 10 the last i is 8 — 10 is left out.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Stepping by 2 doesn't move the fence: range(2, 10, 2) hops 2, 4, 6, 8 and stops in front of 10.",
+    "bridge": "So what stop would let 10 through?",
+    "fix": {
+      "rule": "range(2, n + 1, 2): same hops, fence moved one past n.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list."
+        },
+        {
+          "line": 2,
+          "gloss": "Hop 2, 4, … with the fence just past n."
+        },
+        {
+          "line": 3,
+          "gloss": "Keep this number."
+        },
+        {
+          "line": 4,
+          "gloss": "Show the list."
+        }
+      ],
+      "contrast": {
+        "wrong": "range(2, n, 2)",
+        "wrong_note": "stops at 8",
+        "right": "range(2, n + 1, 2)",
+        "right_note": "stops at 10"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "evens = []\nfor i in range(2, n + 1, 2):\n    evens.append(i)\nprint(evens)",
+    "alternatives": [
+      {
+        "code": "print(list(range(2, n + 1, 2)))",
+        "note": "The shortcut."
+      }
+    ],
+    "hints": [
+      "When the loop ends, what's the last i?",
+      "The stop is excluded, even with a step.",
+      "range(2, n + 1, 2)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 10
+      },
+      "expected": "[2, 4, 6, 8, 10]"
+    },
+    {
+      "input": {
+        "n": 6
+      },
+      "expected": "[2, 4, 6]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What if n is 2?",
+    "data": {
+      "name": "n",
+      "value": 2
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 2, what gets printed?"
+    },
+    "recommended": "evens = []\nfor i in range(2, n + 1, 2):\n    evens.append(i)\nprint(evens)",
+    "fix_hint": "Nothing to change — 2 is the only even step up to 2."
+  },
+  "one_liner": "A step doesn't move the fence — range(2, 10, 2) still stops before 10, so say n + 1.",
+  "trace_watch": [
+    "i",
+    "evens"
+  ]
+}

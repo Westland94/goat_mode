@@ -1,0 +1,190 @@
+{
+  "id": "097",
+  "skill": "counting-anagram",
+  "title": "Anagram check",
+  "scenario": "Same letters, just rearranged?",
+  "data": {
+    "name": "pair",
+    "value": [
+      "boob",
+      "bobb"
+    ]
+  },
+  "intro": {
+    "job": "Same letters, just rearranged?",
+    "idea": {
+      "rule": "Same letters isn't the same word — the COUNTS have to match too.",
+      "detail": "Two words are anagrams when they use exactly the same letters the same number of times. A set throws the counts away — {'b', 'o'} could be 'bo', 'boob' or 'bobb'. Sorting keeps every letter, so two anagrams sort into the identical list."
+    },
+    "watch": {
+      "code": "a, b = pair\nsame = sorted(a) == sorted(b)\nprint(same)",
+      "data": {
+        "name": "pair",
+        "value": [
+          "peep",
+          "pep"
+        ]
+      },
+      "trace_watch": [
+        "same"
+      ]
+    }
+  },
+  "model_restatement": "Say True if the two words use exactly the same letters, the same number of times.",
+  "clarify": [
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase"
+      ],
+      "question": "Does case matter?",
+      "answer": "All lowercase today."
+    },
+    {
+      "keywords": [
+        "spaces",
+        "space",
+        "punctuation"
+      ],
+      "question": "Spaces or punctuation?",
+      "answer": "None today — just letters."
+    },
+    {
+      "keywords": [
+        "length",
+        "different length",
+        "longer",
+        "lengths"
+      ],
+      "question": "Could the words be different lengths?",
+      "answer": "They could — then they can't be anagrams."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Take both words. Compare the letters each one uses. Print whether they match.",
+  "draft_code": "a, b = pair\nsame = set(a) == set(b)\nprint(same)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is same?",
+      "kind": "value",
+      "var": "same"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is same?",
+      "kind": "value",
+      "var": "same"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "set('boob') and set('bobb') are both {'b', 'o'} — a set keeps which letters, not how many, so the counts difference vanishes.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "A set is a guest list with no headcount — 'boob' and 'bobb' both invite b and o, so they look like the same party.",
+    "bridge": "So what keeps every letter, repeats and all, so you can compare them?",
+    "fix": {
+      "rule": "sorted(word) keeps every letter in order — two anagrams sort into the identical list.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "The two words."
+        },
+        {
+          "line": 2,
+          "gloss": "Sort each word's letters, repeats kept, and compare."
+        },
+        {
+          "line": 3,
+          "gloss": "Show the answer."
+        }
+      ],
+      "contrast": {
+        "wrong": "set(a) == set(b)",
+        "wrong_note": "which letters",
+        "right": "sorted(a) == sorted(b)",
+        "right_note": "which letters, how many"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "a, b = pair\nsame = sorted(a) == sorted(b)\nprint(same)",
+    "alternatives": [
+      {
+        "code": "a, b = pair\nca, cb = {}, {}\nfor ch in a:\n    ca[ch] = ca.get(ch, 0) + 1\nfor ch in b:\n    cb[ch] = cb.get(ch, 0) + 1\nprint(ca == cb)",
+        "note": "Count both words and compare the tallies — the hashmap way."
+      }
+    ],
+    "hints": [
+      "What is set('boob')? And set('bobb')?",
+      "A set forgets how many of each letter there were.",
+      "same = sorted(a) == sorted(b)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pair": [
+          "boob",
+          "bobb"
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "pair": [
+          "rat",
+          "tar"
+        ]
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New pair: 'sees' and 'sess' — same letters?",
+    "data": {
+      "name": "pair",
+      "value": [
+        "sees",
+        "sess"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With 'sees' and 'sess', what gets printed?"
+    },
+    "recommended": "a, b = pair\nsame = sorted(a) == sorted(b)\nprint(same)",
+    "fix_hint": "Nothing to change — sorted catches the extra s vs the extra e."
+  },
+  "one_liner": "Same letters isn't the same word — the COUNTS have to match too.",
+  "trace_watch": [
+    "same"
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "id": "162",
+  "skill": "dict-counting",
+  "title": "Roman to Integer",
+  "section": "leetcode",
+  "lc": {
+    "number": 13,
+    "title": "Roman to Integer",
+    "difficulty": "Easy",
+    "slug": "roman-to-integer"
+  },
+  "scenario": "You get a Roman numeral s. The symbols are worth I = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1000. Normally the symbols run from biggest to smallest and add up — but a smaller symbol written just BEFORE a bigger one is subtracted: IV is 4, IX is 9, XL is 40, XC is 90, CD is 400, CM is 900. Return the numeral's value.\n\nExample 1:\nInput: s = \"III\"\nOutput: 3\n\nExample 2:\nInput: s = \"LVIII\"\nOutput: 58\nWhy: L = 50, V = 5, III = 3.\n\nExample 3:\nInput: s = \"MCMXCIV\"\nOutput: 1994\nWhy: M = 1000, CM = 900, XC = 90, IV = 4.\n\nConstraints:\n1 <= len(s) <= 15\ns holds only I, V, X, L, C, D, M and is a valid numeral from 1 to 3999.\n\nWrite: def roman_to_int(s) — the driver calls it on s = \"MCMXCIV\" and prints the result.",
+  "data": {
+    "name": "s",
+    "value": "MCMXCIV"
+  },
+  "intro": {
+    "job": "You get a Roman numeral s. The symbols are worth I = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1000. Normally the symbols run from biggest to smallest and add up — but a smaller symbol written just BEFORE a bigger one is subtracted: IV is 4, IX is 9, XL is 40, XC is 90, CD is 400, CM is 900. Return the numeral's value.\n\nExample 1:\nInput: s = \"III\"\nOutput: 3\n\nExample 2:\nInput: s = \"LVIII\"\nOutput: 58\nWhy: L = 50, V = 5, III = 3.\n\nExample 3:\nInput: s = \"MCMXCIV\"\nOutput: 1994\nWhy: M = 1000, CM = 900, XC = 90, IV = 4.\n\nConstraints:\n1 <= len(s) <= 15\ns holds only I, V, X, L, C, D, M and is a valid numeral from 1 to 3999.\n\nWrite: def roman_to_int(s) — the driver calls it on s = \"MCMXCIV\" and prints the result.",
+    "idea": {
+      "rule": "A smaller symbol before a bigger one is subtracted — look one symbol ahead before you add.",
+      "detail": "Like problem 001 (Repeat customers), the values live in a dict: each symbol maps to its worth. Adding them all up works for III and LVIII — but not for IV, where the I comes before something bigger and means 'one less'. So look at the NEXT symbol: if it's bigger than this one, subtract this one; otherwise add it."
+    },
+    "watch": {
+      "code": "def roman_to_int(s):\n    values = {\"I\": 1, \"V\": 5, \"X\": 10, \"L\": 50, \"C\": 100, \"D\": 500, \"M\": 1000}\n    total = 0\n    for i in range(len(s)):\n        v = values[s[i]]\n        if i + 1 < len(s) and values[s[i + 1]] > v:\n            total -= v\n        else:\n            total += v\n    return total\n\nprint(roman_to_int(s))",
+      "data": {
+        "name": "s",
+        "value": "IX"
+      },
+      "trace_watch": [
+        "i",
+        "v",
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Turn the Roman numeral into a number, subtracting a symbol that comes just before a bigger one.",
+  "clarify": [
+    {
+      "keywords": [
+        "valid",
+        "invalid",
+        "broken"
+      ],
+      "question": "Can the numeral be invalid?",
+      "answer": "No — it's always a valid numeral from 1 to 3999."
+    },
+    {
+      "keywords": [
+        "lowercase",
+        "case"
+      ],
+      "question": "Can the symbols be lowercase?",
+      "answer": "No — always the capital letters I, V, X, L, C, D, M."
+    },
+    {
+      "keywords": [
+        "subtracted",
+        "subtract",
+        "minus",
+        "before"
+      ],
+      "question": "Which symbols get subtracted?",
+      "answer": "A symbol is subtracted when the very next one is bigger — IV, IX, XL, XC, CD, CM."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Look up each symbol's value in a dict and add them all up.",
+  "draft_code": "def roman_to_int(s):\n    values = {\"I\": 1, \"V\": 5, \"X\": 10, \"L\": 50, \"C\": 100, \"D\": 500, \"M\": 1000}\n    total = 0\n    for ch in s:\n        total += values[ch]\n    return total\n\nprint(roman_to_int(s))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after adding, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3: after adding, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2: the C sits before an M. After subtracting, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Every symbol is added, so CM counts as 100 + 1000 instead of 900, XC as 10 + 100 instead of 90, and IV as 1 + 5 instead of 4 — the total comes out 2216 instead of 1994.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Adding every symbol is reading 'nine to five' as 'nine plus five' — the word before the bigger one was there to take away, not to add.",
+    "bridge": "After C and then M, total went 1000 → 1100 → 2100. What should CM be worth?",
+    "fix": {
+      "rule": "Walk the symbols, and subtract a value when the next symbol is bigger; otherwise add it.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "Walk by position, so you can look ahead."
+        },
+        {
+          "line": 5,
+          "gloss": "This symbol's worth."
+        },
+        {
+          "line": 6,
+          "gloss": "Is the next symbol bigger?"
+        },
+        {
+          "line": 7,
+          "gloss": "Then this one is subtracted."
+        },
+        {
+          "line": 9,
+          "gloss": "Otherwise it adds, as usual."
+        }
+      ],
+      "contrast": {
+        "wrong": "total += values[ch]  (every symbol)",
+        "wrong_note": "IV reads as 6",
+        "right": "subtract v when the next symbol is bigger",
+        "right_note": "IV reads as 4"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def roman_to_int(s):\n    values = {\"I\": 1, \"V\": 5, \"X\": 10, \"L\": 50, \"C\": 100, \"D\": 500, \"M\": 1000}\n    total = 0\n    for i in range(len(s)):\n        v = values[s[i]]\n        if i + 1 < len(s) and values[s[i + 1]] > v:\n            total -= v\n        else:\n            total += v\n    return total\n\nprint(roman_to_int(s))",
+    "alternatives": [
+      {
+        "code": "def roman_to_int(s):\n    values = {\"I\": 1, \"V\": 5, \"X\": 10, \"L\": 50, \"C\": 100, \"D\": 500, \"M\": 1000}\n    for pair, spelled in ((\"IV\", \"IIII\"), (\"IX\", \"VIIII\"), (\"XL\", \"XXXX\"), (\"XC\", \"LXXXX\"), (\"CD\", \"CCCC\"), (\"CM\", \"DCCCC\")):\n        s = s.replace(pair, spelled)\n    total = 0\n    for ch in s:\n        total += values[ch]\n    return total\n\nprint(roman_to_int(s))",
+        "note": "Spell the six subtractive pairs out first (IV → IIII, CM → DCCCC, ...) — then plain adding is right."
+      }
+    ],
+    "hints": [
+      "What should CM be worth — and what does the draft add for it?",
+      "A smaller symbol just before a bigger one means subtract, not add.",
+      "for i in range(len(s)): v = values[s[i]]; if i + 1 < len(s) and values[s[i + 1]] > v: total -= v; else: total += v"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "s": "III"
+      },
+      "expected": "3"
+    },
+    {
+      "input": {
+        "s": "LVIII"
+      },
+      "expected": "58"
+    },
+    {
+      "input": {
+        "s": "MCMXCIV"
+      },
+      "expected": "1994"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: s = \"IV\" — what does your code print?",
+    "data": {
+      "name": "s",
+      "value": "IV"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def roman_to_int(s):\n    values = {\"I\": 1, \"V\": 5, \"X\": 10, \"L\": 50, \"C\": 100, \"D\": 500, \"M\": 1000}\n    total = 0\n    for i in range(len(s)):\n        v = values[s[i]]\n        if i + 1 < len(s) and values[s[i + 1]] > v:\n            total -= v\n        else:\n            total += v\n    return total\n\nprint(roman_to_int(s))",
+    "fix_hint": "The I sits before a bigger V, so it's subtracted: 5 - 1 = 4."
+  },
+  "one_liner": "A smaller symbol before a bigger one is subtracted — look one symbol ahead before you add.",
+  "trace_watch": [
+    "ch",
+    "i",
+    "v",
+    "total"
+  ]
+}

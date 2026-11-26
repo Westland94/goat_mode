@@ -1,0 +1,238 @@
+{
+  "id": "130",
+  "skill": "combo-sort-run",
+  "title": "Longest run of the same number",
+  "scenario": "A shelf of numbered balls, in a jumble. Line them up in order — then what's the longest run of the same number sitting together?",
+  "data": {
+    "name": "nums",
+    "value": [
+      3,
+      3,
+      1,
+      3,
+      3,
+      3,
+      2
+    ]
+  },
+  "intro": {
+    "job": "A shelf of numbered balls, in a jumble. Line them up in order — then what's the longest run of the same number sitting together?",
+    "idea": {
+      "rule": "Sort first, then count the runs — equal numbers only sit together after sorting.",
+      "detail": "Two patterns chained: sorting (013) lines the numbers up so equal ones sit together; best-so-far tracking (045) remembers the longest run seen. The draft counts runs without sorting, so the 3s split into a run of two and a run of three — and the real run of five never appears."
+    },
+    "watch": {
+      "code": "nums = sorted(nums)\nbest = 1\ncur = 1\nfor i in range(1, len(nums)):\n    if nums[i] == nums[i - 1]:\n        cur += 1\n        best = max(best, cur)\n    else:\n        cur = 1\nprint(best)",
+      "data": {
+        "name": "nums",
+        "value": [
+          2,
+          1,
+          2,
+          2
+        ]
+      },
+      "trace_watch": [
+        "best"
+      ]
+    }
+  },
+  "model_restatement": "Line the balls up in order, then find the longest run of the same number — and print its length.",
+  "clarify": [
+    {
+      "keywords": [
+        "repeats",
+        "no number",
+        "none"
+      ],
+      "question": "What if no number repeats?",
+      "answer": "Then every run is 1 — the answer is 1."
+    },
+    {
+      "keywords": [
+        "sort",
+        "sorted",
+        "order"
+      ],
+      "question": "Why sort first?",
+      "answer": "Runs only sit together after sorting — unsorted, the same number's copies split into separate runs."
+    },
+    {
+      "keywords": [
+        "run",
+        "row",
+        "streak"
+      ],
+      "question": "What counts as a run?",
+      "answer": "Equal numbers sitting next to each other — 3, 3, 3 is a run of three."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Sort the numbers. Walk them, counting the current run. Remember the longest run. Print it.",
+  "draft_code": "best = 1\ncur = 1\nfor i in range(1, len(nums)):\n    if nums[i] == nums[i - 1]:\n        cur += 1\n        best = max(best, cur)\n    else:\n        cur = 1\nprint(best)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 5
+      },
+      "prompt": "The second run of 3s — how long is it now?",
+      "kind": "value",
+      "var": "cur"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 9,
+        "iteration": "after"
+      },
+      "prompt": "On the print line, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": 6
+      },
+      "prompt": "With the fix — after the last number, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft counts runs on the jumbled shelf: the 3s sit in two separate runs of two and three, so the longest run it ever sees is 3 — the run of five only exists after sorting.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Runs only exist where equal numbers sit together — count on a jumbled list and the runs split.",
+    "bridge": "Where do the 3s sit — together in one run, or split across the shelf?",
+    "fix": {
+      "rule": "Sort first, then count: nums = sorted(nums) before the loop.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Sort the numbers — equal ones sit together now."
+        },
+        {
+          "line": 4,
+          "gloss": "Walk the numbers in order."
+        },
+        {
+          "line": 5,
+          "gloss": "Same as the last one? The run grows."
+        },
+        {
+          "line": 7,
+          "gloss": "Remember the longest run so far."
+        },
+        {
+          "line": 9,
+          "gloss": "Different number — start a fresh run."
+        }
+      ],
+      "contrast": {
+        "wrong": "count runs on the jumbled list",
+        "wrong_note": "the 3s split into two runs",
+        "right": "sort, then count the runs",
+        "right_note": "one run of five"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "nums = sorted(nums)\nbest = 1\ncur = 1\nfor i in range(1, len(nums)):\n    if nums[i] == nums[i - 1]:\n        cur += 1\n        best = max(best, cur)\n    else:\n        cur = 1\nprint(best)",
+    "alternatives": [
+      {
+        "code": "print(max(nums.count(x) for x in set(nums)))",
+        "note": "Count each value's copies — the biggest count is the longest run."
+      }
+    ],
+    "hints": [
+      "Where do the equal numbers sit?",
+      "The runs split on a jumbled list — line them up first.",
+      "nums = sorted(nums) — then count the runs."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          3,
+          3,
+          1,
+          3,
+          3,
+          3,
+          2
+        ]
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "nums": [
+          2,
+          2,
+          2,
+          2
+        ]
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "nums": [
+          5,
+          1,
+          5,
+          5
+        ]
+      },
+      "expected": "3"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more shelf: [4, 4, 1, 4, 4, 4, 4] — what's the longest run?",
+    "data": {
+      "name": "nums",
+      "value": [
+        4,
+        4,
+        1,
+        4,
+        4,
+        4,
+        4
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelf, what gets printed?"
+    },
+    "recommended": "nums = sorted(nums)\nbest = 1\ncur = 1\nfor i in range(1, len(nums)):\n    if nums[i] == nums[i - 1]:\n        cur += 1\n        best = max(best, cur)\n    else:\n        cur = 1\nprint(best)",
+    "fix_hint": "Nothing to change — sorting lines the 4s up, whatever the shelf is."
+  },
+  "one_liner": "Sort first, then count the runs — equal numbers only sit together after sorting.",
+  "trace_watch": [
+    "best"
+  ]
+}

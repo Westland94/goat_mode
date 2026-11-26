@@ -1,0 +1,186 @@
+{
+  "id": "006",
+  "skill": "strings-slicing",
+  "title": "First tag",
+  "scenario": "Every product code's tag is its first three letters.",
+  "data": {
+    "name": "code",
+    "value": "GOAT"
+  },
+  "intro": {
+    "job": "Every product code's tag is its first three letters.",
+    "idea": {
+      "rule": "Slicing counts from 0 and the end is excluded — [:3] is letters one, two, three.",
+      "detail": "Python numbers a string's letters from 0, like seats in a row: in 'GOAT', G sits in seat 0, O in 1, A in 2, T in 3. A slice [start:stop] takes the seats from start up to — but not including — stop. Leave start out and it begins at seat 0, so [:3] is G, O, A."
+    },
+    "watch": {
+      "code": "short = word[:2]\nprint(short)",
+      "data": {
+        "name": "word",
+        "value": "PYTHON"
+      },
+      "trace_watch": [
+        "short"
+      ]
+    }
+  },
+  "model_restatement": "Take the first three letters of the code and print them as the tag.",
+  "clarify": [
+    {
+      "keywords": [
+        "short",
+        "shorter",
+        "fewer",
+        "less than",
+        "two letters",
+        "too short"
+      ],
+      "question": "What if a code is shorter than three letters?",
+      "answer": "Today every code has at least three letters."
+    },
+    {
+      "keywords": [
+        "case",
+        "lowercase",
+        "uppercase",
+        "capital",
+        "capitals"
+      ],
+      "question": "Upper or lower case?",
+      "answer": "Codes are all caps — keep them as they are."
+    },
+    {
+      "keywords": [
+        "quotes",
+        "format",
+        "output",
+        "print",
+        "give"
+      ],
+      "question": "How should I give the tag?",
+      "answer": "Just print it."
+    },
+    {
+      "keywords": [
+        "empty",
+        "blank",
+        "no code"
+      ],
+      "question": "Can the code be empty?",
+      "answer": "No — there's always a code."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Take the code's letters from the first one to the third one, and print them.",
+  "draft_code": "tag = code[1:3]\nprint(tag)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is tag?",
+      "kind": "value",
+      "var": "tag"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is tag?",
+      "kind": "value",
+      "var": "tag"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "code[1:3] starts at index 1 — the 'O' — because Python counts from 0, and it stops before index 3. So you get 'OA'.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Python counts seats from 0: code[1:3] starts at seat 1 — the 'O' — and stops before seat 3, so the 'G' never gets picked.",
+    "bridge": "So what start would include the 'G'?",
+    "fix": {
+      "rule": "Leave the start empty and Python starts at seat 0: code[:3] is seats 0, 1 and 2 — G, O, A.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Take seats 0, 1 and 2 — stop before seat 3."
+        },
+        {
+          "line": 2,
+          "gloss": "Show the tag."
+        }
+      ],
+      "contrast": {
+        "wrong": "code[1:3]",
+        "wrong_note": "starts at the second letter",
+        "right": "code[:3]",
+        "right_note": "starts at the first letter"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "tag = code[:3]\nprint(tag)",
+    "alternatives": [
+      {
+        "code": "tag = code[0:3]\nprint(tag)",
+        "note": "The same slice with the 0 written out."
+      }
+    ],
+    "hints": [
+      "Which letter sits at index 1?",
+      "Python counts from 0 — the G is at index 0.",
+      "tag = code[:3]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "code": "GOAT"
+      },
+      "expected": "GOA"
+    },
+    {
+      "input": {
+        "code": "DINK"
+      },
+      "expected": "DIN"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What does your code give for 'GO'?",
+    "data": {
+      "name": "code",
+      "value": "GO"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With code = 'GO', what gets printed?"
+    },
+    "recommended": "tag = code[:3]\nprint(tag)",
+    "fix_hint": "Nothing to change — a slice that runs past the end just stops at the last letter."
+  },
+  "one_liner": "Slicing counts from 0 and the end is excluded — [:3] is letters one, two, three.",
+  "trace_watch": [
+    "tag"
+  ]
+}

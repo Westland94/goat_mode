@@ -1,0 +1,217 @@
+{
+  "id": "126",
+  "skill": "combo-sort-slice",
+  "title": "Top three scores",
+  "scenario": "Five scores on the board. Which three are the biggest?",
+  "data": {
+    "name": "scores",
+    "value": [
+      12,
+      45,
+      8,
+      33,
+      21
+    ]
+  },
+  "intro": {
+    "job": "Five scores on the board. Which three are the biggest?",
+    "idea": {
+      "rule": "Sort first, then slice — the first three are the biggest three.",
+      "detail": "Two patterns chained: sorting (013) puts the scores in order; slicing (006) takes the first three. The draft slices before sorting, so it takes the first three in shelf order — 12, 45 and 8 — instead of the three biggest."
+    },
+    "watch": {
+      "code": "top = sorted(scores, reverse=True)[:3]\nprint(top)",
+      "data": {
+        "name": "scores",
+        "value": [
+          5,
+          9,
+          2,
+          7
+        ]
+      },
+      "trace_watch": [
+        "top"
+      ]
+    }
+  },
+  "model_restatement": "Take the three biggest scores — and print them.",
+  "clarify": [
+    {
+      "keywords": [
+        "tie",
+        "same",
+        "equal"
+      ],
+      "question": "What if two scores tie?",
+      "answer": "Not today — the top three are distinct."
+    },
+    {
+      "keywords": [
+        "order",
+        "sorted",
+        "sort"
+      ],
+      "question": "Why sort first?",
+      "answer": "Slicing takes the first three in whatever order the list is in — sort first so the first three are the biggest."
+    },
+    {
+      "keywords": [
+        "three",
+        "how many"
+      ],
+      "question": "Why three?",
+      "answer": "The board shows the top three — change [:3] to take a different count."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Sort the scores biggest first. Take the first three. Print them.",
+  "draft_code": "top = scores[:3]\nprint(top)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is top?",
+      "kind": "value",
+      "var": "top"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "On the print line, what is top?",
+      "kind": "value",
+      "var": "top"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is top?",
+      "kind": "value",
+      "var": "top"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft takes the first three scores in shelf order — 12, 45, 8 — before sorting, so the biggest scores on the board never get in.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Slicing takes what the list hands it — [:3] is the first three in the order they sit, not the three biggest.",
+    "bridge": "What does [:3] take — the three biggest, or the first three in the order they sit?",
+    "fix": {
+      "rule": "Sort biggest-first, then slice: sorted(scores, reverse=True)[:3].",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Sort the scores biggest first — the list is in trophy order."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the first three — now they are the biggest three."
+        }
+      ],
+      "contrast": {
+        "wrong": "scores[:3]",
+        "wrong_note": "first three in shelf order",
+        "right": "sorted(scores, reverse=True)[:3]",
+        "right_note": "three biggest, in order"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "top = sorted(scores, reverse=True)[:3]\nprint(top)",
+    "alternatives": [
+      {
+        "code": "print(sorted(scores)[-3:][::-1])",
+        "note": "Sort smallest-first, take the last three, flip them — same top three."
+      }
+    ],
+    "hints": [
+      "What order are the scores in when you slice?",
+      "Sorting lines them up — slice after the sort.",
+      "top = sorted(scores, reverse=True)[:3] — then print it."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "scores": [
+          12,
+          45,
+          8,
+          33,
+          21
+        ]
+      },
+      "expected": "[45, 33, 21]"
+    },
+    {
+      "input": {
+        "scores": [
+          9,
+          1,
+          8
+        ]
+      },
+      "expected": "[9, 8, 1]"
+    },
+    {
+      "input": {
+        "scores": [
+          4,
+          4,
+          4
+        ]
+      },
+      "expected": "[4, 4, 4]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more board: [30, 10, 50, 20, 40] — which three are the biggest?",
+    "data": {
+      "name": "scores",
+      "value": [
+        30,
+        10,
+        50,
+        20,
+        40
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new board, what gets printed?"
+    },
+    "recommended": "top = sorted(scores, reverse=True)[:3]\nprint(top)",
+    "fix_hint": "Nothing to change — sorting puts the biggest first, whatever the scores are."
+  },
+  "one_liner": "Sort first, then slice — the first three are the biggest three.",
+  "trace_watch": [
+    "top"
+  ]
+}

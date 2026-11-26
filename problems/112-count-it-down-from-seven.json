@@ -1,0 +1,198 @@
+{
+  "id": "112",
+  "skill": "recursion-countdown",
+  "title": "Count it down from seven",
+  "scenario": "Add 7 + 6 + 5 + 4 + 3 + 2 + 1. What's the total?",
+  "data": {
+    "name": "n",
+    "value": 7
+  },
+  "intro": {
+    "job": "Add 7 + 6 + 5 + 4 + 3 + 2 + 1. What's the total?",
+    "idea": {
+      "rule": "The call below hands back an answer — catch it and add it, or it's thrown away.",
+      "detail": "down(7) should be 7 + down(6), and down(6) should be 6 + down(5), all the way down to down(1) = 1. Each call hands its answer back to the call above — but only if the call above catches it. Here down(n - 1) sits on its own line: it runs the whole chain below and hands back the sum, and nothing catches it, so the answer is thrown away. Each call then hands back just its own n, and down(7) returns 7."
+    },
+    "watch": {
+      "code": "def down(n):\n    if n == 1:\n        return 1\n    return n + down(n - 1)\nanswer = down(n)\nprint(answer)",
+      "data": {
+        "name": "n",
+        "value": 2
+      },
+      "trace_watch": [
+        "n",
+        "answer"
+      ]
+    }
+  },
+  "model_restatement": "Add n + (n - 1) + … + 1 with a function that calls itself, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "zero",
+        "n is 0",
+        "include 0",
+        "down to 0"
+      ],
+      "question": "Does it go down to 0?",
+      "answer": "Down to 1 — and 1 is included."
+    },
+    {
+      "keywords": [
+        "negative",
+        "negatives"
+      ],
+      "question": "Negative n?",
+      "answer": "Not today — n is at least 1."
+    },
+    {
+      "keywords": [
+        "loop",
+        "sum(",
+        "formula",
+        "library"
+      ],
+      "question": "Can I use sum() or a formula?",
+      "answer": "In real work, sure. Here, the function calls itself."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "down(n) is n plus down(n - 1). When n reaches 1 the counting is over, so return 1. Count the numbers below, then return n. Print down(n).",
+  "draft_code": "def down(n):\n    if n == 1:\n        return 1\n    down(n - 1)\n    return n\nanswer = down(n)\nprint(answer)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 0
+      },
+      "prompt": "The first call to hand back is down(2), on line 5. After line 5, what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": 0
+      },
+      "prompt": "On the print line, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 0
+      },
+      "prompt": "With the fix — on the print line, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "down(n - 1) runs on its own line and its answer is never caught — each call hands back just its own n, so down(7) returns 7, not 7 + 6 + 5 + 4 + 3 + 2 + 1 = 28.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The call below hands back an answer — catch it and add it, or it's thrown away.",
+    "bridge": "answer is 7, but the chain below ran and added 6 + 5 + 4 + 3 + 2 + 1. Where did that answer go, and which line lost it?",
+    "fix": {
+      "rule": "return n + down(n - 1): catch the answer from below and add your n to it.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Reached the last number?"
+        },
+        {
+          "line": 3,
+          "gloss": "Return it — 1 counts too."
+        },
+        {
+          "line": 4,
+          "gloss": "Otherwise: n plus the sum below it."
+        },
+        {
+          "line": 5,
+          "gloss": "Start the chain at n."
+        }
+      ],
+      "contrast": {
+        "wrong": "down(n - 1)\nreturn n",
+        "wrong_note": "the answer from below is thrown away",
+        "right": "return n + down(n - 1)",
+        "right_note": "catch it and add it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def down(n):\n    if n == 1:\n        return 1\n    return n + down(n - 1)\nanswer = down(n)\nprint(answer)",
+    "alternatives": [
+      {
+        "code": "print(sum(range(1, n + 1)))",
+        "note": "Add them with sum — correct, but it hides the counting we're practising."
+      }
+    ],
+    "hints": [
+      "What does down(n - 1) hand back — and where does it go?",
+      "A call on its own line runs, and its answer vanishes.",
+      "return n + down(n - 1)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 7
+      },
+      "expected": "28"
+    },
+    {
+      "input": {
+        "n": 3
+      },
+      "expected": "6"
+    },
+    {
+      "input": {
+        "n": 1
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What about counting down from 6?",
+    "data": {
+      "name": "n",
+      "value": 6
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 6, what gets printed?"
+    },
+    "recommended": "def down(n):\n    if n == 1:\n        return 1\n    return n + down(n - 1)\nanswer = down(n)\nprint(answer)",
+    "fix_hint": "Nothing to change — 6 + 5 + 4 + 3 + 2 + 1 = 21."
+  },
+  "one_liner": "The call below hands back an answer — catch it and add it, or it's thrown away.",
+  "trace_watch": [
+    "n",
+    "answer"
+  ]
+}

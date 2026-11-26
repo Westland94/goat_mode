@@ -1,0 +1,228 @@
+{
+  "id": "171",
+  "skill": "strings-search",
+  "title": "Find the Index of the First Occurrence in a String",
+  "section": "leetcode",
+  "lc": {
+    "number": 28,
+    "title": "Find the Index of the First Occurrence in a String",
+    "difficulty": "Easy",
+    "slug": "find-the-index-of-the-first-occurrence-in-a-string"
+  },
+  "scenario": "You get two strings, haystack and needle. Return the index where needle first appears inside haystack, or -1 if it never does.\n\nExample 1:\nInput: haystack = \"sadbutsad\", needle = \"sad\"\nOutput: 0\nWhy: \"sad\" starts at index 0 (and again at 6) — the first one counts.\n\nExample 2:\nInput: haystack = \"leetcode\", needle = \"leeto\"\nOutput: -1\n\nExample 3:\nInput: haystack = \"hello\", needle = \"ll\"\nOutput: 2\n\nConstraints:\n1 <= len(haystack), len(needle) <= 10000\nBoth strings are lowercase English letters.\n\nWrite: def str_str(haystack, needle) — the driver calls it on haystack = \"sadbutsad\", needle = \"sad\" (case = [haystack, needle]) and prints the index.",
+  "data": {
+    "name": "case",
+    "value": [
+      "sadbutsad",
+      "sad"
+    ]
+  },
+  "intro": {
+    "job": "You get two strings, haystack and needle. Return the index where needle first appears inside haystack, or -1 if it never does.\n\nExample 1:\nInput: haystack = \"sadbutsad\", needle = \"sad\"\nOutput: 0\nWhy: \"sad\" starts at index 0 (and again at 6) — the first one counts.\n\nExample 2:\nInput: haystack = \"leetcode\", needle = \"leeto\"\nOutput: -1\n\nExample 3:\nInput: haystack = \"hello\", needle = \"ll\"\nOutput: 2\n\nConstraints:\n1 <= len(haystack), len(needle) <= 10000\nBoth strings are lowercase English letters.\n\nWrite: def str_str(haystack, needle) — the driver calls it on haystack = \"sadbutsad\", needle = \"sad\" (case = [haystack, needle]) and prints the index.",
+    "idea": {
+      "rule": "A match is the whole needle, not its first letter — check every window of the needle's length.",
+      "detail": "Like problem 158 (Longest Common Prefix), it's comparing strings — and like problem 026 (Last tag), a piece of a string is a slice. A first letter that matches only says where a match MIGHT start. Slide a window the needle's length across the haystack: at each start i, compare haystack[i:i + len(needle)] with the needle, and the first window that equals it is the answer."
+    },
+    "watch": {
+      "code": "def str_str(haystack, needle):\n    n = len(needle)\n    for i in range(len(haystack) - n + 1):\n        if haystack[i:i + n] == needle:\n            return i\n    return -1\n\nhaystack, needle = case\nprint(str_str(haystack, needle))",
+      "data": {
+        "name": "case",
+        "value": [
+          "abcab",
+          "ca"
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "n"
+      ]
+    }
+  },
+  "model_restatement": "Return where needle first appears in haystack, or -1 if it isn't there.",
+  "clarify": [
+    {
+      "keywords": [
+        "isn't",
+        "not found",
+        "missing",
+        "never"
+      ],
+      "question": "What if the needle isn't in the haystack?",
+      "answer": "Return -1."
+    },
+    {
+      "keywords": [
+        "twice",
+        "more than once",
+        "again"
+      ],
+      "question": "What if the needle appears more than once?",
+      "answer": "Return the first one — the smallest index."
+    },
+    {
+      "keywords": [
+        "find",
+        "built-in",
+        "index"
+      ],
+      "question": "Can I use the built-in find?",
+      "answer": "Yes — but know what it's doing: checking each window in turn."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Find the first place the needle's first letter appears in the haystack, and return that index.",
+  "draft_code": "def str_str(haystack, needle):\n    first = needle[0]\n    for i in range(len(haystack)):\n        if haystack[i] == first:\n            return i\n    return -1\n\nhaystack, needle = case\nprint(str_str(haystack, needle))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is first?",
+      "kind": "value",
+      "var": "first"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft only looks for the needle's first letter. On \"sadbutsad\" that happens to work — the first 's' does start \"sad\". But in \"leetcode\" the first 'l' starts \"leetc\", not \"leeto\", and the draft still says 0.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Matching the first letter is recognising a friend by their first initial — plenty of strangers share it.",
+    "bridge": "first is 's'. Does every 's' in a haystack start the whole word \"sad\"?",
+    "fix": {
+      "rule": "Slide a window the needle's length along the haystack, and return the first start where the slice equals the whole needle.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "How long a match has to be."
+        },
+        {
+          "line": 3,
+          "gloss": "Every start where a full window still fits."
+        },
+        {
+          "line": 4,
+          "gloss": "Compare the whole window, not one letter."
+        },
+        {
+          "line": 5,
+          "gloss": "The first full match wins."
+        },
+        {
+          "line": 6,
+          "gloss": "No window matched."
+        }
+      ],
+      "contrast": {
+        "wrong": "if haystack[i] == needle[0]",
+        "wrong_note": "one letter decides",
+        "right": "if haystack[i:i + n] == needle",
+        "right_note": "the whole needle decides"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def str_str(haystack, needle):\n    n = len(needle)\n    for i in range(len(haystack) - n + 1):\n        if haystack[i:i + n] == needle:\n            return i\n    return -1\n\nhaystack, needle = case\nprint(str_str(haystack, needle))",
+    "alternatives": [
+      {
+        "code": "def str_str(haystack, needle):\n    return haystack.find(needle)\n\nhaystack, needle = case\nprint(str_str(haystack, needle))",
+        "note": "haystack.find(needle) does the same window-by-window check inside the standard library, and returns -1 when there's no match."
+      }
+    ],
+    "hints": [
+      "first is the needle's first letter. Is matching one letter enough?",
+      "A start that matches the first letter can still go wrong after it — check the whole needle.",
+      "n = len(needle); for i in range(len(haystack) - n + 1): if haystack[i:i + n] == needle: return i; return -1"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          "sadbutsad",
+          "sad"
+        ]
+      },
+      "expected": "0"
+    },
+    {
+      "input": {
+        "case": [
+          "leetcode",
+          "leeto"
+        ]
+      },
+      "expected": "-1"
+    },
+    {
+      "input": {
+        "case": [
+          "hello",
+          "ll"
+        ]
+      },
+      "expected": "2"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: haystack = \"mississippi\", needle = \"issip\" — what does your code print?",
+    "data": {
+      "name": "case",
+      "value": [
+        "mississippi",
+        "issip"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def str_str(haystack, needle):\n    n = len(needle)\n    for i in range(len(haystack) - n + 1):\n        if haystack[i:i + n] == needle:\n            return i\n    return -1\n\nhaystack, needle = case\nprint(str_str(haystack, needle))",
+    "fix_hint": "The 'i' at 1 starts \"issis\", not \"issip\" — the first full match starts at 4."
+  },
+  "one_liner": "A match is the whole needle, not its first letter — check every window of the needle's length.",
+  "trace_watch": [
+    "i",
+    "first",
+    "n"
+  ]
+}

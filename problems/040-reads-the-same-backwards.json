@@ -1,0 +1,198 @@
+{
+  "id": "040",
+  "skill": "two-pointers-palindrome",
+  "title": "Reads the same backwards",
+  "scenario": "Does the word read the same forwards and backwards?",
+  "data": {
+    "name": "word",
+    "value": "racecar"
+  },
+  "intro": {
+    "job": "Does the word read the same forwards and backwards?",
+    "idea": {
+      "rule": "The mirror of position i is position -(i + 1), not -i — -0 is just 0.",
+      "detail": "Compare the first letter with the last, the second with the second-to-last, and so on to the middle. Counting from the back, the last letter is -1, the second-to-last is -2 — so the mirror of position i is -(i + 1). There's no -0 seat at the back: -0 is just 0, the front."
+    },
+    "watch": {
+      "code": "ok = True\nfor i in range(len(word) // 2):\n    if word[i] != word[-i - 1]:\n        ok = False\nprint(ok)",
+      "data": {
+        "name": "word",
+        "value": "level"
+      },
+      "trace_watch": [
+        "i",
+        "ok"
+      ]
+    }
+  },
+  "model_restatement": "Say True if the word is the same read backwards, otherwise False.",
+  "clarify": [
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase"
+      ],
+      "question": "Does case matter?",
+      "answer": "All lowercase today."
+    },
+    {
+      "keywords": [
+        "spaces",
+        "space",
+        "punctuation"
+      ],
+      "question": "Spaces or punctuation?",
+      "answer": "None today — just letters."
+    },
+    {
+      "keywords": [
+        "reverse",
+        "[::-1]",
+        "reversed",
+        "copy"
+      ],
+      "question": "Can I just compare it with the reversed word?",
+      "answer": "In real work, sure. Here, walk the two ends in — that's the pattern we're practising."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each position up to the middle, compare the letter with the one at the mirrored negative index. If any pair differs, it's not a palindrome. Print the answer.",
+  "draft_code": "ok = True\nfor i in range(len(word) // 2):\n    if word[i] != word[-i]:\n        ok = False\nprint(ok)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 3
+      },
+      "prompt": "As iteration 3 starts, what is ok?",
+      "kind": "value",
+      "var": "ok"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 3
+      },
+      "prompt": "With the fix — as iteration 3 starts, what is ok?",
+      "kind": "value",
+      "var": "ok"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "word[-i] is off by one: at i = 0, -0 is just 0, so the first letter is compared with itself; at i = 1, 'a' is compared with word[-1], the last letter 'r' — and ok flips to False on a palindrome.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "-i points one seat too far: i = 0 lands on -0, which is the FRONT seat, so from then on every letter is compared with the wrong partner.",
+    "bridge": "So what negative index is the last letter — and what's the mirror of position 1?",
+    "fix": {
+      "rule": "word[-i - 1]: position 0 pairs with -1 (the last letter), position 1 with -2, and so on.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Assume it's a palindrome until a pair disagrees."
+        },
+        {
+          "line": 2,
+          "gloss": "Walk from the front to the middle."
+        },
+        {
+          "line": 3,
+          "gloss": "Compare this letter with its true mirror at -(i + 1)."
+        },
+        {
+          "line": 5,
+          "gloss": "Show the answer."
+        }
+      ],
+      "contrast": {
+        "wrong": "word[-i]",
+        "wrong_note": "-0 is the front",
+        "right": "word[-i - 1]",
+        "right_note": "-1 is the back"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "ok = True\nfor i in range(len(word) // 2):\n    if word[i] != word[-i - 1]:\n        ok = False\nprint(ok)",
+    "alternatives": [
+      {
+        "code": "left, right = 0, len(word) - 1\nok = True\nwhile left < right:\n    if word[left] != word[right]:\n        ok = False\n    left += 1\n    right -= 1\nprint(ok)",
+        "note": "Two explicit fingers walking inward — no negative indexes at all."
+      }
+    ],
+    "hints": [
+      "At i = 0, which letter is word[-0]?",
+      "-0 is 0. The last letter is -1, so the mirror of i is -(i + 1).",
+      "if word[i] != word[-i - 1]:"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "word": "racecar"
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "word": "level"
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "word": "ab"
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "An even-length word: 'noon' — palindrome?",
+    "data": {
+      "name": "word",
+      "value": "noon"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With word = 'noon', what gets printed?"
+    },
+    "recommended": "ok = True\nfor i in range(len(word) // 2):\n    if word[i] != word[-i - 1]:\n        ok = False\nprint(ok)",
+    "fix_hint": "Nothing to change — 4 // 2 is 2 comparisons: n with n, o with o."
+  },
+  "one_liner": "The mirror of position i is position -(i + 1), not -i — -0 is just 0.",
+  "trace_watch": [
+    "i",
+    "ok"
+  ]
+}

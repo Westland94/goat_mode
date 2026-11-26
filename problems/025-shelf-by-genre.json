@@ -1,0 +1,239 @@
+{
+  "id": "025",
+  "skill": "grouping-into-lists",
+  "title": "Shelf by genre",
+  "scenario": "Group book titles by genre.",
+  "data": {
+    "name": "books",
+    "value": [
+      [
+        "Dune",
+        "sci-fi"
+      ],
+      [
+        "Emma",
+        "classic"
+      ],
+      [
+        "Foundation",
+        "sci-fi"
+      ]
+    ]
+  },
+  "intro": {
+    "job": "Group book titles by genre.",
+    "idea": {
+      "rule": "Assign replaces; append adds — a group is a list you keep adding to.",
+      "detail": "Same bones as grouping the orders: one list per genre, and every new book is appended to the list that's already there. setdefault(genre, []) hands you that list, or shelves an empty one first."
+    },
+    "watch": {
+      "code": "by_kind = {}\nfor name, kind in pets:\n    by_kind.setdefault(kind, []).append(name)\nprint(by_kind)",
+      "data": {
+        "name": "pets",
+        "value": [
+          [
+            "rex",
+            "dog"
+          ],
+          [
+            "fido",
+            "dog"
+          ]
+        ]
+      },
+      "trace_watch": [
+        "kind",
+        "by_kind"
+      ]
+    }
+  },
+  "model_restatement": "Make a dict from genre to the list of titles in that genre.",
+  "clarify": [
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "in order",
+        "sorted",
+        "alphabetical"
+      ],
+      "question": "Does order matter?",
+      "answer": "Keep titles in the order they came in; genres can be in any order."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no books",
+        "nothing"
+      ],
+      "question": "What if there are no books?",
+      "answer": "Then an empty dict."
+    },
+    {
+      "keywords": [
+        "duplicate",
+        "duplicates",
+        "same title",
+        "twice"
+      ],
+      "question": "Could a title appear twice?",
+      "answer": "Not today."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each book, put its title on its genre's shelf. Print the shelves.",
+  "draft_code": "shelf = {}\nfor title, genre in books:\n    shelf[genre] = [title]\nprint(shelf)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3 is Foundation (sci-fi). After it, what is shelf?",
+      "kind": "value",
+      "var": "shelf"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "With the fix — after iteration 3, what is shelf?",
+      "kind": "value",
+      "var": "shelf"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "shelf[genre] = [title] builds a new one-book list each time — Foundation's list replaces Dune's.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Same bag trap: shelf['sci-fi'] = ['Foundation'] swaps in a new bag holding one book, and Dune goes out with the old bag.",
+    "bridge": "You've seen this one — what adds Foundation to the bag sci-fi already has?",
+    "fix": {
+      "rule": "setdefault(genre, []) hands you the genre's existing list (or shelves an empty one) and .append adds the title.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "No shelves yet."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next (title, genre)."
+        },
+        {
+          "line": 3,
+          "gloss": "Get that genre's list (making it if new), then add the title."
+        },
+        {
+          "line": 4,
+          "gloss": "Show the shelves."
+        }
+      ],
+      "contrast": {
+        "wrong": "shelf[genre] = [title]",
+        "wrong_note": "replaces the list",
+        "right": "shelf.setdefault(genre, []).append(title)",
+        "right_note": "adds to the list"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "shelf = {}\nfor title, genre in books:\n    shelf.setdefault(genre, []).append(title)\nprint(shelf)",
+    "alternatives": [
+      {
+        "code": "from collections import defaultdict\nshelf = defaultdict(list)\nfor title, genre in books:\n    shelf[genre].append(title)\nprint(dict(shelf))",
+        "note": "defaultdict(list) — shelves an empty list for any new genre by itself."
+      }
+    ],
+    "hints": [
+      "Watch sci-fi on iteration 3. Where did Dune go?",
+      "= [title] makes a fresh list. Add to the one that's there.",
+      "shelf.setdefault(genre, []).append(title)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "books": [
+          [
+            "Dune",
+            "sci-fi"
+          ],
+          [
+            "Emma",
+            "classic"
+          ],
+          [
+            "Foundation",
+            "sci-fi"
+          ]
+        ]
+      },
+      "expected": "{'sci-fi': ['Dune', 'Foundation'], 'classic': ['Emma']}"
+    },
+    {
+      "input": {
+        "books": []
+      },
+      "expected": "{}"
+    },
+    {
+      "input": {
+        "books": [
+          [
+            "Ubik",
+            "sci-fi"
+          ]
+        ]
+      },
+      "expected": "{'sci-fi': ['Ubik']}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Two books, one genre: [['Dune', 'sci-fi'], ['Emma', 'sci-fi']] — what's printed?",
+    "data": {
+      "name": "books",
+      "value": [
+        [
+          "Dune",
+          "sci-fi"
+        ],
+        [
+          "Emma",
+          "sci-fi"
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new books, what gets printed?"
+    },
+    "recommended": "shelf = {}\nfor title, genre in books:\n    shelf.setdefault(genre, []).append(title)\nprint(shelf)",
+    "fix_hint": "The shelf should hold both — if only 'Emma' shows, the old book was replaced, not kept."
+  },
+  "one_liner": "Assign replaces; append adds — a group is a list you keep adding to.",
+  "trace_watch": [
+    "title",
+    "genre",
+    "shelf"
+  ]
+}

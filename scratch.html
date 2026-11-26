@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scratch Pad — GOAT Mode</title>
+  <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body data-beat="scratch">
+  <!-- Scratch S3: the page shell (SCRATCHPAD-PLAN "Page layout"): type picker → stage ABOVE → editor BELOW → controls →
+       variables panel. Static only: picking a type marks it active; the controls are stubs. Styling uses the existing
+       classes and tokens in style.css only. Relative links: both builds serve this page. -->
+  <header class="top">
+    <a href="./" id="scratch-back" class="link">◀ Back to GOAT Mode</a>
+  </header>
+  <main>
+    <h1 id="scratch-title">Scratch Pad</h1>
+
+    <section id="scratch-types" class="row" role="radiogroup" aria-label="Problem type">
+      <button type="button" class="btn" id="type-list" data-type="list" role="radio" aria-checked="true">List</button>
+      <button type="button" class="btn ghost" id="type-string" data-type="string" role="radio" aria-checked="false">String</button>
+      <button type="button" class="btn ghost" id="type-dict" data-type="dict" role="radio" aria-checked="false">Dict</button>
+      <button type="button" class="btn ghost" id="type-graph" data-type="graph" role="radio" aria-checked="false">Graph</button>
+    </section>
+
+    <section id="scratch-stage" class="card mt" aria-label="Stage">
+      <h3>The structure</h3>
+      <div class="sp-input-row">
+        <input type="text" id="scratch-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="e.g. 3, 1, 4, 1, 5">
+        <button type="button" class="btn" id="scratch-parse">Show it</button>
+      </div>
+      <p id="scratch-help" class="muted mt">List: values separated by commas — e.g. 3, 1, 4, 1, 5</p>
+      <div id="scratch-fixit" class="sp-fixit" role="alert" hidden></div>
+      <div id="scratch-render" aria-live="polite"><p class="muted mt" id="scratch-empty">Your structure will appear here.</p></div>
+    </section>
+
+    <section id="scratch-editor" class="card mt" aria-label="Code">
+      <h3>Your code</h3>
+      <textarea id="scratch-code" spellcheck="false" autocapitalize="off" autocomplete="off" rows="8" placeholder="# Your code goes here. The input definition will be filled in for you."></textarea>
+      <div id="scratch-listing" class="code sp-listing" aria-label="Your code, current line highlighted" hidden></div>
+      <button type="button" class="btn ghost mt" id="scratch-edit" hidden>Edit code</button>
+    </section>
+
+    <section id="scratch-controls" class="row mt" aria-label="Controls">
+      <button type="button" class="btn" id="ctl-run">Run</button>
+      <button type="button" class="btn ghost" id="ctl-play">Play</button>
+      <button type="button" class="btn ghost" id="ctl-back">◀ Step back</button>
+      <button type="button" class="btn ghost" id="ctl-fwd">Step forward ▶</button>
+      <button type="button" class="btn ghost" id="ctl-stop">Stop</button>
+    </section>
+    <div id="scratch-scrubber" class="sp-scrub mt" hidden>
+      <input type="range" id="scratch-scrub" min="0" max="0" value="0" step="1" aria-label="Jump to step">
+      <span id="scratch-stepno" class="muted"></span>
+    </div>
+
+    <p id="scratch-status" class="muted mt" role="status" aria-live="polite"></p>
+
+    <section id="scratch-vars" class="card mt" aria-label="Variables">
+      <h3>Variables</h3>
+      <div id="scratch-vars-body"><p class="muted">Run your code to see every variable, step by step.</p></div>
+    </section>
+  </main>
+  <script>
+    // Scratch S3: static shell. The type picker marks one type active; the controls only log (S6/S7 wire them).
+    // Scratch S4: List / String input — parse → validate (≤ 25) → render boxes / character cells immediately, and
+    // pre-fill the editor with the definition line for that exact data. Bad input gets a fix-it message; nothing is
+    // trimmed or coerced. Dict / Graph input comes later (S5+).
+    (() => {
+      const CAP = 25;
+      const $ = (id) => document.getElementById(id);
+      const types = [...document.querySelectorAll('#scratch-types [data-type]')];
+      const PLACEHOLDER = { list: 'e.g. 3, 1, 4, 1, 5', string: 'e.g. racecar', dict: 'Dicts come from your code', graph: 'e.g. depot->market, market->harbor' };
+      // Scratch S5: ONE graph format — directed edges written from->to, separated by commas. This line is the help.
+      const HELP = { list: 'List: values separated by commas — e.g. 3, 1, 4, 1, 5', string: 'String: just type the text — e.g. racecar',
+        dict: 'Dict: no input to paste — dicts come from your code, and you\'ll see them when you run it.',
+        graph: 'Graph: edges as from->to, separated by commas — e.g. depot->market, market->harbor, market->cliff' };
+      const NODE_CAP = 14, NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+      const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+      const NUMBER = /^-?(0|[1-9][0-9]*)(\.[0-9]+)?$/;   // a Python int/float literal; "007" or "1e3" stay strings (no coercion)
+      const pyStr = (t) => "'" + t.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+      const dqStr = (t) => '"' + t.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+      function parse(type, raw) {
+        if (type === 'list') {
+          if (!raw.trim()) return { error: 'Type at least one value, separated by commas — like 3, 1, 4.' };
+          const parts = raw.split(',').map((t) => t.trim());
+          if (parts.length > CAP) return { error: `That's ${parts.length} values — the Scratch Pad shows up to ${CAP}. Remove ${parts.length - CAP} and try again.` };
+          const empty = parts.findIndex((t) => t === '');
+          if (empty !== -1) return { error: `Value ${empty + 1} is empty — remove the extra comma.` };
+          const items = parts.map((t) => NUMBER.test(t) ? { kind: 'num', text: t } : { kind: 'str', text: t });
+          return { type, name: 'nums', items, definition: `nums = [${items.map((x) => x.kind === 'num' ? x.text : pyStr(x.text)).join(', ')}]` };
+        }
+        if (type === 'string') {
+          if (raw === '') return { error: 'Type some text — like racecar.' };
+          const chars = [...raw];
+          if (chars.length > CAP) return { error: `That's ${chars.length} characters — the Scratch Pad shows up to ${CAP}. Remove ${chars.length - CAP} and try again.` };
+          return { type, name: 's', items: chars.map((c) => ({ kind: 'char', text: c })), definition: `s = ${dqStr(raw)}` };
+        }
+        if (type === 'graph') {
+          if (!raw.trim()) return { error: 'Type at least one edge — like depot->market.' };
+          const parts = raw.split(',').map((t) => t.trim());
+          const nodes = [], adj = {}, seen = new Set();
+          const add = (n) => { if (!(n in adj)) { adj[n] = []; nodes.push(n); } };
+          for (let k = 0; k < parts.length; k++) {
+            const piece = parts[k];
+            if (piece === '') return { error: `Edge ${k + 1} is empty — remove the extra comma.` };
+            const m = piece.match(/^(.*?)\s*->\s*(.*)$/);
+            if (!m) return { error: `"${piece}" isn't an edge — write it as from->to, like depot->market.` };
+            const [from, to] = [m[1].trim(), m[2].trim()];
+            for (const n of [from, to]) if (!NAME.test(n)) return { error: `"${n || '(blank)'}" in "${piece}" isn't a node name — use letters, digits and _, starting with a letter.` };
+            if (seen.has(`${from}->${to}`)) return { error: `${from}->${to} is listed twice — keep one.` };
+            seen.add(`${from}->${to}`); add(from); add(to); adj[from].push(to);
+          }
+          if (nodes.length > NODE_CAP) return { error: `That's ${nodes.length} nodes — the Scratch Pad shows up to ${NODE_CAP}. Remove ${nodes.length - NODE_CAP} and try again.` };
+          const edges = nodes.flatMap((n) => adj[n].map((t) => [n, t]));
+          const def = `graph = {${nodes.map((n) => `${pyStr(n)}: [${adj[n].map(pyStr).join(', ')}]`).join(', ')}}`;
+          return { type, name: 'graph', nodes, edges, definition: def };
+        }
+        return { error: 'Dicts come from your code — there\'s no input to paste. Pick List, String or Graph to paste an input.' };
+      }
+      // the kit-132 graph device's layout rule (stage.html makePlayer, no authored positions): first-seen order on a
+      // circle, the first node at the top, clockwise; directed edges as lines with a head dot at the target end
+      function renderGraph(res) {
+        const NS = 'http://www.w3.org/2000/svg', W = 400, H = 340, CX = 200, CY = 160, RAD = 118, R = 18;
+        const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'sp-graph'); svg.id = 'scratch-graph';
+        const mk = (tag, attrs, parent = svg) => { const n = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); parent.append(n); return n; };
+        const pos = {};
+        res.nodes.forEach((n, k) => { const a = -Math.PI / 2 + 2 * Math.PI * k / Math.max(1, res.nodes.length); pos[n] = [CX + RAD * Math.cos(a), CY + RAD * Math.sin(a)]; });
+        const gE = mk('g', { class: 'sp-edges' }), gN = mk('g', { class: 'sp-nodes' });
+        for (const [a, b] of res.edges) {
+          const [x1, y1] = pos[a], [x2, y2] = pos[b];
+          if (a === b) { mk('circle', { cx: x1, cy: y1 - R - 8, r: 9, class: 'sp-edge sp-loop', 'data-edge': `${a}->${b}` }, gE); continue; }
+          const d = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / d, uy = (y2 - y1) / d;
+          mk('line', { x1: x1 + ux * (R + 3), y1: y1 + uy * (R + 3), x2: x2 - ux * (R + 3), y2: y2 - uy * (R + 3), class: 'sp-edge', 'data-edge': `${a}->${b}` }, gE);
+          mk('circle', { cx: x2 - ux * (R + 7), cy: y2 - uy * (R + 7), r: 4, class: 'sp-head' }, gE);
+        }
+        for (const n of res.nodes) {
+          const [x, y] = pos[n]; const g = mk('g', { class: 'sp-node', 'data-node': n }, gN);
+          mk('circle', { cx: x, cy: y, r: R }, g);
+          const t = mk('text', { x, y: y + R + 14, 'text-anchor': 'middle' }, g); t.textContent = n;
+        }
+        return svg;
+      }
+      let lastShown = null;   // S7: the last structure the stage showed (Stop puts it back)
+      function render(res, prefill = true) {   // S7: Stop redraws the stage with prefill = false (the editor is never touched)
+        if (!res.error) lastShown = res;
+        const box = $('scratch-render'), fix = $('scratch-fixit');
+        box.replaceChildren();
+        if (res.error) { fix.textContent = res.error; fix.hidden = false; return; }   // render nothing on bad input
+        fix.hidden = true; fix.textContent = '';
+        if (res.type === 'graph') {
+          box.append(el('p', 'muted', `${res.name} — ${res.nodes.length} node${res.nodes.length === 1 ? '' : 's'}, ${res.edges.length} edge${res.edges.length === 1 ? '' : 's'}`), renderGraph(res));
+          if (prefill) $('scratch-code').value = res.definition + '\n';
+          return;
+        }
+        const row = el('div', 'sp-cells'); row.id = 'scratch-cells'; row.dataset.kind = res.type;
+        res.items.forEach((x, i) => {
+          const cell = el('div', 'sp-cell'); cell.dataset.index = i;
+          cell.append(el('div', 'sp-val', x.kind === 'str' ? pyStr(x.text) : x.text), el('div', 'sp-idx', String(i)));
+          row.append(cell);
+        });
+        box.append(el('p', 'muted', `${res.name} — ${res.items.length} ${res.type === 'string' ? 'character' : 'value'}${res.items.length === 1 ? '' : 's'}`), row);
+        if (prefill) $('scratch-code').value = res.definition + '\n';
+      }
+      const current = () => document.body.dataset.scratchType || 'list';
+      const go = () => render(parse(current(), $('scratch-input').value));
+      $('scratch-parse').addEventListener('click', go);
+      $('scratch-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+      $('scratch-input').addEventListener('paste', () => setTimeout(go, 0));
+      const reset = (type) => { lastShown = null; $('scratch-input').value = ''; $('scratch-input').placeholder = PLACEHOLDER[type]; $('scratch-fixit').hidden = true; $('scratch-help').textContent = HELP[type];
+        $('scratch-render').replaceChildren(Object.assign(el('p', 'muted mt', 'Your structure will appear here.'), { id: 'scratch-empty' })); };
+      for (const b of types) b.addEventListener('click', () => {
+        for (const o of types) { o.className = o === b ? 'btn' : 'btn ghost'; o.setAttribute('aria-checked', String(o === b)); }
+        document.body.dataset.scratchType = b.dataset.type; reset(b.dataset.type);
+      });
+      document.body.dataset.scratchType = 'list';
+      // ---- Scratch S6: Run. The editor's code (whatever it holds — the S4/S5 pre-fill defines the input) goes to
+      // the in-browser worker's tracer via the shim, route api/scratch-trace (1,000-step cap; routes.py). The stream
+      // is kept on the page (window.scratchRun) for S7's playback; Run ends showing step 0. The shim is imported on
+      // first Run (as stage.html does), so Python only boots when asked. The Mac app build has no shim/worker
+      // (that import 404s): Run says so instead of using the server's 2,000-step lesson tracer.
+      const STEP_CAP = 1000;
+      window.scratchRun = null;
+      const status = (t) => { $('scratch-status').textContent = t; };
+      async function shim() {
+        if (typeof window.goatShim !== 'function') await import('./shim/goat-shim.mjs');
+        return window.goatShim;
+      }
+      // ---- Scratch S7: playback over the stored stream (never re-runs). One index, window.scratchRun.current,
+      // drives everything: the listing's highlighted line, the variables panel, the scrubber and the step label.
+      // The display at step k is the state AFTER line k ran (S2's rule), with line k highlighted.
+      const PACE_MS = 450;
+      let timer = null, runToken = 0;
+      const listing = $('scratch-listing');
+      function showListing(code) {
+        const lines = code.replace(/\n$/, '').split('\n');
+        listing.replaceChildren(...lines.map((t, k) => { const ln = el('div', 'ln'); ln.dataset.line = k + 1; ln.append(el('span', 'n', String(k + 1)), el('span', 't', t || ' ')); return ln; }));
+        listing.hidden = false; $('scratch-code').hidden = true; $('scratch-edit').hidden = false;
+      }
+      function showEditor() {
+        listing.hidden = true; listing.replaceChildren(); $('scratch-code').hidden = false; $('scratch-edit').hidden = true;
+      }
+      // Task 129's rule — never a memory address. The tracer's show() strips it when a whole repr is <...>; an object
+      // NESTED in a container (a list of Node objects) still carries " at 0x…" inside, so the panel strips it too.
+      const noAddress = (t) => String(t).replace(/ at 0x[0-9a-fA-F]+/g, '');
+      // ---- Scratch S9: the list device. The stage shows the structure variable (the pasted list's name, `nums`) as
+      // boxes at the current step, from the stored stream only. Frames are precomputed once per Run:
+      //   values  — the list's top-level element reprs in steps[k].after (addresses stripped, S8 rule)
+      //   writes  — same length, element changed (index write, swap, in-place sort) → highlighted for that step
+      //   added   — new boxes (append / insert)      removed — boxes gone this step (pop / remove), shown fading out
+      //   reads   — `name[expr]` read on line k, expr evaluated on steps[k].before (ints, names, + / -, len(name))
+      // Event cap 400 (SCRATCHPAD-PLAN): events are counted along the stream; past the cap, values keep updating
+      // with no highlight/animation classes.
+      const EVENT_CAP = 400;
+      function topItems(repr) {   // "[1, 'a,b', [2, 3]]" → ["1", "'a,b'", "[2, 3]"]; null if not a list repr
+        if (typeof repr !== 'string') return null;
+        const t = repr.trim(); if (t[0] !== '[' || t[t.length - 1] !== ']') return null;
+        const body = t.slice(1, -1); if (!body.trim()) return [];
+        const out = []; let depth = 0, q = null, start = 0;
+        for (let i = 0; i < body.length; i++) {
+          const c = body[i];
+          if (q) { if (c === '\\') i++; else if (c === q) q = null; continue; }
+          if (c === "'" || c === '"') q = c;
+          else if ('([{<'.includes(c)) depth++;
+          else if (')]}>'.includes(c)) depth--;
+          else if (c === ',' && depth === 0) { out.push(body.slice(start, i).trim()); start = i + 1; }
+        }
+        out.push(body.slice(start).trim());
+        return out.map(noAddress);
+      }
+      function evalIndex(expr, vars, name, len) {   // small, honest: ints, names, len(name), + and -; else null
+        const src = expr.replace(new RegExp(`len\\(\\s*${name}\\s*\\)`, 'g'), String(len)).trim();
+        if (!/^[A-Za-z_0-9+\-\s]+$/.test(src)) return null;
+        const toks = src.match(/[A-Za-z_][A-Za-z_0-9]*|\d+|[+\-]/g) || [];
+        let total = 0, sign = 1, want = 'term';
+        for (const tk of toks) {
+          if (tk === '+' || tk === '-') { if (want === 'term') { if (tk === '-') sign = -sign; continue; } sign = tk === '-' ? -1 : 1; want = 'term'; continue; }
+          if (want !== 'term') return null;
+          let v;
+          if (/^\d+$/.test(tk)) v = Number(tk);
+          else { const r = vars[tk]; if (typeof r !== 'string' || !/^-?\d+$/.test(r)) return null; v = Number(r); }
+          total += sign * v; sign = 1; want = 'op';
+        }
+        if (want === 'term') return null;
+        const i = total < 0 ? len + total : total;
+        return i >= 0 && i < len ? i : null;
+      }
+      function readsOn(lineText, name, vars, len) {
+        const eq = lineText.search(/(?<![=!<>+\-*/%&|^@:])=(?!=)/);
+        const aug = /^\s*[^=]*?[+\-*/%&|^@]=(?!=)/.test(lineText);
+        const re = new RegExp(`\\b${name}\\s*\\[([^\\[\\]:]+)\\]`, 'g'), out = new Set();
+        let m; while ((m = re.exec(lineText))) {
+          if (eq !== -1 && m.index < eq && !aug) continue;      // a plain assignment target is a write, not a read
+          const i = evalIndex(m[1], vars, name, len); if (i !== null) out.add(i);
+        }
+        return [...out];
+      }
+      function buildListFrames(run, name) {
+        const lines = run.code.split('\n');
+        let events = 0, capped = false;
+        return { name, frames: run.steps.map((st) => {
+          const after = topItems((st.after || {})[name]), before = topItems((st.before || {})[name]);
+          const f = { values: after, writes: [], added: [], removed: [], reads: [], animate: false };
+          if (!after) return f;
+          if (before) {
+            const nb = before.length, na = after.length;
+            let p = 0; while (p < nb && p < na && before[p] === after[p]) p++;          // common prefix
+            let sfx = 0; while (sfx < nb - p && sfx < na - p && before[nb - 1 - sfx] === after[na - 1 - sfx]) sfx++;  // common suffix
+            if (na === nb) { for (let i = 0; i < na; i++) if (before[i] !== after[i]) f.writes.push(i); }
+            else if (na > nb && p + sfx >= nb) { for (let i = p; i < p + (na - nb); i++) f.added.push(i); }            // pure insert/append
+            else if (na < nb && p + sfx >= na) { for (let i = p; i < p + (nb - na); i++) f.removed.push({ at: i, text: before[i] }); }  // pure pop/remove
+            else {                                                       // mixed (slice assignment, rebuild): writes on the overlap, then the tail
+              for (let i = 0; i < Math.min(na, nb); i++) if (before[i] !== after[i]) f.writes.push(i);
+              for (let i = nb; i < na; i++) f.added.push(i);
+              for (let i = na; i < nb; i++) f.removed.push({ at: i, text: before[i] });
+            }
+            f.reads = readsOn(lines[st.line - 1] || '', name, st.before || {}, nb).filter((i) => !f.writes.includes(i));
+          } else f.added = after.map((_, i) => i);                         // the list appears at this step
+          const n = f.writes.length + f.added.length + f.removed.length + f.reads.length;
+          if (!capped && events + n <= EVENT_CAP) { events += n; f.animate = n > 0; } else if (n) capped = true;
+          f.cappedFrom = capped;
+          return f;
+        }), events };
+      }
+      function drawList(k) {
+        const run = window.scratchRun; if (!run || !run.list) return;
+        const L = run.list, f = L.frames[k], box = $('scratch-render');
+        const head = el('p', 'muted'); head.id = 'scratch-list-head';
+        if (!f.values) { head.textContent = `${L.name} isn't a list at this step${(run.steps[k].after || {})[L.name] === undefined ? ' — not defined yet' : ''}.`; box.replaceChildren(head); return; }
+        head.textContent = `${L.name} — ${f.values.length} value${f.values.length === 1 ? '' : 's'} · step ${k + 1}` + (f.cappedFrom ? ' · animations off (400-event cap)' : '');
+        const row = el('div', 'sp-cells sp-live'); row.id = 'scratch-cells'; row.dataset.kind = 'list'; row.dataset.step = k;
+        const a = f.animate;
+        const cells = f.values.map((v, i) => {
+          const cell = el('div', 'sp-cell' + (a && f.writes.includes(i) ? ' write' : '') + (a && f.added.includes(i) ? ' added' : '') + (a && f.reads.includes(i) ? ' read' : ''));
+          cell.dataset.index = i; cell.append(el('div', 'sp-val', v), el('div', 'sp-idx', String(i))); return cell;
+        });
+        if (a) for (const r of [...f.removed].sort((x, y) => y.at - x.at)) {   // a fading ghost where the box was
+          const g = el('div', 'sp-cell gone'); g.setAttribute('aria-hidden', 'true'); g.append(el('div', 'sp-val', r.text), el('div', 'sp-idx', '×'));
+          cells.splice(Math.min(r.at, cells.length), 0, g);
+        }
+        row.append(...cells); box.replaceChildren(head, row);
+        drawPointers(k);   // S10: markers under the boxes + the band + the toggles
+      }
+      // ---- Scratch S10: pointers + the window band — app/SCRATCHPAD-POINTERS.md, exactly (S2; fesp02/pointers.py is
+      // the reference). Evaluated on steps[k].after:
+      //   Rule 1: v (not the structure) is a pointer iff (a) its repr is an int (-?\d+; bools never), (b) 0 <= v <
+      //           len(structure at step k), (c) v is a static index user (the worker's AST walk, routes.py
+      //           _index_users). Name hints never decide: they only mark `hinted` (full strength vs lighter);
+      //           on a shared cell hinted names label first, then alphabetical.
+      //   Rule 2: >= 2 pointers (toggled-off ones count as absent) → the band [min, max], inclusive; else none.
+      //   Rule 3: each pointer has an on/off control; off = gone from the marker row and the band from now on, for
+      //           the whole run including scrubbing back; per run, per name; a new Run resets; overlay only.
+      const HINTS = new Set(['l', 'r', 'left', 'right', 'start', 'end', 'i', 'j', 'lo', 'hi']);
+      function buildPointers(run, structure, users) {
+        const U = new Set(users), seen = new Set();
+        const steps = run.steps.map((st) => {
+          const after = st.after || {}, items = topItems(after[structure]), ptrs = {};
+          if (!items) return { length: null, pointers: ptrs };
+          for (const [name, rep] of Object.entries(after)) {
+            if (name === structure || !U.has(name) || typeof rep !== 'string' || !/^-?\d+$/.test(rep)) continue;
+            const v = Number(rep);
+            if (v >= 0 && v < items.length) { ptrs[name] = { index: v, hinted: HINTS.has(name) }; seen.add(name); }
+          }
+          return { length: items.length, pointers: Object.fromEntries(Object.entries(ptrs).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) };
+        });
+        return { structure, users: [...U].sort(), names: [...seen].sort(), steps, off: new Set() };
+      }
+      function pointerState(k) {   // the overlay at step k after Rule 3: {pointers (on only), window}
+        const P = window.scratchRun && window.scratchRun.pointers; if (!P) return null;
+        const on = Object.fromEntries(Object.entries(P.steps[k].pointers).filter(([n]) => !P.off.has(n)));
+        const idx = Object.values(on).map((p) => p.index).sort((a, b) => a - b);
+        return { pointers: on, window: idx.length >= 2 ? [idx[0], idx[idx.length - 1]] : null };
+      }
+      function drawPointers(k) {
+        const P = window.scratchRun && window.scratchRun.pointers, row = $('scratch-cells');
+        const old = $('scratch-ptr-toggles'); if (old) old.remove();
+        if (!P || !row || !row.classList.contains('sp-live')) return;
+        const S = pointerState(k);
+        const live = [...row.querySelectorAll('.sp-cell:not(.gone)')];
+        live.forEach((cell, i) => {
+          const here = Object.entries(S.pointers).filter(([, p]) => p.index === i)
+            .sort(([a, pa], [b, pb]) => (pb.hinted - pa.hinted) || (a < b ? -1 : a > b ? 1 : 0));
+          const marks = el('div', 'sp-ptrs');
+          for (const [name, p] of here) { const m = el('span', 'sp-ptr' + (p.hinted ? ' hinted' : ''), '▲ ' + noAddress(name)); m.dataset.ptr = name; marks.append(m); }
+          cell.append(marks);
+          if (S.window && i >= S.window[0] && i <= S.window[1]) cell.classList.add('in-window', ...(i === S.window[0] ? ['win-lo'] : []), ...(i === S.window[1] ? ['win-hi'] : []));
+        });
+        row.dataset.window = S.window ? S.window.join(',') : '';
+        if (!P.names.length) return;
+        const bar = el('div', 'sp-ptr-toggles'); bar.id = 'scratch-ptr-toggles';
+        bar.append(el('span', 'muted', 'Pointers:'));
+        for (const n of P.names) {
+          const on = !P.off.has(n);
+          const b = el('button', 'btn ghost sp-ptr-toggle' + (on ? '' : ' off'), (on ? '▲ ' : '✕ ') + n);
+          b.type = 'button'; b.dataset.ptr = n; b.setAttribute('aria-pressed', String(on));
+          b.title = on ? `Hide ${n} — it isn't really a pointer` : `Show ${n} again`;
+          b.addEventListener('click', () => { if (P.off.has(n)) P.off.delete(n); else P.off.add(n); drawList(window.scratchRun.current); });
+          bar.append(b);
+        }
+        $('scratch-render').append(bar);
+      }
+      // ---- Scratch S11: the dict device — key/value cards with the kit-jar semantics (stage_emitter.py: a new key →
+      // container_appear + container_add; a key's value changing → container_add, i.e. the card updates and
+      // flashes). A key that disappears (del / pop) removes its card (shown fading out for that step). Which dict:
+      // the first variable holding a dict at the run's last step (definition order) — it renders under the S9 list
+      // device for List/String, and is the only device for the Dict type. Keys and values are the stream's reprs,
+      // addresses stripped (S8 rule). Its own 400-event cap, counted like S9's.
+      function splitTop(body, sep) {   // top-level split on `sep`, aware of brackets and quotes
+        const out = []; let depth = 0, q = null, start = 0;
+        for (let i = 0; i < body.length; i++) {
+          const c = body[i];
+          if (q) { if (c === '\\') i++; else if (c === q) q = null; continue; }
+          if (c === "'" || c === '"') q = c;
+          else if ('([{<'.includes(c)) depth++;
+          else if (')]}>'.includes(c)) depth--;
+          else if (c === sep && depth === 0) { out.push(body.slice(start, i)); start = i + 1; }
+        }
+        out.push(body.slice(start)); return out;
+      }
+      function dictEntries(repr) {     // "{'a': 1, 'b': [2, 3]}" → [["'a'", "1"], ["'b'", "[2, 3]"]]; null if not a dict repr
+        if (typeof repr !== 'string') return null;
+        const t = repr.trim(); if (t[0] !== '{' || t[t.length - 1] !== '}') return null;
+        const body = t.slice(1, -1); if (!body.trim()) return [];
+        const out = [];
+        for (const part of splitTop(body, ',')) {
+          const kv = splitTop(part, ':'); if (kv.length < 2) return null;   // a set repr {1, 2} is not a dict
+          out.push([noAddress(kv[0].trim()), noAddress(kv.slice(1).join(':').trim())]);
+        }
+        return out;
+      }
+      function buildDictFrames(run) {
+        const last = run.steps.length ? (run.steps[run.steps.length - 1].after || {}) : {};
+        const name = Object.keys(last).find((n) => dictEntries(last[n]) !== null);
+        if (!name) return null;
+        let events = 0, capped = false;
+        return { name, frames: run.steps.map((st) => {
+          const after = dictEntries((st.after || {})[name]), before = dictEntries((st.before || {})[name]);
+          const f = { entries: after, added: [], updated: [], removed: [], animate: false };
+          if (!after) return f;
+          const B = new Map(before || []), A = new Map(after);
+          for (const [k, v] of after) { if (!B.has(k)) f.added.push(k); else if (B.get(k) !== v) f.updated.push(k); }
+          for (const [k, v] of before || []) if (!A.has(k)) f.removed.push([k, v]);
+          const n = f.added.length + f.updated.length + f.removed.length;
+          if (!capped && events + n <= EVENT_CAP) { events += n; f.animate = n > 0; } else if (n) capped = true;
+          f.cappedFrom = capped;
+          return f;
+        }), events };
+      }
+      function drawDict(k) {
+        const run = window.scratchRun; if (!run || !run.dict) return;
+        const D = run.dict, f = D.frames[k], box = $('scratch-render');
+        const prev = $('scratch-dict'); if (prev) prev.remove();
+        if (!run.list && current() === 'dict') box.replaceChildren();   // the Dict type: the cards are the whole stage
+        // (String / no-paste: the cards sit under whatever the stage shows; List: under the live boxes)
+        const sec = el('div', 'sp-dict'); sec.id = 'scratch-dict'; sec.dataset.name = D.name; sec.dataset.step = k;
+        const head = el('p', 'muted'); head.id = 'scratch-dict-head';
+        if (!f.entries) { head.textContent = `${D.name} isn't a dict at this step${(run.steps[k].after || {})[D.name] === undefined ? ' — not defined yet' : ''}.`; sec.append(head); box.append(sec); return; }
+        head.textContent = `${D.name} — ${f.entries.length} key${f.entries.length === 1 ? '' : 's'}` + (run.list ? '' : ` · step ${k + 1}`) + (f.cappedFrom ? ' · animations off (400-event cap)' : '');
+        const grid = el('div', 'sp-cards'); grid.id = 'scratch-cards';
+        const a = f.animate;
+        const card = (key, val, cls) => { const c = el('div', 'sp-card' + cls); c.dataset.key = key; c.append(el('div', 'sp-key', key), el('div', 'sp-cv', val)); return c; };
+        for (const [key, val] of f.entries) grid.append(card(key, val, (a && f.added.includes(key) ? ' added' : '') + (a && f.updated.includes(key) ? ' updated' : '')));
+        if (a) for (const [key, val] of f.removed) { const g = card(key, val, ' gone'); g.setAttribute('aria-hidden', 'true'); grid.append(g); }
+        sec.append(head, grid); box.append(sec);
+      }
+      function showStep(k) {
+        const run = window.scratchRun, body = $('scratch-vars-body');
+        if (!run || !run.steps.length) { body.replaceChildren(el('p', 'muted', run && run.error ? 'No step ran.' : 'Nothing ran.')); return; }
+        k = Math.max(0, Math.min(run.steps.length - 1, k));
+        const st = run.steps[k]; run.current = k;
+        const isErr = run.errorStep && run.errorStep.index === k;
+        for (const ln of listing.children) ln.className = 'ln';
+        const cur = listing.querySelector(`[data-line="${st.line}"]`);
+        if (cur) {
+          cur.className = isErr ? 'ln stop' : 'ln cur';
+          const top = cur.offsetTop - listing.offsetTop, h = listing.clientHeight;   // keep it visible inside the listing only
+          if (top < listing.scrollTop || top + cur.offsetHeight > listing.scrollTop + h) listing.scrollTop = Math.max(0, top - h / 3);
+        }
+        listing.dataset.current = st.line;
+        // Scratch S8: the variables panel — the lesson execute panel's markup and rule (app.js watchValue/codePanel):
+        // a .vars table, one row per variable in scope after this step, and "changed" = before !== after for this
+        // step (a variable new at this step counts as changed). The C2 var-flash (style.css MOTION block,
+        // `.vars tr.changed td:last-child`) replays because the rows are rebuilt every step.
+        const vars = st.after || st.before || {}, before = st.before || {}, names = Object.keys(vars);
+        const table = el('table'); table.id = 'scratch-varlist';
+        for (const n of names) {
+          const changed = before[n] !== vars[n];
+          const tr = el('tr', changed ? 'sp-var changed' : 'sp-var'); tr.dataset.name = n;
+          const v = el('td', 'sp-var-val', noAddress(vars[n])); v.dataset.var = n;
+          tr.append(el('td', 'sp-var-name', n), v); table.append(tr);
+        }
+        const list = el('div', 'vars sp-vars'); list.append(table);
+        const head = `Step ${k + 1} of ${run.steps.length} · line ${st.line}` + (isErr ? ` · ${run.errorStep.kind} here` : '') + (k === run.steps.length - 1 && run.stopped === 'step_limit' ? ' · stopped at the step limit' : '');
+        body.replaceChildren(el('p', 'muted', head), names.length ? list : el('p', 'muted', 'No variables yet.'));
+        drawList(k);
+        drawDict(k);   // S11
+        $('scratch-scrub').value = String(k); $('scratch-stepno').textContent = `${k + 1} / ${run.steps.length}`;
+        $('ctl-back').disabled = k === 0; $('ctl-fwd').disabled = k === run.steps.length - 1;
+      }
+      const playing = () => timer !== null;
+      function pause() { if (timer !== null) { clearInterval(timer); timer = null; } $('ctl-play').textContent = 'Play'; }
+      function play() {
+        const run = window.scratchRun; if (!run || !run.steps.length) return;
+        if (run.current >= run.steps.length - 1) showStep(0);   // Play at the end starts over
+        $('ctl-play').textContent = 'Pause';
+        timer = setInterval(() => { const r = window.scratchRun; if (!r || r.current >= r.steps.length - 1) { pause(); return; } showStep(r.current + 1); }, PACE_MS);
+      }
+      function clearRunView() {
+        pause(); window.scratchRun = null; showEditor();
+        $('scratch-scrubber').hidden = true; $('ctl-back').disabled = false; $('ctl-fwd').disabled = false;
+        $('scratch-vars-body').replaceChildren(el('p', 'muted', 'Run your code to see every variable, step by step.'));
+        if (lastShown) render(lastShown, false);   // S9: the stage goes back to the pasted structure (never touches the editor)
+      }
+      async function run() {
+        const code = $('scratch-code').value;
+        if (!code.trim()) { status('Write some code first — or paste an input above to start from its definition.'); return; }
+        clearRunView();
+        const token = ++runToken;
+        $('ctl-run').disabled = true; status('Running…');
+        let go;
+        try { go = await shim(); } catch { $('ctl-run').disabled = false; status('Run works in the web build of GOAT Mode for now — this Mac app build has no in-browser Python.'); return; }
+        try {
+          const structure = current() === 'list' ? ((lastShown && lastShown.type === 'list' && lastShown.name) || 'nums') : null;
+          const r = await go('api/scratch-trace', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(structure ? { code, structure } : { code }) });
+          const res = await r.json();
+          if (token !== runToken) return;                      // Stop (or a newer Run) took over while this ran
+          if (!r.ok) { status(`The run couldn't start: ${res.error || r.status}`); return; }
+          const err = res.error || null;
+          const errStep = err && err.type !== 'StepLimit' && res.steps.length ? res.steps.length - 1 : null;
+          window.scratchRun = { code, steps: res.steps, stdout: res.stdout, error: err, stopped: res.stopped || null, timeout: !!res.timeout, cap: STEP_CAP, current: 0,
+            errorStep: errStep == null ? null : { index: errStep, line: err.line ?? res.steps[errStep].line, kind: err.type, message: err.message, variables: res.steps[errStep].after || res.steps[errStep].before || {} } };
+          const n = res.steps.length;
+          // S9: the list device runs for the List type, on the pasted list's name (S4 contract: nums)
+          window.scratchRun.dict = buildDictFrames(window.scratchRun);   // S11: null when no dict is built
+          if (structure) {
+            window.scratchRun.list = buildListFrames(window.scratchRun, structure);
+            window.scratchRun.pointers = buildPointers(window.scratchRun, structure, res.index_users || []);   // S10
+          }
+          if (res.stopped === 'step_limit') status(`Stopped at step ${n.toLocaleString()} — the run hit the ${STEP_CAP.toLocaleString()}-step limit.`);
+          else if (res.timeout) status('Stopped after 2 seconds — probably a loop that never ends.');
+          else if (err) status(`${err.type} on line ${err.line ?? '?'}: ${err.message} — ${n} step${n === 1 ? '' : 's'} ran.`);
+          else status(`Ran ${n} step${n === 1 ? '' : 's'}.`);
+          if (n) { showListing(code); $('scratch-scrub').max = String(n - 1); $('scratch-scrubber').hidden = false; }
+          showStep(0);
+        } finally { if (token === runToken) $('ctl-run').disabled = false; }
+      }
+      // Stop: always live. Ends playback, kills the worker mid-run if one is running (fresh worker via the shim),
+      // puts the stage back to the pasted structure and clears the variables. The editor code is kept.
+      async function stop() {
+        runToken += 1; clearRunView(); $('ctl-run').disabled = false;
+        if (window.goatShimInfo && typeof window.goatShimInfo.restart === 'function') window.goatShimInfo.restart();
+        if (lastShown) render(lastShown, false);
+        status('Stopped. Your code is still in the editor — press Run to run it again.');
+      }
+      $('ctl-run').addEventListener('click', run);
+      $('ctl-play').addEventListener('click', () => (playing() ? pause() : play()));
+      $('ctl-back').addEventListener('click', () => { pause(); if (window.scratchRun) showStep(window.scratchRun.current - 1); });
+      $('ctl-fwd').addEventListener('click', () => { pause(); if (window.scratchRun) showStep(window.scratchRun.current + 1); });
+      $('scratch-scrub').addEventListener('input', (e) => { pause(); if (window.scratchRun) showStep(Number(e.target.value)); });
+      $('ctl-stop').addEventListener('click', stop);
+      $('scratch-edit').addEventListener('click', () => { clearRunView(); status('Editing — press Run when ready.'); $('scratch-code').focus(); });
+    })();
+  </script>
+</body>
+</html>

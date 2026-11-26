@@ -1,0 +1,202 @@
+{
+  "id": "080",
+  "skill": "functions-mutable-default",
+  "title": "The coat check",
+  "scenario": "A helper hangs a coat on a rack. A fresh rack should start EMPTY every call.",
+  "data": {
+    "name": "coats",
+    "value": [
+      "red",
+      "blue"
+    ]
+  },
+  "intro": {
+    "job": "A helper hangs a coat on a rack. A fresh rack should start EMPTY every call.",
+    "idea": {
+      "rule": "A default list is built ONCE and shared forever — defaults should be things that never change.",
+      "detail": "Python builds a function's default values one time, when the def line runs — not each call. A default list is therefore the same list on every call, and append keeps adding to it. The safe pattern: default to None, and build a new list inside the function."
+    },
+    "watch": {
+      "code": "def mark(x, seen=[]):\n    seen.append(x)\n    return len(seen)\ncounts = []\nfor w in words:\n    counts.append(mark(w))\nprint(counts)",
+      "data": {
+        "name": "words",
+        "value": [
+          "a",
+          "b"
+        ]
+      },
+      "trace_watch": [
+        "w",
+        "counts"
+      ]
+    }
+  },
+  "model_restatement": "Call hang once per coat, each time with a brand-new empty rack, and print the racks.",
+  "clarify": [
+    {
+      "keywords": [
+        "pass a rack",
+        "own rack",
+        "existing rack",
+        "rack argument"
+      ],
+      "question": "Will callers ever pass their own rack?",
+      "answer": "Sometimes — but today every call uses the default."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no coats",
+        "nothing"
+      ],
+      "question": "What if there are no coats?",
+      "answer": "Then no racks: an empty list."
+    },
+    {
+      "keywords": [
+        "format",
+        "print",
+        "printed",
+        "output",
+        "list of lists"
+      ],
+      "question": "What should be printed?",
+      "answer": "The list of racks the calls handed back."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Write hang(coat, rack) with an empty rack as the default; put the coat in and hand the rack back. Call it once per coat and print the racks.",
+  "draft_code": "def hang(coat, rack=[]):\n    rack.append(coat)\n    return rack\nresults = []\nfor it in coats:\n    results.append(hang(it))\nprint(results)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2 starts (it = 'blue'). What is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": "after"
+      },
+      "prompt": "After both calls — what is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 9,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — after both calls, what is results?",
+      "kind": "value",
+      "var": "results"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "rack=[] was built once, when def ran — both calls append to that same list, so both entries in results are the one list ['red', 'blue'].",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The default rack is a single shared rack by the door — the second coat goes onto the one with the red coat still on it, and both receipts point at the same rack.",
+    "bridge": "So how could each call get a brand-new rack instead of the one by the door?",
+    "fix": {
+      "rule": "Default to None and build the list inside: rack = [] then runs on every call, so every call gets its own.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "No rack given? The default is None — nothing shared."
+        },
+        {
+          "line": 2,
+          "gloss": "Check whether a rack was passed in."
+        },
+        {
+          "line": 3,
+          "gloss": "If not, build a brand-new empty one — this runs every call."
+        },
+        {
+          "line": 4,
+          "gloss": "Add the coat to this call's own rack."
+        }
+      ],
+      "contrast": {
+        "wrong": "def hang(coat, rack=[]):",
+        "wrong_note": "one list, shared forever",
+        "right": "def hang(coat, rack=None):",
+        "right_note": "a new list each call"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def hang(coat, rack=None):\n    if rack is None:\n        rack = []\n    rack.append(coat)\n    return rack\nresults = []\nfor it in coats:\n    results.append(hang(it))\nprint(results)",
+    "alternatives": [],
+    "hints": [
+      "After the second call, look at results[0]. Did it change?",
+      "The [] in the def line is built once, not once per call.",
+      "Use rack=None, then rack = [] inside when it's None."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "coats": [
+          "red",
+          "blue"
+        ]
+      },
+      "expected": "[['red'], ['blue']]"
+    },
+    {
+      "input": {
+        "coats": [
+          "red"
+        ]
+      },
+      "expected": "[['red']]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One coat: ['green'] — what's printed?",
+    "data": {
+      "name": "coats",
+      "value": [
+        "green"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With coats = ['green'], what gets printed?"
+    },
+    "recommended": "def hang(coat, rack=None):\n    if rack is None:\n        rack = []\n    rack.append(coat)\n    return rack\nresults = []\nfor it in coats:\n    results.append(hang(it))\nprint(results)",
+    "fix_hint": "Nothing to change — one call can't share a rack, so the answer is a single-item list."
+  },
+  "one_liner": "A default list is built ONCE and shared forever — defaults should be things that never change.",
+  "trace_watch": [
+    "it",
+    "results"
+  ]
+}

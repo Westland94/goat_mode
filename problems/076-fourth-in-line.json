@@ -1,0 +1,194 @@
+{
+  "id": "076",
+  "skill": "lists-indexing",
+  "title": "Fourth in line",
+  "scenario": "Who's fourth in line?",
+  "data": {
+    "name": "line",
+    "value": [
+      "ana",
+      "ben",
+      "cy",
+      "di",
+      "ev"
+    ]
+  },
+  "intro": {
+    "job": "Who's fourth in line?",
+    "idea": {
+      "rule": "Indexing counts from 0 — the fourth person stands at index 3.",
+      "detail": "A list is a line of numbered spots, and the numbers start at 0: the first person stands at spot 0, the second at 1, the third at 2 — so the fourth is at spot 3, one less than you'd count out loud."
+    },
+    "watch": {
+      "code": "third = queue[2]\nprint(third)",
+      "data": {
+        "name": "queue",
+        "value": [
+          "x",
+          "y",
+          "z"
+        ]
+      },
+      "trace_watch": [
+        "third"
+      ]
+    }
+  },
+  "model_restatement": "Find the fourth person in the line.",
+  "clarify": [
+    {
+      "keywords": [
+        "fewer",
+        "less than four",
+        "only three",
+        "short line"
+      ],
+      "question": "What if there are fewer than four people?",
+      "answer": "Then there's no fourth person — today there are always at least four."
+    },
+    {
+      "keywords": [
+        "count from 1",
+        "count from one",
+        "start at 1",
+        "from one"
+      ],
+      "question": "Why not just count from 1?",
+      "answer": "Python counts from 0 — the first person stands at index 0."
+    },
+    {
+      "keywords": [
+        "swap",
+        "switch",
+        "move",
+        "order"
+      ],
+      "question": "What if two people swap places?",
+      "answer": "The fourth spot is whoever stands there now — read the list as it is."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Take the fourth person from the line. Print them.",
+  "draft_code": "fourth = line[4]\nprint(fourth)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "What is fourth?",
+      "kind": "value",
+      "var": "fourth"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — what is fourth?",
+      "kind": "value",
+      "var": "fourth"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Indexes start at 0, so line[4] is the fifth spot — ev — not the fourth.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Python's line starts at spot 0: ana at 0, ben at 1, cy at 2 — so line[4] is the fifth person, ev.",
+    "bridge": "So which index is the fourth person standing on?",
+    "fix": {
+      "rule": "Place minus one: the fourth person is at index 3.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Spot 3 — the fourth person, counting from 0."
+        },
+        {
+          "line": 2,
+          "gloss": "Show who's there."
+        }
+      ],
+      "contrast": {
+        "wrong": "line[4]",
+        "wrong_note": "the fifth person",
+        "right": "line[3]",
+        "right_note": "the fourth person"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "fourth = line[3]\nprint(fourth)",
+    "alternatives": [],
+    "hints": [
+      "Who's at index 0?",
+      "Indexes start at 0 — the fourth spot is one less than 4.",
+      "fourth = line[3]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "line": [
+          "ana",
+          "ben",
+          "cy",
+          "di",
+          "ev"
+        ]
+      },
+      "expected": "di"
+    },
+    {
+      "input": {
+        "line": [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      },
+      "expected": "d"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Just four in line: ['w', 'x', 'y', 'z'] — who's fourth?",
+    "data": {
+      "name": "line",
+      "value": [
+        "w",
+        "x",
+        "y",
+        "z"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With ['w', 'x', 'y', 'z'], what gets printed?"
+    },
+    "recommended": "fourth = line[3]\nprint(fourth)",
+    "fix_hint": "Nothing to change — the fourth person is still at index 3. (The draft reaches for index 4 and finds nobody there.)"
+  },
+  "one_liner": "Indexing counts from 0 — the fourth person stands at index 3.",
+  "trace_watch": [
+    "fourth"
+  ]
+}

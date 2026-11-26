@@ -1,0 +1,223 @@
+{
+  "id": "178",
+  "skill": "strings-interleave",
+  "title": "Merge Strings Alternately",
+  "section": "leetcode",
+  "lc": {
+    "number": 1768,
+    "title": "Merge Strings Alternately",
+    "difficulty": "Easy",
+    "slug": "merge-strings-alternately"
+  },
+  "scenario": "You get two strings, word1 and word2. Merge them by taking letters in turn — first from word1, then from word2, and so on. If one word is longer, add its remaining letters at the end. Return the merged string.\n\nExample 1:\nInput: word1 = \"abc\", word2 = \"pqr\"\nOutput: \"apbqcr\"\n\nExample 2:\nInput: word1 = \"ab\", word2 = \"pqrs\"\nOutput: \"apbqrs\"\nWhy: after a-p and b-q, word2 still has \"rs\" left.\n\nExample 3:\nInput: word1 = \"abcd\", word2 = \"pq\"\nOutput: \"apbqcd\"\n\nConstraints:\n1 <= len(word1), len(word2) <= 100\nBoth words are lowercase English letters.\n\nWrite: def merge_alternately(word1, word2) — the driver calls it on word1 = \"abc\", word2 = \"pqr\" (case = [word1, word2]) and prints the merged string.",
+  "data": {
+    "name": "case",
+    "value": [
+      "abc",
+      "pqr"
+    ]
+  },
+  "intro": {
+    "job": "You get two strings, word1 and word2. Merge them by taking letters in turn — first from word1, then from word2, and so on. If one word is longer, add its remaining letters at the end. Return the merged string.\n\nExample 1:\nInput: word1 = \"abc\", word2 = \"pqr\"\nOutput: \"apbqcr\"\n\nExample 2:\nInput: word1 = \"ab\", word2 = \"pqrs\"\nOutput: \"apbqrs\"\nWhy: after a-p and b-q, word2 still has \"rs\" left.\n\nExample 3:\nInput: word1 = \"abcd\", word2 = \"pq\"\nOutput: \"apbqcd\"\n\nConstraints:\n1 <= len(word1), len(word2) <= 100\nBoth words are lowercase English letters.\n\nWrite: def merge_alternately(word1, word2) — the driver calls it on word1 = \"abc\", word2 = \"pqr\" (case = [word1, word2]) and prints the merged string.",
+    "idea": {
+      "rule": "zip stops at the shorter word — whatever's left of the longer one has to be added on.",
+      "detail": "Walking two inputs together is what problem 167 (Reverse String) did with two pointers; here zip does the pairing: a with p, b with q, c with r. But zip stops the moment the SHORTER word runs out — it never hands you the extra letters. Those leftovers are a slice (like problem 026): after n = the shorter length, word1[n:] + word2[n:] is the tail, and only one of them is non-empty."
+    },
+    "watch": {
+      "code": "def merge_alternately(word1, word2):\n    out = \"\"\n    for a, b in zip(word1, word2):\n        out += a + b\n    n = min(len(word1), len(word2))\n    out += word1[n:] + word2[n:]\n    return out\n\nword1, word2 = case\nprint(merge_alternately(word1, word2))",
+      "data": {
+        "name": "case",
+        "value": [
+          "ab",
+          "xyz"
+        ]
+      },
+      "trace_watch": [
+        "a",
+        "b",
+        "out"
+      ]
+    }
+  },
+  "model_restatement": "Merge the two words letter by letter, then add whatever's left of the longer word.",
+  "clarify": [
+    {
+      "keywords": [
+        "longer",
+        "different lengths",
+        "left over"
+      ],
+      "question": "What if one word is longer?",
+      "answer": "Add its remaining letters at the end."
+    },
+    {
+      "keywords": [
+        "first",
+        "which word",
+        "start"
+      ],
+      "question": "Which word goes first?",
+      "answer": "word1 — then word2, then word1 again."
+    },
+    {
+      "keywords": [
+        "empty",
+        "blank"
+      ],
+      "question": "Can a word be empty?",
+      "answer": "No — each word has at least one letter."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Pair the letters up with zip and add each pair to the result.",
+  "draft_code": "def merge_alternately(word1, word2):\n    out = \"\"\n    pairs = list(zip(word1, word2))\n    for a, b in pairs:\n        out += a + b\n    return out\n\nword1, word2 = case\nprint(merge_alternately(word1, word2))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "After line 3, what is pairs?",
+      "kind": "value",
+      "var": "pairs"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3: after line 5, what is out?",
+      "kind": "value",
+      "var": "out"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — after the loop, line 5: what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "zip pairs letters only until the shorter word runs out. On \"abc\"/\"pqr\" nothing's left over, so the draft looks right — but with \"ab\"/\"pqrs\" the \"rs\" never gets a partner, and zip silently drops it.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "zip is a dance that ends when one line runs out of dancers — the extras on the longer line never get onto the floor.",
+    "bridge": "pairs has 3 pairs here. If word2 were \"pqrs\", how many pairs would zip make — and where would the 's' go?",
+    "fix": {
+      "rule": "Interleave with zip, then add the leftover tail of the longer word: word1[n:] + word2[n:].",
+      "walk": [
+        {
+          "line": 3,
+          "gloss": "Pair up the letters while both words have one."
+        },
+        {
+          "line": 4,
+          "gloss": "Take one from each, in turn."
+        },
+        {
+          "line": 5,
+          "gloss": "Where the shorter word ran out."
+        },
+        {
+          "line": 6,
+          "gloss": "Add whatever's left — only one tail is non-empty."
+        }
+      ],
+      "contrast": {
+        "wrong": "zip(word1, word2) and return",
+        "wrong_note": "the longer word's tail is dropped",
+        "right": "then out += word1[n:] + word2[n:]",
+        "right_note": "nothing is lost"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def merge_alternately(word1, word2):\n    out = \"\"\n    for a, b in zip(word1, word2):\n        out += a + b\n    n = min(len(word1), len(word2))\n    out += word1[n:] + word2[n:]\n    return out\n\nword1, word2 = case\nprint(merge_alternately(word1, word2))",
+    "alternatives": [
+      {
+        "code": "def merge_alternately(word1, word2):\n    out = \"\"\n    for i in range(max(len(word1), len(word2))):\n        if i < len(word1):\n            out += word1[i]\n        if i < len(word2):\n            out += word2[i]\n    return out\n\nword1, word2 = case\nprint(merge_alternately(word1, word2))",
+        "note": "One index loop up to the longer length, adding word1[i] and word2[i] only while each index still exists."
+      }
+    ],
+    "hints": [
+      "How many pairs does zip make when one word is longer?",
+      "zip stops at the shorter word — the longer word's extra letters are never added.",
+      "After the zip loop: n = min(len(word1), len(word2)); out += word1[n:] + word2[n:]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          "abc",
+          "pqr"
+        ]
+      },
+      "expected": "apbqcr"
+    },
+    {
+      "input": {
+        "case": [
+          "ab",
+          "pqrs"
+        ]
+      },
+      "expected": "apbqrs"
+    },
+    {
+      "input": {
+        "case": [
+          "abcd",
+          "pq"
+        ]
+      },
+      "expected": "apbqcd"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: word1 = \"a\", word2 = \"bcdef\" — what does your code print?",
+    "data": {
+      "name": "case",
+      "value": [
+        "a",
+        "bcdef"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def merge_alternately(word1, word2):\n    out = \"\"\n    for a, b in zip(word1, word2):\n        out += a + b\n    n = min(len(word1), len(word2))\n    out += word1[n:] + word2[n:]\n    return out\n\nword1, word2 = case\nprint(merge_alternately(word1, word2))",
+    "fix_hint": "a pairs with b, then \"cdef\" is the leftover tail: \"abcdef\"."
+  },
+  "one_liner": "zip stops at the shorter word — whatever's left of the longer one has to be added on.",
+  "trace_watch": [
+    "pairs",
+    "out",
+    "n"
+  ]
+}

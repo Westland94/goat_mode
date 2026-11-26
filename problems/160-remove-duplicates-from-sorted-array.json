@@ -1,0 +1,247 @@
+{
+  "id": "160",
+  "skill": "two-pointers-move-zeroes",
+  "title": "Remove Duplicates from Sorted Array",
+  "section": "leetcode",
+  "lc": {
+    "number": 26,
+    "title": "Remove Duplicates from Sorted Array",
+    "difficulty": "Easy",
+    "slug": "remove-duplicates-from-sorted-array"
+  },
+  "scenario": "You get a list nums sorted in non-decreasing order. Rewrite it in place so each distinct value appears once, in the same order, at the front of the list. Return k, the number of distinct values. What's beyond position k doesn't matter.\n\nExample 1:\nInput: nums = [1, 1, 2]\nOutput: 2\nWhy: nums starts [1, 2, ...].\n\nExample 2:\nInput: nums = [0, 0, 1, 1, 1, 2, 2, 3, 3, 4]\nOutput: 5\nWhy: nums starts [0, 1, 2, 3, 4, ...].\n\nConstraints:\n1 <= len(nums) <= 30000\n-100 <= nums[i] <= 100\nnums is sorted in non-decreasing order.\n\nWrite: def remove_duplicates(nums) — the driver calls it on nums = [1, 1, 2] and prints k.",
+  "data": {
+    "name": "nums",
+    "value": [
+      1,
+      1,
+      2
+    ]
+  },
+  "intro": {
+    "job": "You get a list nums sorted in non-decreasing order. Rewrite it in place so each distinct value appears once, in the same order, at the front of the list. Return k, the number of distinct values. What's beyond position k doesn't matter.\n\nExample 1:\nInput: nums = [1, 1, 2]\nOutput: 2\nWhy: nums starts [1, 2, ...].\n\nExample 2:\nInput: nums = [0, 0, 1, 1, 1, 2, 2, 3, 3, 4]\nOutput: 5\nWhy: nums starts [0, 1, 2, 3, 4, ...].\n\nConstraints:\n1 <= len(nums) <= 30000\n-100 <= nums[i] <= 100\nnums is sorted in non-decreasing order.\n\nWrite: def remove_duplicates(nums) — the driver calls it on nums = [1, 1, 2] and prints k.",
+    "idea": {
+      "rule": "An index is a position, a count is how many — the last keeper sits at i, so there are i + 1 of them.",
+      "detail": "This is the write-index pattern from problem 155 (Remove Element) and 150 (Move Zeroes). i marks the last distinct value written; j walks ahead, and whenever nums[j] is new, it moves to i + 1. When the walk ends, the keepers sit at positions 0 through i — and positions start at 0, so that's i + 1 keepers, not i."
+    },
+    "watch": {
+      "code": "def remove_duplicates(nums):\n    i = 0\n    for j in range(1, len(nums)):\n        if nums[j] != nums[i]:\n            i += 1\n            nums[i] = nums[j]\n    return i + 1\n\nprint(remove_duplicates(nums))",
+      "data": {
+        "name": "nums",
+        "value": [
+          5,
+          5,
+          6
+        ]
+      },
+      "trace_watch": [
+        "j",
+        "i",
+        "nums"
+      ]
+    }
+  },
+  "model_restatement": "Squeeze the distinct values to the front of the sorted list, in place, and return how many there are.",
+  "clarify": [
+    {
+      "keywords": [
+        "sorted",
+        "order"
+      ],
+      "question": "Is the list sorted?",
+      "answer": "Yes — non-decreasing, so equal values sit next to each other."
+    },
+    {
+      "keywords": [
+        "new list",
+        "copy",
+        "in place"
+      ],
+      "question": "Can I build a new list?",
+      "answer": "No — rewrite nums in place and return k."
+    },
+    {
+      "keywords": [
+        "after k",
+        "rest",
+        "beyond"
+      ],
+      "question": "What about the positions after k?",
+      "answer": "They don't matter."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Keep a write index i on the last distinct value; walk j ahead, and whenever nums[j] differs from nums[i], move i forward and copy it there. Return i.",
+  "draft_code": "def remove_duplicates(nums):\n    i = 0\n    for j in range(1, len(nums)):\n        if nums[j] != nums[i]:\n            i += 1\n            nums[i] = nums[j]\n    return i\n\nprint(remove_duplicates(nums))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: what is j?",
+      "kind": "value",
+      "var": "j"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after the copy, what is nums?",
+      "kind": "value",
+      "var": "nums"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2: after moving forward, what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The writing is right — nums becomes [1, 2, 2] with the keepers at positions 0 and 1. But i is the POSITION of the last keeper (1), and the question asks HOW MANY keepers there are: 2.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "An index is a seat number, a count is a headcount — seats start at 0, so the last person in seat 1 means two people.",
+    "bridge": "nums is [1, 2, 2] and i is 1. How many distinct values are at the front?",
+    "fix": {
+      "rule": "Return i + 1: the keepers fill positions 0 through i, and positions start at 0.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "The first value always stays."
+        },
+        {
+          "line": 4,
+          "gloss": "A new value?"
+        },
+        {
+          "line": 5,
+          "gloss": "Move the write position forward..."
+        },
+        {
+          "line": 6,
+          "gloss": "...and copy it there."
+        },
+        {
+          "line": 7,
+          "gloss": "Positions 0 to i — that's i + 1 keepers."
+        }
+      ],
+      "contrast": {
+        "wrong": "return i",
+        "wrong_note": "the last keeper's position",
+        "right": "return i + 1",
+        "right_note": "how many keepers"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def remove_duplicates(nums):\n    i = 0\n    for j in range(1, len(nums)):\n        if nums[j] != nums[i]:\n            i += 1\n            nums[i] = nums[j]\n    return i + 1\n\nprint(remove_duplicates(nums))",
+    "alternatives": [
+      {
+        "code": "def remove_duplicates(nums):\n    keep = []\n    for x in nums:\n        if not keep or x != keep[-1]:\n            keep.append(x)\n    nums[:len(keep)] = keep\n    return len(keep)\n\nprint(remove_duplicates(nums))",
+        "note": "Collect the keepers (each value that differs from the last one kept), write them over the front, and return len(keep)."
+      }
+    ],
+    "hints": [
+      "At the end, nums starts [1, 2, ...]. How many distinct values is that?",
+      "i is the index of the last keeper — indexes start at 0.",
+      "Keep the loop exactly as it is, and return i + 1."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          1,
+          1,
+          2
+        ]
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "nums": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          2,
+          2,
+          3,
+          3,
+          4
+        ]
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "nums": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected": "3"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [0, 0, 1, 1, 1, 2, 2, 3, 3, 4] — what is k?",
+    "data": {
+      "name": "nums",
+      "value": [
+        0,
+        0,
+        1,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def remove_duplicates(nums):\n    i = 0\n    for j in range(1, len(nums)):\n        if nums[j] != nums[i]:\n            i += 1\n            nums[i] = nums[j]\n    return i + 1\n\nprint(remove_duplicates(nums))",
+    "fix_hint": "The last keeper (4) lands at position 4 — so there are 5 keepers."
+  },
+  "one_liner": "An index is a position, a count is how many — the last keeper sits at i, so there are i + 1 of them.",
+  "trace_watch": [
+    "j",
+    "i",
+    "nums"
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "id": "005",
+  "skill": "numbers-operators",
+  "title": "Split the candies",
+  "scenario": "17 candies, 5 kids. Whole candies each, and how many left over?",
+  "data": {
+    "name": "candies",
+    "value": 17
+  },
+  "intro": {
+    "job": "17 candies, 5 kids. Whole candies each, and how many left over?",
+    "idea": {
+      "rule": "/ always makes a float; // is division that drops the fraction — use it when the answer must be whole things.",
+      "detail": "17 / 5 is 3.4 — a calculator answer. When you're handing out whole things you want two numbers instead: how many fit (17 // 5 is 3) and how many are left (17 % 5 is 2). // and % always travel together."
+    },
+    "watch": {
+      "code": "k = 4\nper = sweets // k\nleft = sweets % k\nexact = sweets / k\nprint((per, left, exact))",
+      "data": {
+        "name": "sweets",
+        "value": 10
+      },
+      "trace_watch": [
+        "per",
+        "left",
+        "exact"
+      ]
+    }
+  },
+  "model_restatement": "Work out how many whole candies each kid gets, and how many are left over.",
+  "clarify": [
+    {
+      "keywords": [
+        "whole",
+        "fraction",
+        "fractions",
+        "decimal",
+        "decimals",
+        "half",
+        "halves",
+        "cut",
+        "split"
+      ],
+      "question": "Can a candy be split?",
+      "answer": "Whole candies only — nobody gets a piece of a candy."
+    },
+    {
+      "keywords": [
+        "left",
+        "leftover",
+        "leftovers",
+        "remainder",
+        "extra",
+        "rest"
+      ],
+      "question": "What happens to the leftovers?",
+      "answer": "They stay in the bag. Tell me how many."
+    },
+    {
+      "keywords": [
+        "zero kids",
+        "no kids",
+        "0 kids",
+        "how many kids",
+        "always"
+      ],
+      "question": "Is it always 5 kids?",
+      "answer": "Always 5 kids today."
+    },
+    {
+      "keywords": [
+        "format",
+        "output",
+        "tuple",
+        "print",
+        "both",
+        "give"
+      ],
+      "question": "How should I give the answer?",
+      "answer": "Print both numbers together: (each, left over)."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "There are 5 kids. Divide the candies by the kids for each kid's share. The leftovers are whatever doesn't divide evenly. Print both.",
+  "draft_code": "kids = 5\nper = candies / kids\nleft = candies % kids\nprint((per, left))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is per?",
+      "kind": "value",
+      "var": "per"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "After line 3, what is left?",
+      "kind": "value",
+      "var": "left"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is per?",
+      "kind": "value",
+      "var": "per"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "/ always gives a float, so 17 / 5 is 3.4 — a fraction of a candy, when we promised whole ones.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "/ is a calculator: it always answers with a decimal — 3.4 candies — even when you're handing out whole things.",
+    "bridge": "So what kind of division would hand you just the 3?",
+    "fix": {
+      "rule": "// divides and drops whatever doesn't fit — 17 // 5 is 3, and the 2 that didn't fit is exactly what % gives you.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Five kids."
+        },
+        {
+          "line": 2,
+          "gloss": "How many whole candies fit into each kid's share."
+        },
+        {
+          "line": 3,
+          "gloss": "What's left in the bag after everyone gets their share."
+        },
+        {
+          "line": 4,
+          "gloss": "Show both numbers together."
+        }
+      ],
+      "contrast": {
+        "wrong": "per = candies / kids",
+        "wrong_note": "gives 3.4",
+        "right": "per = candies // kids",
+        "right_note": "gives 3"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "kids = 5\nper = candies // kids\nleft = candies % kids\nprint((per, left))",
+    "alternatives": [
+      {
+        "code": "kids = 5\nper, left = divmod(candies, kids)\nprint((per, left))",
+        "note": "divmod does both at once — the shortcut."
+      },
+      {
+        "code": "kids = 5\nper = int(candies / kids)\nleft = candies % kids\nprint((per, left))",
+        "note": "Works for positive numbers, but // says what you mean."
+      }
+    ],
+    "hints": [
+      "Look at per after line 2. Is that a number of whole candies?",
+      "/ always gives a float. There's a division that drops the fraction.",
+      "per = candies // kids"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "candies": 17
+      },
+      "expected": "(3, 2)"
+    },
+    {
+      "input": {
+        "candies": 10
+      },
+      "expected": "(2, 0)"
+    },
+    {
+      "input": {
+        "candies": 3
+      },
+      "expected": "(0, 3)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What does candies % kids give when candies is 15?",
+    "data": {
+      "name": "candies",
+      "value": 15
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With 15 candies, what gets printed?"
+    },
+    "recommended": "kids = 5\nper = candies // kids\nleft = candies % kids\nprint((per, left))",
+    "fix_hint": "15 splits evenly — nothing to change; the leftover is just 0."
+  },
+  "one_liner": "/ always makes a float; // is division that drops the fraction — use it when the answer must be whole things.",
+  "trace_watch": [
+    "per",
+    "left"
+  ]
+}

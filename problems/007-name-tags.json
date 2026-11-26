@@ -1,0 +1,218 @@
+{
+  "id": "007",
+  "skill": "strings-methods",
+  "title": "Name tags",
+  "scenario": "Make shouty name tags: each name in ALL CAPS.",
+  "data": {
+    "name": "names",
+    "value": [
+      "ana",
+      "ben"
+    ]
+  },
+  "intro": {
+    "job": "Make shouty name tags: each name in ALL CAPS.",
+    "idea": {
+      "rule": "Strings never change in place — a method hands you a NEW string. Catch it or lose it.",
+      "detail": "A string can't be edited. name.upper() doesn't change name — it builds a brand-new string in capitals and hands it back. If nothing catches it with an =, that new string is gone the moment the line ends, and name is exactly what it was."
+    },
+    "watch": {
+      "code": "shout = word.upper()\nprint(shout)",
+      "data": {
+        "name": "word",
+        "value": "cy"
+      },
+      "trace_watch": [
+        "word",
+        "shout"
+      ]
+    }
+  },
+  "model_restatement": "Make a new list with every name in capital letters.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no names",
+        "none",
+        "nothing"
+      ],
+      "question": "What if there are no names?",
+      "answer": "Then an empty list."
+    },
+    {
+      "keywords": [
+        "already",
+        "mixed",
+        "mixed case"
+      ],
+      "question": "Could a name already be in caps?",
+      "answer": "Not today — every name comes in lowercase."
+    },
+    {
+      "keywords": [
+        "change",
+        "modify",
+        "in place",
+        "original",
+        "new list"
+      ],
+      "question": "Should I change names, or build a new list?",
+      "answer": "Build a new list of tags — leave names as it is."
+    },
+    {
+      "keywords": [
+        "space",
+        "spaces",
+        "whitespace",
+        "strip"
+      ],
+      "question": "Any spaces to clean up?",
+      "answer": "No — the names are clean."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each name: make a tag from the name, make it uppercase, and add it to the tags. Print the tags.",
+  "draft_code": "tags = []\nfor name in names:\n    tag = name\n    tag.upper()\n    tags.append(tag)\nprint(tags)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: right after line 4 (tag.upper()), what is tag?",
+      "kind": "value",
+      "var": "tag"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "After line 5 in iteration 1, what is tags?",
+      "kind": "value",
+      "var": "tags"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 4 in iteration 1, what is tags?",
+      "kind": "value",
+      "var": "tags"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "tag.upper() builds a new string 'ANA' and hands it back — but nothing catches it, so tag is still 'ana'.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "tag.upper() is a photocopier: it hands you a shouty copy — and if nobody catches the copy, it falls on the floor while tag stays 'ana'.",
+    "bridge": "So how do you catch the copy .upper() hands you?",
+    "fix": {
+      "rule": "name.upper() makes a new, shouted string — tag = catches it before it's lost.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the tags."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next name."
+        },
+        {
+          "line": 3,
+          "gloss": "Make the shouty copy and catch it in tag."
+        },
+        {
+          "line": 4,
+          "gloss": "Add the caught tag to the list."
+        }
+      ],
+      "contrast": {
+        "wrong": "tag.upper()",
+        "wrong_note": "the copy is thrown away",
+        "right": "tag = name.upper()",
+        "right_note": "the copy is caught"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "tags = []\nfor name in names:\n    tag = name.upper()\n    tags.append(tag)\nprint(tags)",
+    "alternatives": [
+      {
+        "code": "tags = []\nfor name in names:\n    tag = name\n    tag = tag.upper()\n    tags.append(tag)\nprint(tags)",
+        "note": "Catch it in two steps — the same fix, closest to the draft."
+      },
+      {
+        "code": "tags = [name.upper() for name in names]\nprint(tags)",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "After line 4 runs, what is tag?",
+      ".upper() hands back a new string — and nothing catches it.",
+      "tag = name.upper()"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "names": [
+          "ana",
+          "ben"
+        ]
+      },
+      "expected": "['ANA', 'BEN']"
+    },
+    {
+      "input": {
+        "names": []
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What if one name is already caps?",
+    "data": {
+      "name": "names",
+      "value": [
+        "ANA",
+        "ben"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With names = ['ANA', 'ben'], what gets printed?"
+    },
+    "recommended": "tags = []\nfor name in names:\n    tag = name.upper()\n    tags.append(tag)\nprint(tags)",
+    "fix_hint": "'ANA' is already caps, so it prints the same either way — but 'ben' shows the bug: the fix catches .upper() and prints 'BEN', the draft drops it and prints 'ben'."
+  },
+  "one_liner": "Strings never change in place — a method hands you a NEW string. Catch it or lose it.",
+  "trace_watch": [
+    "name",
+    "tag",
+    "tags"
+  ]
+}

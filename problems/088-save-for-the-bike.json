@@ -1,0 +1,190 @@
+{
+  "id": "088",
+  "skill": "while-loops",
+  "title": "Save for the bike",
+  "scenario": "Save $5 a week until you reach the target, then print the total saved — it may go past the target.",
+  "data": {
+    "name": "target",
+    "value": 20
+  },
+  "intro": {
+    "job": "Save $5 a week until you reach the target, then print the total saved — it may go past the target.",
+    "idea": {
+      "rule": "In a while loop, the update line is the engine — if it isn't inside the loop, the loop never ends.",
+      "detail": "A while loop re-checks its condition before every run. Something inside the loop has to move toward making that condition false — here, the total saved going up. Python decides what's inside the loop by indentation alone, so an update line that isn't indented never runs during the loop, and the condition is true forever."
+    },
+    "watch": {
+      "code": "saved = 0\nwhile saved < goal:\n    saved += 5\nprint(saved)",
+      "data": {
+        "name": "goal",
+        "value": 10
+      },
+      "trace_watch": [
+        "saved"
+      ]
+    }
+  },
+  "model_restatement": "Keep saving $5 a week until the total reaches the target, then print the total saved.",
+  "clarify": [
+    {
+      "keywords": [
+        "overflow",
+        "over",
+        "past",
+        "exactly",
+        "spill"
+      ],
+      "question": "Can the total go past the target?",
+      "answer": "Yes — stop as soon as it's at or above the target."
+    },
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "empty",
+        "begin",
+        "zero"
+      ],
+      "question": "What do you start with?",
+      "answer": "Nothing saved — $0."
+    },
+    {
+      "keywords": [
+        "print",
+        "output",
+        "weeks",
+        "how many"
+      ],
+      "question": "What should I print?",
+      "answer": "The total saved."
+    },
+    {
+      "keywords": [
+        "how much",
+        "each week",
+        "per week",
+        "amount",
+        "5"
+      ],
+      "question": "How much do you save each week?",
+      "answer": "$5, every week."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start at 0. While the total saved is under the target, count a week. Then add $5. Print the total saved.",
+  "draft_code": "saved = 0\nweeks = 0\nwhile saved < target:\n    weeks += 1\nsaved += 5\nprint(saved)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — after line 4, what is saved?",
+      "kind": "value",
+      "var": "saved"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 2
+      },
+      "prompt": "With the fix — after line 5 in iteration 2, what is saved?",
+      "kind": "value",
+      "var": "saved"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "saved += 5 isn't indented, so it's not inside the loop — saved stays 0, saved < target stays True, and the loop never ends.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The update line is the savings engine — left outside the loop, the weeks just click past forever and the jar never fills.",
+    "bridge": "So which line has to be inside the loop for the total to rise?",
+    "fix": {
+      "rule": "Indent saved += 5 into the loop: every week adds $5, until saved < target is False.",
+      "walk": [
+        {
+          "line": 3,
+          "gloss": "Check: is the total still under the target?"
+        },
+        {
+          "line": 4,
+          "gloss": "Count this week."
+        },
+        {
+          "line": 5,
+          "gloss": "Add $5 — inside the loop, so it happens every week."
+        },
+        {
+          "line": 6,
+          "gloss": "Once the check fails, show the total saved."
+        }
+      ],
+      "contrast": {
+        "wrong": "saved += 5   (not indented)",
+        "wrong_note": "runs after a loop that never ends",
+        "right": "    saved += 5",
+        "right_note": "runs every week"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "saved = 0\nweeks = 0\nwhile saved < target:\n    weeks += 1\n    saved += 5\nprint(saved)",
+    "alternatives": [],
+    "hints": [
+      "Which lines are inside the while loop?",
+      "Indentation decides what's inside. Is saved += 5 indented?",
+      "Indent saved += 5 under the while."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "target": 20
+      },
+      "expected": "20"
+    },
+    {
+      "input": {
+        "target": 12
+      },
+      "expected": "15"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What if the target is 5?",
+    "data": {
+      "name": "target",
+      "value": 5
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With target = 5, what gets printed?"
+    },
+    "recommended": "saved = 0\nweeks = 0\nwhile saved < target:\n    weeks += 1\n    saved += 5\nprint(saved)",
+    "fix_hint": "Nothing to change — one week saves $5, which is already at the target."
+  },
+  "one_liner": "In a while loop, the update line is the engine — if it isn't inside the loop, the loop never ends.",
+  "trace_watch": [
+    "saved",
+    "weeks"
+  ]
+}

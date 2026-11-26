@@ -1,0 +1,235 @@
+{
+  "id": "180",
+  "skill": "prefix-sums",
+  "title": "Find Pivot Index",
+  "section": "leetcode",
+  "lc": {
+    "number": 724,
+    "title": "Find Pivot Index",
+    "difficulty": "Easy",
+    "slug": "find-pivot-index"
+  },
+  "scenario": "You get a list of integers nums. The pivot index is a position where the numbers strictly to its left add up to the same as the numbers strictly to its right (an empty side adds up to 0). Return the leftmost pivot index, or -1 if there isn't one.\n\nExample 1:\nInput: nums = [1, 7, 3, 6, 5, 6]\nOutput: 3\nWhy: left of index 3 is 1 + 7 + 3 = 11; right of it is 5 + 6 = 11.\n\nExample 2:\nInput: nums = [1, 2, 3]\nOutput: -1\n\nExample 3:\nInput: nums = [2, 1, -1]\nOutput: 0\nWhy: nothing is left of index 0 (0), and 1 + -1 = 0 is on its right.\n\nConstraints:\n1 <= len(nums) <= 10000\n-1000 <= nums[i] <= 1000\n\nWrite: def pivot_index(nums) — the driver calls it on nums = [1, 7, 3, 6, 5, 6] and prints the result.",
+  "data": {
+    "name": "nums",
+    "value": [
+      1,
+      7,
+      3,
+      6,
+      5,
+      6
+    ]
+  },
+  "intro": {
+    "job": "You get a list of integers nums. The pivot index is a position where the numbers strictly to its left add up to the same as the numbers strictly to its right (an empty side adds up to 0). Return the leftmost pivot index, or -1 if there isn't one.\n\nExample 1:\nInput: nums = [1, 7, 3, 6, 5, 6]\nOutput: 3\nWhy: left of index 3 is 1 + 7 + 3 = 11; right of it is 5 + 6 = 11.\n\nExample 2:\nInput: nums = [1, 2, 3]\nOutput: -1\n\nExample 3:\nInput: nums = [2, 1, -1]\nOutput: 0\nWhy: nothing is left of index 0 (0), and 1 + -1 = 0 is on its right.\n\nConstraints:\n1 <= len(nums) <= 10000\n-1000 <= nums[i] <= 1000\n\nWrite: def pivot_index(nums) — the driver calls it on nums = [1, 7, 3, 6, 5, 6] and prints the result.",
+    "idea": {
+      "rule": "The pivot itself sits on neither side — the right side is total - left - nums[i].",
+      "detail": "Like problem 146 (Maximum Subarray), keep a running total as you walk: left is everything before position i. The right side is everything after it, which you can get without a second loop: take the whole total, remove the left part, and remove nums[i] itself — the pivot belongs to neither side. Forgetting that last subtraction compares the left side with the right side plus the pivot."
+    },
+    "watch": {
+      "code": "def pivot_index(nums):\n    total = sum(nums)\n    left = 0\n    for i in range(len(nums)):\n        if left == total - left - nums[i]:\n            return i\n        left += nums[i]\n    return -1\n\nprint(pivot_index(nums))",
+      "data": {
+        "name": "nums",
+        "value": [
+          1,
+          2,
+          1
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "left"
+      ]
+    }
+  },
+  "model_restatement": "Return the first position where everything to its left adds up to the same as everything to its right.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "edge",
+        "nothing"
+      ],
+      "question": "What if there's nothing on one side?",
+      "answer": "That side adds up to 0."
+    },
+    {
+      "keywords": [
+        "more than one",
+        "several",
+        "first"
+      ],
+      "question": "What if there's more than one pivot?",
+      "answer": "Return the leftmost one."
+    },
+    {
+      "keywords": [
+        "negative",
+        "minus"
+      ],
+      "question": "Can the numbers be negative?",
+      "answer": "Yes — between -1000 and 1000."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Keep a running left sum; at each position, compare it with total - left, and return the first position where they match.",
+  "draft_code": "def pivot_index(nums):\n    total = sum(nums)\n    left = 0\n    for i in range(len(nums)):\n        if left == total - left:\n            return i\n        left += nums[i]\n    return -1\n\nprint(pivot_index(nums))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 4
+      },
+      "prompt": "Iteration 4 (i = 3): after the check, what is left?",
+      "kind": "value",
+      "var": "left"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": 4
+      },
+      "prompt": "Iteration 4: after line 7, what is left?",
+      "kind": "value",
+      "var": "left"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 4
+      },
+      "prompt": "With the fix — iteration 4: what is i when it returns?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "At i = 3, left is 11 and the right side really is 11 — but the draft compares 11 with total - left = 17, which still includes the 6 at position 3. The balance is off by nums[i], so the draft walks straight past the pivot and returns -1.",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "Leaving nums[i] on the right is weighing a seesaw with the pivot sitting on one end — the middle of a seesaw belongs to neither side.",
+    "bridge": "At i = 3, left is 11. total - left is 17. What's in that 17 besides 5 + 6?",
+    "fix": {
+      "rule": "Compare left with total - left - nums[i]: the right side excludes the pivot itself.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Everything, once."
+        },
+        {
+          "line": 3,
+          "gloss": "Nothing is left of position 0."
+        },
+        {
+          "line": 5,
+          "gloss": "Right side = total minus left minus the pivot."
+        },
+        {
+          "line": 7,
+          "gloss": "Move this number onto the left side."
+        }
+      ],
+      "contrast": {
+        "wrong": "left == total - left",
+        "wrong_note": "the pivot counts on the right",
+        "right": "left == total - left - nums[i]",
+        "right_note": "the pivot sits on neither side"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def pivot_index(nums):\n    total = sum(nums)\n    left = 0\n    for i in range(len(nums)):\n        if left == total - left - nums[i]:\n            return i\n        left += nums[i]\n    return -1\n\nprint(pivot_index(nums))",
+    "alternatives": [
+      {
+        "code": "def pivot_index(nums):\n    total = sum(nums)\n    lefts = []\n    running = 0\n    for x in nums:\n        lefts.append(running)\n        running += x\n    for i in range(len(nums)):\n        if lefts[i] == total - lefts[i] - nums[i]:\n            return i\n    return -1\n\nprint(pivot_index(nums))",
+        "note": "Build the list of left sums first, then scan it: position i is a pivot when lefts[i] == total - lefts[i] - nums[i]."
+      }
+    ],
+    "hints": [
+      "At i = 3, what is total - left — and which numbers does it include?",
+      "total - left still contains nums[i]; the pivot belongs to neither side.",
+      "if left == total - left - nums[i]: return i"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          1,
+          7,
+          3,
+          6,
+          5,
+          6
+        ]
+      },
+      "expected": "3"
+    },
+    {
+      "input": {
+        "nums": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected": "-1"
+    },
+    {
+      "input": {
+        "nums": [
+          2,
+          1,
+          -1
+        ]
+      },
+      "expected": "0"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: nums = [1, 1, 1, 1] — what does your code print?",
+    "data": {
+      "name": "nums",
+      "value": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def pivot_index(nums):\n    total = sum(nums)\n    left = 0\n    for i in range(len(nums)):\n        if left == total - left - nums[i]:\n            return i\n        left += nums[i]\n    return -1\n\nprint(pivot_index(nums))",
+    "fix_hint": "No position balances once the pivot is left out — the answer is -1."
+  },
+  "one_liner": "The pivot itself sits on neither side — the right side is total - left - nums[i].",
+  "trace_watch": [
+    "i",
+    "total",
+    "left"
+  ]
+}

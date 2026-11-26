@@ -1,0 +1,178 @@
+{
+  "id": "085",
+  "skill": "strings-slicing",
+  "title": "The middle three",
+  "scenario": "Each product code has five letters. Print its middle three.",
+  "data": {
+    "name": "code",
+    "value": "GOATS"
+  },
+  "intro": {
+    "job": "Each product code has five letters. Print its middle three.",
+    "idea": {
+      "rule": "Slicing counts from 0 and the end is excluded — [1:4] is letters two, three, four.",
+      "detail": "Python numbers a string's letters from 0, like seats in a row: in 'GOATS', G sits in seat 0, O in 1, A in 2, T in 3, S in 4. A slice [start:stop] takes the seats from start up to — but not including — stop. The middle three are seats 1, 2 and 3, so the slice is [1:4]: start at seat 1, stop before seat 4."
+    },
+    "watch": {
+      "code": "mid = word[2:5]\nprint(mid)",
+      "data": {
+        "name": "word",
+        "value": "PYTHON"
+      },
+      "trace_watch": [
+        "mid"
+      ]
+    }
+  },
+  "model_restatement": "Take the middle three letters of the code — the second, third and fourth — and print them.",
+  "clarify": [
+    {
+      "keywords": [
+        "shorter",
+        "short",
+        "fewer letters",
+        "four letters",
+        "too short"
+      ],
+      "question": "What if a code is shorter than five letters?",
+      "answer": "Today every code has five letters."
+    },
+    {
+      "keywords": [
+        "middle",
+        "which letters",
+        "three",
+        "center"
+      ],
+      "question": "Which letters are the middle three?",
+      "answer": "The second, third and fourth — seats 1, 2 and 3."
+    },
+    {
+      "keywords": [
+        "give",
+        "print",
+        "output",
+        "format"
+      ],
+      "question": "How should I give the middle?",
+      "answer": "Just print it."
+    },
+    {
+      "keywords": [
+        "empty",
+        "blank",
+        "no code"
+      ],
+      "question": "Can the code be empty?",
+      "answer": "No — there's always a code."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Take the code's letters from the second one to the fourth one, and print them.",
+  "draft_code": "mid = code[1:3]\nprint(mid)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "code[1:3] stops before index 3 — it takes seats 1 and 2 only, so the fourth letter never gets picked.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "The end of a slice is excluded: [1:3] stops before seat 3, so the middle comes out two letters short.",
+    "bridge": "So what stop would include seat 3?",
+    "fix": {
+      "rule": "[1:4]: start at seat 1, stop before seat 4 — seats 1, 2 and 3, the middle three.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Take seats 1, 2 and 3 — stop before seat 4."
+        },
+        {
+          "line": 2,
+          "gloss": "Show the middle."
+        }
+      ],
+      "contrast": {
+        "wrong": "code[1:3]",
+        "wrong_note": "stops before the fourth letter",
+        "right": "code[1:4]",
+        "right_note": "takes the middle three"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "mid = code[1:4]\nprint(mid)",
+    "alternatives": [],
+    "hints": [
+      "Which seats does [1:3] take?",
+      "The slice stops before its second number — 3 means 'up to seat 3, not including it'.",
+      "mid = code[1:4]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "code": "GOATS"
+      },
+      "expected": "OAT"
+    },
+    {
+      "input": {
+        "code": "DINKS"
+      },
+      "expected": "INK"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A four-letter code: 'DINK' — what does your code give?",
+    "data": {
+      "name": "code",
+      "value": "DINK"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With code = 'DINK', what gets printed?"
+    },
+    "recommended": "mid = code[1:4]\nprint(mid)",
+    "fix_hint": "Nothing to change — a slice that runs past the end just stops at the last letter."
+  },
+  "one_liner": "Slicing counts from 0 and the end is excluded — [1:4] is letters two, three, four.",
+  "trace_watch": [
+    "mid"
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "id": "164",
+  "skill": "numbers-operators",
+  "title": "Excel Sheet Column Number",
+  "section": "leetcode",
+  "lc": {
+    "number": 171,
+    "title": "Excel Sheet Column Number",
+    "difficulty": "Easy",
+    "slug": "excel-sheet-column-number"
+  },
+  "scenario": "Spreadsheet columns are labelled A, B, ..., Z, then AA, AB, ..., AZ, BA, and so on. You get a column title column_title. Return its column number: A is 1, B is 2, ..., Z is 26, AA is 27, AB is 28.\n\nExample 1:\nInput: column_title = \"A\"\nOutput: 1\n\nExample 2:\nInput: column_title = \"AB\"\nOutput: 28\n\nExample 3:\nInput: column_title = \"ZY\"\nOutput: 701\n\nConstraints:\n1 <= len(column_title) <= 7\ncolumn_title holds only capital letters A–Z.\n\nWrite: def title_to_number(column_title) — the driver calls it on column_title = \"AB\" and prints the result.",
+  "data": {
+    "name": "column_title",
+    "value": "AB"
+  },
+  "intro": {
+    "job": "Spreadsheet columns are labelled A, B, ..., Z, then AA, AB, ..., AZ, BA, and so on. You get a column title column_title. Return its column number: A is 1, B is 2, ..., Z is 26, AA is 27, AB is 28.\n\nExample 1:\nInput: column_title = \"A\"\nOutput: 1\n\nExample 2:\nInput: column_title = \"AB\"\nOutput: 28\n\nExample 3:\nInput: column_title = \"ZY\"\nOutput: 701\n\nConstraints:\n1 <= len(column_title) <= 7\ncolumn_title holds only capital letters A–Z.\n\nWrite: def title_to_number(column_title) — the driver calls it on column_title = \"AB\" and prints the result.",
+    "idea": {
+      "rule": "Letters have places, like digits — each new letter multiplies everything so far by 26.",
+      "detail": "Like problem 005 (Split the candies), it's arithmetic — the place-value kind. In 47, the 4 is worth 40 because there's a digit after it. Column titles work the same way in base 26: in AB, the A is worth 26 because a letter follows it. So read left to right, and for each letter multiply the total so far by 26 before adding the letter's value (A = 1 ... Z = 26)."
+    },
+    "watch": {
+      "code": "def title_to_number(column_title):\n    total = 0\n    for ch in column_title:\n        total = total * 26 + (ord(ch) - ord(\"A\") + 1)\n    return total\n\nprint(title_to_number(column_title))",
+      "data": {
+        "name": "column_title",
+        "value": "BC"
+      },
+      "trace_watch": [
+        "ch",
+        "total"
+      ]
+    }
+  },
+  "model_restatement": "Turn a spreadsheet column title into its column number, reading the letters as base-26 digits.",
+  "clarify": [
+    {
+      "keywords": [
+        "lowercase",
+        "case"
+      ],
+      "question": "Can the title be lowercase?",
+      "answer": "No — always capital letters A to Z."
+    },
+    {
+      "keywords": [
+        "zero",
+        "start"
+      ],
+      "question": "Does A start at 0 or 1?",
+      "answer": "1 — A is column 1, and Z is 26."
+    },
+    {
+      "keywords": [
+        "long",
+        "length",
+        "letters"
+      ],
+      "question": "How many letters can the title have?",
+      "answer": "Up to 7."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Turn each letter into its value (A = 1, B = 2, ...) and add the values up.",
+  "draft_code": "def title_to_number(column_title):\n    total = 0\n    for ch in column_title:\n        total += ord(ch) - ord(\"A\") + 1\n    return total\n\nprint(title_to_number(column_title))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: after adding, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: after adding, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2: after the update, what is total?",
+      "kind": "value",
+      "var": "total"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft adds A (1) and B (2) and gets 3 — but in AB the A is in the 26s place. It's 1 × 26 + 2 = 28, the way 4 in 47 is worth 40.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Adding the letters is reading 47 as 4 + 7 — it forgets that a digit's place sets what it's worth.",
+    "bridge": "After A, total is 1. When B comes along, how much should that A be worth now?",
+    "fix": {
+      "rule": "One letter at a time: total = total * 26 + the letter's value — each new letter shifts everything before it up a place.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Nothing read yet."
+        },
+        {
+          "line": 3,
+          "gloss": "Left to right, like reading digits."
+        },
+        {
+          "line": 4,
+          "gloss": "Shift up a place (× 26), then add this letter."
+        },
+        {
+          "line": 5,
+          "gloss": "The column number."
+        }
+      ],
+      "contrast": {
+        "wrong": "total += value",
+        "wrong_note": "AB reads as 3",
+        "right": "total = total * 26 + value",
+        "right_note": "AB reads as 28"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def title_to_number(column_title):\n    total = 0\n    for ch in column_title:\n        total = total * 26 + (ord(ch) - ord(\"A\") + 1)\n    return total\n\nprint(title_to_number(column_title))",
+    "alternatives": [
+      {
+        "code": "def title_to_number(column_title):\n    total = 0\n    for i, ch in enumerate(reversed(column_title)):\n        total += (ord(ch) - ord(\"A\") + 1) * 26 ** i\n    return total\n\nprint(title_to_number(column_title))",
+        "note": "Read the title backwards: the letter at place i from the right is worth value × 26 ** i."
+      }
+    ],
+    "hints": [
+      "What is AA's column number — and what would adding its letters give?",
+      "Every letter after the first multiplies the ones before it by 26.",
+      "total = total * 26 + (ord(ch) - ord(\"A\") + 1)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "column_title": "A"
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "column_title": "AB"
+      },
+      "expected": "28"
+    },
+    {
+      "input": {
+        "column_title": "ZY"
+      },
+      "expected": "701"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: column_title = \"BA\" — what does your code print?",
+    "data": {
+      "name": "column_title",
+      "value": "BA"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def title_to_number(column_title):\n    total = 0\n    for ch in column_title:\n        total = total * 26 + (ord(ch) - ord(\"A\") + 1)\n    return total\n\nprint(title_to_number(column_title))",
+    "fix_hint": "B is in the 26s place: 2 × 26 + 1 = 53."
+  },
+  "one_liner": "Letters have places, like digits — each new letter multiplies everything so far by 26.",
+  "trace_watch": [
+    "ch",
+    "total"
+  ]
+}

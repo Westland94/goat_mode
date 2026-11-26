@@ -1,0 +1,206 @@
+{
+  "id": "078",
+  "skill": "sets",
+  "title": "The repeated songs",
+  "scenario": "The playlist repeats songs. How many DIFFERENT songs are on it?",
+  "data": {
+    "name": "songs",
+    "value": [
+      "rain",
+      "sun",
+      "rain",
+      "moon",
+      "rain"
+    ]
+  },
+  "intro": {
+    "job": "The playlist repeats songs. How many DIFFERENT songs are on it?",
+    "idea": {
+      "rule": "len(songs) counts every copy — len(set(songs)) counts each one once.",
+      "detail": "set(some_list) builds a set: every value goes in, but a value that's already there is quietly dropped. So len(set(...)) counts how many DIFFERENT values there are. len(some_list) counts every entry, twins included."
+    },
+    "watch": {
+      "code": "kinds = len(set(tags))\nprint(kinds)",
+      "data": {
+        "name": "tags",
+        "value": [
+          "do",
+          "do",
+          "re"
+        ]
+      },
+      "trace_watch": [
+        "kinds"
+      ]
+    }
+  },
+  "model_restatement": "Count how many different songs are on the playlist, ignoring repeats.",
+  "clarify": [
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase",
+        "lowercase",
+        "spelling",
+        "spelled"
+      ],
+      "question": "Could the same song be spelled differently?",
+      "answer": "No — today the songs are clean and lowercase."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no songs",
+        "nobody",
+        "none"
+      ],
+      "question": "What if the playlist is empty?",
+      "answer": "Then 0."
+    },
+    {
+      "keywords": [
+        "just how many",
+        "how many",
+        "which songs",
+        "list them",
+        "list the songs",
+        "song names",
+        "names"
+      ],
+      "question": "Do you want the songs, or just how many?",
+      "answer": "Just how many."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count the songs on the playlist and print the number.",
+  "draft_code": "unique = len(songs)\nprint(unique)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is unique?",
+      "kind": "value",
+      "var": "unique"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is unique?",
+      "kind": "value",
+      "var": "unique"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "len(songs) counts every play, so rain is counted three times — 5, not 3.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "len(songs) is a headcount at the door that counts rain every time it plays — three rains, three ticks.",
+    "bridge": "So what could you put the songs into that keeps only one of each?",
+    "fix": {
+      "rule": "set(songs) throws out the twins first; len then counts what's left — one per song.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Drop the duplicates, then count."
+        },
+        {
+          "line": 2,
+          "gloss": "Show the number."
+        }
+      ],
+      "contrast": {
+        "wrong": "len(songs)",
+        "wrong_note": "counts every play",
+        "right": "len(set(songs))",
+        "right_note": "counts every song once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "unique = len(set(songs))\nprint(unique)",
+    "alternatives": [
+      {
+        "code": "seen = []\nfor s in songs:\n    if s not in seen:\n        seen.append(s)\nprint(len(seen))",
+        "note": "The long way, with a list — slower on big lists, same answer."
+      }
+    ],
+    "hints": [
+      "How many times does rain appear?",
+      "len counts every entry. You want each song once.",
+      "len(set(songs))"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "songs": [
+          "rain",
+          "sun",
+          "rain",
+          "moon",
+          "rain"
+        ]
+      },
+      "expected": "3"
+    },
+    {
+      "input": {
+        "songs": [
+          "a"
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "songs": []
+      },
+      "expected": "0"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One song, three times: ['moon', 'moon', 'moon'] — how many different?",
+    "data": {
+      "name": "songs",
+      "value": [
+        "moon",
+        "moon",
+        "moon"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With ['moon', 'moon', 'moon'], what gets printed?"
+    },
+    "recommended": "unique = len(set(songs))\nprint(unique)",
+    "fix_hint": "Nothing to change — three moons are still one song."
+  },
+  "one_liner": "len(songs) counts every copy — len(set(songs)) counts each one once.",
+  "trace_watch": [
+    "unique"
+  ]
+}

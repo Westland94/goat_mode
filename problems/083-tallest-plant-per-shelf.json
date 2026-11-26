@@ -1,0 +1,211 @@
+{
+  "id": "083",
+  "skill": "nested-data",
+  "title": "Tallest plant per shelf",
+  "scenario": "For each shelf, its single tallest plant.",
+  "data": {
+    "name": "shelves",
+    "value": {
+      "sun": [
+        4,
+        9
+      ],
+      "shade": [
+        6
+      ]
+    }
+  },
+  "intro": {
+    "job": "For each shelf, its single tallest plant.",
+    "idea": {
+      "rule": "max(shelves) looks at the OUTER box — the shelf names. max(shelves[name]) opens that shelf's box of heights first.",
+      "detail": "shelves is a dict whose values are lists. shelves['sun'] opens the outer box and hands you sun's list [4, 9]; one more step — max(...) — reaches into that list. Each pair of brackets opens one more box, so say what's in your hand after each one."
+    },
+    "watch": {
+      "code": "top = max(box['cy'])\nprint(top)",
+      "data": {
+        "name": "box",
+        "value": {
+          "cy": [
+            2,
+            7
+          ]
+        }
+      },
+      "trace_watch": [
+        "top"
+      ]
+    }
+  },
+  "model_restatement": "For every shelf, find the largest height in its list of plants.",
+  "clarify": [
+    {
+      "keywords": [
+        "no plants",
+        "empty list",
+        "empty"
+      ],
+      "question": "Could a shelf have no plants?",
+      "answer": "Not today — every shelf has at least one."
+    },
+    {
+      "keywords": [
+        "tie",
+        "ties",
+        "same height",
+        "equal"
+      ],
+      "question": "What if two plants tie for tallest?",
+      "answer": "Then that height — once."
+    },
+    {
+      "keywords": [
+        "format",
+        "dict",
+        "output",
+        "print",
+        "shape"
+      ],
+      "question": "What shape should the answer be?",
+      "answer": "A dict: shelf → tallest height."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each shelf, take the tallest of the plants. Put it in a dict. Print it.",
+  "draft_code": "tallest = {}\nfor name in shelves:\n    tallest[name] = max(shelves)\nprint(tallest)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1 (sun), what is tallest?",
+      "kind": "value",
+      "var": "tallest"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after iteration 1, what is tallest?",
+      "kind": "value",
+      "var": "tallest"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max(shelves) is handed the whole dict of shelves — and max of a dict looks at its keys, so it picks the biggest NAME, 'sun', not a height.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "max(shelves) reaches into the wrong box: it opens the box of shelves and picks the biggest name tag — 'sun' — instead of opening sun's box of heights.",
+    "bridge": "So which box should max be handed — the box of shelves, or sun's box of plants?",
+    "fix": {
+      "rule": "max(shelves[name]): open the shelf's box, then hand the whole list to max.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty dict for the answers."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next shelf."
+        },
+        {
+          "line": 3,
+          "gloss": "Open their list of plants and keep the tallest."
+        },
+        {
+          "line": 4,
+          "gloss": "Show every shelf's tallest plant."
+        }
+      ],
+      "contrast": {
+        "wrong": "max(shelves)",
+        "wrong_note": "the biggest shelf name",
+        "right": "max(shelves[name])",
+        "right_note": "the tallest plant"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "tallest = {}\nfor name in shelves:\n    tallest[name] = max(shelves[name])\nprint(tallest)",
+    "alternatives": [
+      {
+        "code": "print({name: max(heights) for name, heights in shelves.items()})",
+        "note": "A dict comprehension — the shortcut."
+      }
+    ],
+    "hints": [
+      "After iteration 1, did sun get a height — or a name?",
+      "max(shelves) looks at the dict's keys — the shelf names. Open this shelf's box first.",
+      "tallest[name] = max(shelves[name])"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "shelves": {
+          "sun": [
+            4,
+            9
+          ],
+          "shade": [
+            6
+          ]
+        }
+      },
+      "expected": "{'sun': 9, 'shade': 6}"
+    },
+    {
+      "input": {
+        "shelves": {
+          "x": [
+            1
+          ]
+        }
+      },
+      "expected": "{'x': 1}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One shelf, one plant: {'cy': [7]} — what's printed?",
+    "data": {
+      "name": "shelves",
+      "value": {
+        "cy": [
+          7
+        ]
+      }
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelves, what gets printed?"
+    },
+    "recommended": "tallest = {}\nfor name in shelves:\n    tallest[name] = max(shelves[name])\nprint(tallest)",
+    "fix_hint": "Nothing to change — max still finds the tallest."
+  },
+  "one_liner": "max(shelves) looks at the OUTER box — the shelf names. max(shelves[name]) opens that shelf's box of heights first.",
+  "trace_watch": [
+    "name",
+    "tallest"
+  ]
+}

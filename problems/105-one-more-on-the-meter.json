@@ -1,0 +1,224 @@
+{
+  "id": "105",
+  "skill": "one-pass-plus-one",
+  "title": "One more on the meter",
+  "scenario": "Add one to the number on these counter wheels.",
+  "data": {
+    "name": "digits",
+    "value": [
+      2,
+      9,
+      9
+    ]
+  },
+  "intro": {
+    "job": "Add one to the number on these counter wheels.",
+    "idea": {
+      "rule": "A 9 can't take one more — it rolls to 0 and the one carries left.",
+      "detail": "Adding one is what you did on paper: start at the last wheel. If it's not a 9, add 1 and you're done. If it IS a 9, it rolls over to 0 and the 1 carries to the wheel on its left — which might be a 9 too. If every wheel rolls over, a new 1 goes on the front."
+    },
+    "watch": {
+      "code": "i = len(digits) - 1\nwhile i >= 0 and digits[i] == 9:\n    digits[i] = 0\n    i -= 1\nif i >= 0:\n    digits[i] += 1\nelse:\n    digits.insert(0, 1)\nprint(digits)",
+      "data": {
+        "name": "digits",
+        "value": [
+          9,
+          9,
+          9
+        ]
+      },
+      "trace_watch": [
+        "i",
+        "digits"
+      ]
+    }
+  },
+  "model_restatement": "Treat the wheels as one number, add one, and print the new wheels.",
+  "clarify": [
+    {
+      "keywords": [
+        "int",
+        "convert",
+        "join",
+        "number"
+      ],
+      "question": "Can I turn the wheels into an int and back?",
+      "answer": "In real work, maybe. Here, work on the wheels — carry like you would on paper."
+    },
+    {
+      "keywords": [
+        "leading zero",
+        "zeros",
+        "empty"
+      ],
+      "question": "Leading zeros, or no wheels?",
+      "answer": "Neither today."
+    },
+    {
+      "keywords": [
+        "all nines",
+        "every digit",
+        "longer",
+        "new wheel",
+        "every wheel"
+      ],
+      "question": "What if every wheel is a 9?",
+      "answer": "Then you need one more wheel at the front."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Add one to the last wheel. Print the wheels.",
+  "draft_code": "digits[-1] += 1\nprint(digits)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is digits?",
+      "kind": "value",
+      "var": "digits"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 3 the first time, what is digits?",
+      "kind": "value",
+      "var": "digits"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 2
+      },
+      "prompt": "With the fix — after line 3 the second time, what is digits?",
+      "kind": "value",
+      "var": "digits"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "digits[-1] += 1 turns the 9 into 10 — but a wheel holds one digit. The 9 should roll to 0 and carry 1 into the wheel on its left.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "A wheel is a one-digit odometer wheel — push a 9 one more click and it doesn't become 10, it rolls to 0 and nudges the wheel on its left.",
+    "bridge": "So what should happen to the 9 — and to the wheel on its left?",
+    "fix": {
+      "rule": "From the back: every 9 rolls to 0 and the carry moves left; the first non-9 takes the +1. All 9s? A new 1 in front.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Start at the last wheel."
+        },
+        {
+          "line": 2,
+          "gloss": "While the wheel is a 9..."
+        },
+        {
+          "line": 3,
+          "gloss": "...it rolls over to 0..."
+        },
+        {
+          "line": 6,
+          "gloss": "...and the first wheel that isn't a 9 takes the +1."
+        }
+      ],
+      "contrast": {
+        "wrong": "digits[-1] += 1",
+        "wrong_note": "9 becomes 10",
+        "right": "9 → 0, carry 1 left",
+        "right_note": "every wheel stays a digit"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "i = len(digits) - 1\nwhile i >= 0 and digits[i] == 9:\n    digits[i] = 0\n    i -= 1\nif i >= 0:\n    digits[i] += 1\nelse:\n    digits.insert(0, 1)\nprint(digits)",
+    "alternatives": [
+      {
+        "code": "n = int(''.join(str(d) for d in digits)) + 1\nprint([int(c) for c in str(n)])",
+        "note": "Turn the wheels into a number and back — short, but skips the carrying we're practising."
+      }
+    ],
+    "hints": [
+      "After line 1, is every wheel still a single digit?",
+      "A 9 plus one rolls to 0 and carries 1 to the left.",
+      "Walk from the back: 9s become 0, the first non-9 gets +1."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "digits": [
+          2,
+          9,
+          9
+        ]
+      },
+      "expected": "[3, 0, 0]"
+    },
+    {
+      "input": {
+        "digits": [
+          9,
+          9,
+          9
+        ]
+      },
+      "expected": "[1, 0, 0, 0]"
+    },
+    {
+      "input": {
+        "digits": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected": "[1, 2, 4]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New wheels: [3, 9, 9] — plus one?",
+    "data": {
+      "name": "digits",
+      "value": [
+        3,
+        9,
+        9
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With digits = [3, 9, 9], what gets printed?"
+    },
+    "recommended": "i = len(digits) - 1\nwhile i >= 0 and digits[i] == 9:\n    digits[i] = 0\n    i -= 1\nif i >= 0:\n    digits[i] += 1\nelse:\n    digits.insert(0, 1)\nprint(digits)",
+    "fix_hint": "Nothing to change — both 9s roll over and the 3 becomes 4."
+  },
+  "one_liner": "A 9 can't take one more — it rolls to 0 and the one carries left.",
+  "trace_watch": [
+    "i",
+    "digits"
+  ]
+}

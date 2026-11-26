@@ -1,0 +1,262 @@
+{
+  "id": "129",
+  "skill": "combo-set-intersection-sort",
+  "title": "Names on both lists",
+  "scenario": "Two class lists. Which names are on both — each one once, in order?",
+  "data": {
+    "name": "lists",
+    "value": [
+      [
+        "ana",
+        "ben",
+        "ben",
+        "cy"
+      ],
+      [
+        "ben",
+        "cy"
+      ]
+    ]
+  },
+  "intro": {
+    "job": "Two class lists. Which names are on both — each one once, in order?",
+    "idea": {
+      "rule": "Dedupe with a set, then sort — each shared name once, in order.",
+      "detail": "Two patterns chained: the set (015) keeps each name once; sorting (013) puts the shared names in order. The draft checks membership without deduping, so a name on both lists twice lands in the answer twice."
+    },
+    "watch": {
+      "code": "a, b = lists\nshared = sorted(set(a) & set(b))\nprint(shared)",
+      "data": {
+        "name": "lists",
+        "value": [
+          [
+            "x",
+            "y",
+            "y"
+          ],
+          [
+            "y",
+            "z"
+          ]
+        ]
+      },
+      "trace_watch": [
+        "shared"
+      ]
+    }
+  },
+  "model_restatement": "List the names on both lists, each once, in order.",
+  "clarify": [
+    {
+      "keywords": [
+        "twice",
+        "duplicate",
+        "repeat"
+      ],
+      "question": "What if a name appears twice on one list?",
+      "answer": "It still counts once — the set keeps one copy."
+    },
+    {
+      "keywords": [
+        "order",
+        "sorted",
+        "sort"
+      ],
+      "question": "Does the order matter?",
+      "answer": "The answer prints sorted — a before b before c."
+    },
+    {
+      "keywords": [
+        "both",
+        "either"
+      ],
+      "question": "Does a name have to be on both lists?",
+      "answer": "Yes — & keeps only what's in both."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Keep the names on both lists. Drop the duplicates. Sort them. Print them.",
+  "draft_code": "a, b = lists\nshared = []\nfor x in a:\n    if x in b:\n        shared.append(x)\nprint(shared)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 3
+      },
+      "prompt": "After the third name, what is shared?",
+      "kind": "value",
+      "var": "shared"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "On the print line, what is shared?",
+      "kind": "value",
+      "var": "shared"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is shared?",
+      "kind": "value",
+      "var": "shared"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft walks list a and appends every match — 'ben' appears twice in a, so it lands in the answer twice.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Membership checks don't dedupe — `in` says yes every time it sees the name.",
+    "bridge": "How many times does 'ben' land in the answer — and what would keep it to once?",
+    "fix": {
+      "rule": "Intersect the sets, then sort: sorted(set(a) & set(b)).",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Unpack the pair into the two lists."
+        },
+        {
+          "line": 2,
+          "gloss": "Keep only the names in both — the set drops the duplicate 'ben' — then sort."
+        }
+      ],
+      "contrast": {
+        "wrong": "append every match",
+        "wrong_note": "duplicates ride along",
+        "right": "sorted(set(a) & set(b))",
+        "right_note": "each shared name once, in order"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "a, b = lists\nshared = sorted(set(a) & set(b))\nprint(shared)",
+    "alternatives": [
+      {
+        "code": "a, b = lists\nprint(sorted(set(a).intersection(b)))",
+        "note": "Intersection as a method call — same shared names, same order."
+      }
+    ],
+    "hints": [
+      "Which names appear more than once in the answer?",
+      "A list keeps duplicates — what doesn't?",
+      "shared = sorted(set(a) & set(b)) — then print it."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "lists": [
+          [
+            "ana",
+            "ben",
+            "ben",
+            "cy"
+          ],
+          [
+            "ben",
+            "cy"
+          ]
+        ]
+      },
+      "expected": "['ben', 'cy']"
+    },
+    {
+      "input": {
+        "lists": [
+          [
+            "a",
+            "a",
+            "b"
+          ],
+          [
+            "a",
+            "c"
+          ]
+        ]
+      },
+      "expected": "['a']"
+    },
+    {
+      "input": {
+        "lists": [
+          [
+            "m"
+          ],
+          [
+            "n"
+          ]
+        ]
+      },
+      "expected": "[]"
+    },
+    {
+      "input": {
+        "lists": [
+          [
+            "cy",
+            "ben"
+          ],
+          [
+            "ben",
+            "cy"
+          ]
+        ]
+      },
+      "expected": "['ben', 'cy']"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more pair: a = ['al', 'bo', 'bo', 'cy'], b = ['bo', 'cy', 'di'] — which names are on both?",
+    "data": {
+      "name": "lists",
+      "value": [
+        [
+          "al",
+          "bo",
+          "bo",
+          "cy"
+        ],
+        [
+          "bo",
+          "cy",
+          "di"
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new lists, what gets printed?"
+    },
+    "recommended": "a, b = lists\nshared = sorted(set(a) & set(b))\nprint(shared)",
+    "fix_hint": "Nothing to change — the set dedupes, whatever the lists are."
+  },
+  "one_liner": "Dedupe with a set, then sort — each shared name once, in order.",
+  "trace_watch": [
+    "shared"
+  ]
+}

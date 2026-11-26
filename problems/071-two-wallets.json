@@ -1,0 +1,189 @@
+{
+  "id": "071",
+  "skill": "classes",
+  "title": "Two wallets",
+  "scenario": "Two wallets, A and B. Put n coins in A only, then print both balances.",
+  "data": {
+    "name": "n",
+    "value": 4
+  },
+  "intro": {
+    "job": "Two wallets, A and B. Put n coins in A only, then print both balances.",
+    "idea": {
+      "rule": "Class attributes are the shared whiteboard; self. attributes are each wallet's own label — write on the wrong one and everyone sees it.",
+      "detail": "Anything set directly in the class body (balance = 0) belongs to the class — every wallet reads the same one. self.balance = 0 inside __init__ runs once per new wallet and gives THAT wallet its own balance. Inside a method, self.balance means 'this wallet's balance'; Wallet.balance means 'the shared one'."
+    },
+    "watch": {
+      "code": "class Wallet:\n    def __init__(self):\n        self.balance = 0\n    def add(self, n):\n        self.balance += n\na = Wallet()\nb = Wallet()\na.add(k)\na_bal = a.balance\nb_bal = b.balance\nprint((a_bal, b_bal))",
+      "data": {
+        "name": "k",
+        "value": 5
+      },
+      "trace_watch": [
+        "a_bal",
+        "b_bal"
+      ]
+    }
+  },
+  "model_restatement": "Make two wallets, put coins in wallet A only, and show both balances — B should still be 0.",
+  "clarify": [
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "begin",
+        "empty wallet"
+      ],
+      "question": "What does a wallet start with?",
+      "answer": "Every wallet starts empty: 0 coins."
+    },
+    {
+      "keywords": [
+        "remove",
+        "take",
+        "spend",
+        "negative"
+      ],
+      "question": "Can you take coins out?",
+      "answer": "Not today — only add."
+    },
+    {
+      "keywords": [
+        "format",
+        "print",
+        "output",
+        "both"
+      ],
+      "question": "What should I print?",
+      "answer": "Both balances, as (A's balance, B's balance)."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "A Wallet has a balance that starts at 0, and add puts n more in. Make wallets A and B, add n to A, and print both balances.",
+  "draft_code": "class Wallet:\n    balance = 0\n    def add(self, n):\n        Wallet.balance += n\na = Wallet()\nb = Wallet()\na.add(n)\na_bal = a.balance\nb_bal = b.balance\nprint((a_bal, b_bal))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 8,
+        "iteration": 0
+      },
+      "prompt": "After line 8, what is a_bal?",
+      "kind": "value",
+      "var": "a_bal"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 9,
+        "iteration": 0
+      },
+      "prompt": "After line 9, what is b_bal?",
+      "kind": "value",
+      "var": "b_bal"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 10,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 10, what is b_bal?",
+      "kind": "value",
+      "var": "b_bal"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "balance lives on the class and add changes Wallet.balance — there's only one balance, shared by every wallet, so B reads the 4 too.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Wallet.balance is the whiteboard in the kitchen: write 4 on it for wallet A, and wallet B — reading the same board — says 4 as well.",
+    "bridge": "So where should each wallet keep its own balance?",
+    "fix": {
+      "rule": "self.balance = 0 in __init__ gives each new wallet its own label; self.balance += n writes only on this wallet's label.",
+      "walk": [
+        {
+          "line": 6,
+          "gloss": "Make wallet A — __init__ gives it its own balance of 0."
+        },
+        {
+          "line": 7,
+          "gloss": "Make wallet B — its own balance of 0 too."
+        },
+        {
+          "line": 8,
+          "gloss": "Add n to A's balance only."
+        },
+        {
+          "line": 10,
+          "gloss": "Read B's own balance — still 0."
+        }
+      ],
+      "contrast": {
+        "wrong": "Wallet.balance += n",
+        "wrong_note": "the shared whiteboard",
+        "right": "self.balance += n",
+        "right_note": "this wallet's own label"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "class Wallet:\n    def __init__(self):\n        self.balance = 0\n    def add(self, n):\n        self.balance += n\na = Wallet()\nb = Wallet()\na.add(n)\na_bal = a.balance\nb_bal = b.balance\nprint((a_bal, b_bal))",
+    "alternatives": [],
+    "hints": [
+      "After line 9, what is b_bal — and why would B have coins?",
+      "balance is set on the class, and add changes Wallet.balance — one balance for everyone.",
+      "Give each wallet self.balance = 0 in __init__, and add to self.balance."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 4
+      },
+      "expected": "(4, 0)"
+    },
+    {
+      "input": {
+        "n": 7
+      },
+      "expected": "(7, 0)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Add 1 to wallet A — does B change?",
+    "data": {
+      "name": "n",
+      "value": 1
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 1, what gets printed?"
+    },
+    "recommended": "class Wallet:\n    def __init__(self):\n        self.balance = 0\n    def add(self, n):\n        self.balance += n\na = Wallet()\nb = Wallet()\na.add(n)\na_bal = a.balance\nb_bal = b.balance\nprint((a_bal, b_bal))",
+    "fix_hint": "B should still be 0 — if B shows 1, the balance is shared, not each wallet's own."
+  },
+  "one_liner": "Class attributes are the shared whiteboard; self. attributes are each wallet's own label — write on the wrong one and everyone sees it.",
+  "trace_watch": [
+    "a_bal",
+    "b_bal"
+  ]
+}

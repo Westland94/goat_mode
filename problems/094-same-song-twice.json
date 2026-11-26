@@ -1,0 +1,216 @@
+{
+  "id": "094",
+  "skill": "hashset-duplicates",
+  "title": "Same song twice",
+  "scenario": "Did any song play twice in the set list?",
+  "data": {
+    "name": "songs",
+    "value": [
+      "rock",
+      "pop",
+      "jazz",
+      "rock"
+    ]
+  },
+  "intro": {
+    "job": "Did any song play twice in the set list?",
+    "idea": {
+      "rule": "Check every song against ALL the songs before it, not just the one next door.",
+      "detail": "A set remembers everyone you've seen so far, and 'song in seen' asks it in one step. Walk the list once: if the song is already in the set, that's a repeat; otherwise add it. A repeat can be anywhere earlier — not just right next door."
+    },
+    "watch": {
+      "code": "dup = False\nseen = set()\nfor song in songs:\n    if song in seen:\n        dup = True\n    seen.add(song)\nprint(dup)",
+      "data": {
+        "name": "songs",
+        "value": [
+          "do",
+          "re",
+          "do"
+        ]
+      },
+      "trace_watch": [
+        "song",
+        "dup"
+      ]
+    }
+  },
+  "model_restatement": "Say True if any song appears more than once, otherwise False.",
+  "clarify": [
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase",
+        "lowercase",
+        "spelled"
+      ],
+      "question": "Could the same song be spelled differently?",
+      "answer": "No — songs are clean and lowercase today."
+    },
+    {
+      "keywords": [
+        "who",
+        "which song",
+        "songs"
+      ],
+      "question": "Do you want which song played twice?",
+      "answer": "Just True or False."
+    },
+    {
+      "keywords": [
+        "empty",
+        "none",
+        "no songs",
+        "one song"
+      ],
+      "question": "What if the list is empty or has one song?",
+      "answer": "Then no song played twice — False."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Go down the set list comparing each song with the next one. If they match, a song played twice. Print the answer.",
+  "draft_code": "dup = False\nfor i in range(len(songs) - 1):\n    if songs[i] == songs[i + 1]:\n        dup = True\nprint(dup)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3 is the last comparison. What is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 4
+      },
+      "prompt": "With the fix — iteration 4 (the second rock): after line 5, what is dup?",
+      "kind": "value",
+      "var": "dup"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Comparing only neighbours checks rock–pop, pop–jazz, jazz–rock. The two rocks are three seats apart, so no neighbour pair ever matches.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Checking only the next seat is a bouncer who remembers one face — the second rock walks in three songs later and he's forgotten her.",
+    "bridge": "So what could remember EVERY song you've seen so far?",
+    "fix": {
+      "rule": "A set remembers every song so far; 'song in seen' checks all of them at once.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "No songs heard yet."
+        },
+        {
+          "line": 3,
+          "gloss": "Take the next song."
+        },
+        {
+          "line": 4,
+          "gloss": "Have we heard this song anywhere before?"
+        },
+        {
+          "line": 6,
+          "gloss": "Remember it for everyone after."
+        }
+      ],
+      "contrast": {
+        "wrong": "songs[i] == songs[i + 1]",
+        "wrong_note": "only the song next door",
+        "right": "song in seen",
+        "right_note": "every song before it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "dup = False\nseen = set()\nfor song in songs:\n    if song in seen:\n        dup = True\n    seen.add(song)\nprint(dup)",
+    "alternatives": [
+      {
+        "code": "print(len(set(songs)) < len(songs))",
+        "note": "A set drops repeats, so it's shorter if there was one — the shortcut."
+      }
+    ],
+    "hints": [
+      "Which pairs does the draft actually compare?",
+      "The two rocks aren't next to each other.",
+      "Keep a set of songs heard so far and check 'song in seen'."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "songs": [
+          "rock",
+          "pop",
+          "jazz",
+          "rock"
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "songs": [
+          "a",
+          "b",
+          "a"
+        ]
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "songs": [
+          "x",
+          "y"
+        ]
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New set list: ['a', 'b', 'c', 'b'] — any song twice?",
+    "data": {
+      "name": "songs",
+      "value": [
+        "a",
+        "b",
+        "c",
+        "b"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new set list, what gets printed?"
+    },
+    "recommended": "dup = False\nseen = set()\nfor song in songs:\n    if song in seen:\n        dup = True\n    seen.add(song)\nprint(dup)",
+    "fix_hint": "Nothing to change — the set catches b two seats apart."
+  },
+  "one_liner": "Check every song against ALL the songs before it, not just the one next door.",
+  "trace_watch": [
+    "i",
+    "song",
+    "dup"
+  ]
+}

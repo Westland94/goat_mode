@@ -1,0 +1,204 @@
+{
+  "id": "163",
+  "skill": "numbers-operators",
+  "title": "Pascal's Triangle",
+  "section": "leetcode",
+  "lc": {
+    "number": 118,
+    "title": "Pascal's Triangle",
+    "difficulty": "Easy",
+    "slug": "pascals-triangle"
+  },
+  "scenario": "You get an integer num_rows. Return the first num_rows rows of Pascal's triangle. Each row starts and ends with 1, and every number inside a row is the sum of the two numbers just above it.\n\nExample 1:\nInput: num_rows = 3\nOutput: [[1], [1, 1], [1, 2, 1]]\n\nExample 2:\nInput: num_rows = 5\nOutput: [[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1]]\n\nConstraints:\n1 <= num_rows <= 30\n\nWrite: def generate(num_rows) — the driver calls it on num_rows = 5 and prints the triangle.",
+  "data": {
+    "name": "num_rows",
+    "value": 5
+  },
+  "intro": {
+    "job": "You get an integer num_rows. Return the first num_rows rows of Pascal's triangle. Each row starts and ends with 1, and every number inside a row is the sum of the two numbers just above it.\n\nExample 1:\nInput: num_rows = 3\nOutput: [[1], [1, 1], [1, 2, 1]]\n\nExample 2:\nInput: num_rows = 5\nOutput: [[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1]]\n\nConstraints:\n1 <= num_rows <= 30\n\nWrite: def generate(num_rows) — the driver calls it on num_rows = 5 and prints the triangle.",
+    "idea": {
+      "rule": "The ends are 1 — every inside number is the sum of the two above it.",
+      "detail": "Like problem 005 (Split the candies), each number comes from arithmetic — here, on the row above. Row r has r + 1 numbers. The first and last are always 1. Each one in between, at position k, adds the two numbers above it: triangle[r - 1][k - 1] + triangle[r - 1][k]. Starting every row as all ones gets the shape right; filling in the inside is the actual job."
+    },
+    "watch": {
+      "code": "def generate(num_rows):\n    triangle = []\n    for r in range(num_rows):\n        row = [1] * (r + 1)\n        for k in range(1, r):\n            row[k] = triangle[r - 1][k - 1] + triangle[r - 1][k]\n        triangle.append(row)\n    return triangle\n\nprint(generate(num_rows))",
+      "data": {
+        "name": "num_rows",
+        "value": 3
+      },
+      "trace_watch": [
+        "r",
+        "k",
+        "row"
+      ]
+    }
+  },
+  "model_restatement": "Build the first num_rows rows of Pascal's triangle, where each inside number is the sum of the two above it.",
+  "clarify": [
+    {
+      "keywords": [
+        "zero",
+        "empty"
+      ],
+      "question": "Can num_rows be zero?",
+      "answer": "No — at least one row."
+    },
+    {
+      "keywords": [
+        "start",
+        "first row"
+      ],
+      "question": "What's the first row?",
+      "answer": "Just [1]."
+    },
+    {
+      "keywords": [
+        "ends",
+        "edges",
+        "outside"
+      ],
+      "question": "What goes at the ends of each row?",
+      "answer": "Always 1."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Build num_rows rows; row r has r + 1 numbers, starting and ending with 1.",
+  "draft_code": "def generate(num_rows):\n    triangle = []\n    for r in range(num_rows):\n        row = [1] * (r + 1)\n        triangle.append(row)\n    return triangle\n\nprint(generate(num_rows))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 3
+      },
+      "prompt": "Iteration 3: after line 4, what is row?",
+      "kind": "value",
+      "var": "row"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 4
+      },
+      "prompt": "Iteration 4: after appending, what is triangle?",
+      "kind": "value",
+      "var": "triangle"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 3
+      },
+      "prompt": "With the fix — iteration 3: after filling the middle, what is row?",
+      "kind": "value",
+      "var": "row"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Every row is built as [1] * (r + 1) and appended as it is — the inside numbers are never filled in, so row 3 is [1, 1, 1] instead of [1, 2, 1].",
+  "explain": {
+    "checkpoint": "P3",
+    "rule": "All-ones rows are scaffolding without the bricks — the triangle has the right outline, but nothing was ever added up inside it.",
+    "bridge": "Row 3 came out [1, 1, 1]. The two numbers above its middle are 1 and 1 — what should the middle be?",
+    "fix": {
+      "rule": "Start each row as ones, then fill each inside position with the sum of the two numbers above it.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "The ends are 1 — start with all ones."
+        },
+        {
+          "line": 5,
+          "gloss": "Each inside position..."
+        },
+        {
+          "line": 6,
+          "gloss": "...is the two numbers above it, added."
+        },
+        {
+          "line": 7,
+          "gloss": "Now the row is finished."
+        }
+      ],
+      "contrast": {
+        "wrong": "row = [1] * (r + 1); triangle.append(row)",
+        "wrong_note": "the inside is never filled",
+        "right": "row[k] = triangle[r - 1][k - 1] + triangle[r - 1][k]",
+        "right_note": "each inside number from the row above"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def generate(num_rows):\n    triangle = []\n    for r in range(num_rows):\n        row = [1] * (r + 1)\n        for k in range(1, r):\n            row[k] = triangle[r - 1][k - 1] + triangle[r - 1][k]\n        triangle.append(row)\n    return triangle\n\nprint(generate(num_rows))",
+    "alternatives": [
+      {
+        "code": "import math\n\ndef generate(num_rows):\n    triangle = []\n    for r in range(num_rows):\n        row = []\n        for k in range(r + 1):\n            row.append(math.comb(r, k))\n        triangle.append(row)\n    return triangle\n\nprint(generate(num_rows))",
+        "note": "Each number is a binomial coefficient: position k of row r is math.comb(r, k) — no row above needed."
+      }
+    ],
+    "hints": [
+      "Look at row 3 the draft builds. What should its middle number be?",
+      "[1] * (r + 1) makes the ends right — the inside numbers are never computed.",
+      "for k in range(1, r): row[k] = triangle[r - 1][k - 1] + triangle[r - 1][k]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "num_rows": 3
+      },
+      "expected": "[[1], [1, 1], [1, 2, 1]]"
+    },
+    {
+      "input": {
+        "num_rows": 5
+      },
+      "expected": "[[1], [1, 1], [1, 2, 1], [1, 3, 3, 1], [1, 4, 6, 4, 1]]"
+    },
+    {
+      "input": {
+        "num_rows": 1
+      },
+      "expected": "[[1]]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: num_rows = 4 — what does your code print?",
+    "data": {
+      "name": "num_rows",
+      "value": 4
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def generate(num_rows):\n    triangle = []\n    for r in range(num_rows):\n        row = [1] * (r + 1)\n        for k in range(1, r):\n            row[k] = triangle[r - 1][k - 1] + triangle[r - 1][k]\n        triangle.append(row)\n    return triangle\n\nprint(generate(num_rows))",
+    "fix_hint": "Four rows, each inside number the sum above it: [[1], [1, 1], [1, 2, 1], [1, 3, 3, 1]]."
+  },
+  "one_liner": "The ends are 1 — every inside number is the sum of the two above it.",
+  "trace_watch": [
+    "r",
+    "k",
+    "row"
+  ]
+}

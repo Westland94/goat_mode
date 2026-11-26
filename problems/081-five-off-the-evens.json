@@ -1,0 +1,199 @@
+{
+  "id": "081",
+  "skill": "comprehensions",
+  "title": "Five off the evens",
+  "scenario": "Take the even ticket prices and knock $5 off each.",
+  "data": {
+    "name": "prices",
+    "value": [
+      10,
+      15,
+      20,
+      25
+    ]
+  },
+  "intro": {
+    "job": "Take the even ticket prices and knock $5 off each.",
+    "idea": {
+      "rule": "The if in a comprehension picks who gets in — if x % 2 lets the ODD ones in.",
+      "detail": "[x - 5 for x in prices if CONDITION] is a for loop squeezed onto one line: take each x, let it in only if the condition is True, and put x - 5 in the new list. Read it as: 'x minus 5, for every x in prices, if x is even.' The if decides WHO gets in — so it has to test the right thing."
+    },
+    "watch": {
+      "code": "sale = [v - 5 for v in vals if v % 2 == 0]\nprint(sale)",
+      "data": {
+        "name": "vals",
+        "value": [
+          8,
+          9
+        ]
+      },
+      "trace_watch": [
+        "sale"
+      ]
+    }
+  },
+  "model_restatement": "Keep only the even prices, take $5 off each one, and print the new list.",
+  "clarify": [
+    {
+      "keywords": [
+        "zero",
+        "negative",
+        "negatives"
+      ],
+      "question": "Could there be zero or negative prices?",
+      "answer": "Not today — positive whole dollars only."
+    },
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "sorted"
+      ],
+      "question": "Should the result keep the original order?",
+      "answer": "Yes — same order as prices."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no evens",
+        "none"
+      ],
+      "question": "What if there are no evens?",
+      "answer": "Then an empty list."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Make a new list: each price five dollars off, keeping only the prices that pass the check. Print it.",
+  "draft_code": "out = [x - 5 for x in prices if x % 2]\nprint(out)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "When the comprehension is done, what is out?",
+      "kind": "value",
+      "var": "out"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — what is out?",
+      "kind": "value",
+      "var": "out"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "if x % 2 is truthy for the odd numbers — 15 and 25 get in, 10 and 20 stay out — exactly backwards.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "The bouncer lets in whoever is truthy — and x % 2 is truthy for the odd numbers, so the odds stroll in and the evens stay out.",
+    "bridge": "So what question would only let the even prices in?",
+    "fix": {
+      "rule": "x % 2 == 0 is the even test: the remainder after dividing by 2 is 0 only for even numbers.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "For each x, let it in only if it's even, and put x - 5 in the list."
+        },
+        {
+          "line": 2,
+          "gloss": "Show the new list."
+        }
+      ],
+      "contrast": {
+        "wrong": "if x % 2",
+        "wrong_note": "truthy for odds — lets the wrong ones in",
+        "right": "if x % 2 == 0",
+        "right_note": "lets only evens in"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "out = [x - 5 for x in prices if x % 2 == 0]\nprint(out)",
+    "alternatives": [
+      {
+        "code": "out = []\nfor x in prices:\n    if x % 2 == 0:\n        out.append(x - 5)\nprint(out)",
+        "note": "The same thing as a plain loop — four lines instead of one."
+      }
+    ],
+    "hints": [
+      "What does x % 2 give for 10, 15, 20, 25 — and which of those are truthy?",
+      "The if is the filter. You want 'x is even'.",
+      "if x % 2 == 0"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "prices": [
+          10,
+          15,
+          20,
+          25
+        ]
+      },
+      "expected": "[5, 15]"
+    },
+    {
+      "input": {
+        "prices": [
+          8
+        ]
+      },
+      "expected": "[3]"
+    },
+    {
+      "input": {
+        "prices": [
+          11,
+          13
+        ]
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "All odd: [11, 13, 15] — what's printed?",
+    "data": {
+      "name": "prices",
+      "value": [
+        11,
+        13,
+        15
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With prices = [11, 13, 15], what gets printed?"
+    },
+    "recommended": "out = [x - 5 for x in prices if x % 2 == 0]\nprint(out)",
+    "fix_hint": "Nothing to change — no evens in the list, so nothing gets discounted."
+  },
+  "one_liner": "The if in a comprehension picks who gets in — if x % 2 lets the ODD ones in.",
+  "trace_watch": [
+    "x",
+    "out"
+  ]
+}

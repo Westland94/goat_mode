@@ -1,0 +1,203 @@
+{
+  "id": "015",
+  "skill": "sets",
+  "title": "Guest list",
+  "scenario": "The RSVP list has duplicates. How many UNIQUE guests are coming?",
+  "data": {
+    "name": "guests",
+    "value": [
+      "ana",
+      "ben",
+      "ana",
+      "cy",
+      "ana"
+    ]
+  },
+  "intro": {
+    "job": "The RSVP list has duplicates. How many UNIQUE guests are coming?",
+    "idea": {
+      "rule": "len(guests) counts every copy — len(set(guests)) counts each one once.",
+      "detail": "set(some_list) builds a set: every value goes in, but a value that's already there is quietly dropped. So len(set(...)) counts how many DIFFERENT values there are. len(some_list) counts every entry, twins included."
+    },
+    "watch": {
+      "code": "kinds = len(set(tags))\nprint(kinds)",
+      "data": {
+        "name": "tags",
+        "value": [
+          "x",
+          "x",
+          "y"
+        ]
+      },
+      "trace_watch": [
+        "kinds"
+      ]
+    }
+  },
+  "model_restatement": "Count how many different names are on the list, ignoring repeats.",
+  "clarify": [
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase",
+        "lowercase",
+        "spelling",
+        "spelled"
+      ],
+      "question": "Could the same name be spelled differently?",
+      "answer": "No — today the names are clean and lowercase."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no rsvps",
+        "nobody",
+        "none"
+      ],
+      "question": "What if nobody RSVPs?",
+      "answer": "Then 0."
+    },
+    {
+      "keywords": [
+        "names",
+        "who",
+        "list them",
+        "which"
+      ],
+      "question": "Do you want the names, or just how many?",
+      "answer": "Just how many."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count the guests on the list and print the number.",
+  "draft_code": "unique = len(guests)\nprint(unique)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is unique?",
+      "kind": "value",
+      "var": "unique"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is unique?",
+      "kind": "value",
+      "var": "unique"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "len(guests) counts every RSVP, so ana is counted three times — 5, not 3.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "len(guests) is a headcount at the door that counts ana every time she walks in — three anas, three ticks.",
+    "bridge": "So what could you put the names into that keeps only one of each?",
+    "fix": {
+      "rule": "set(guests) throws out the twins first; len then counts what's left — one per person.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Drop the duplicates, then count."
+        },
+        {
+          "line": 2,
+          "gloss": "Show the number."
+        }
+      ],
+      "contrast": {
+        "wrong": "len(guests)",
+        "wrong_note": "counts every RSVP",
+        "right": "len(set(guests))",
+        "right_note": "counts every person once"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "unique = len(set(guests))\nprint(unique)",
+    "alternatives": [
+      {
+        "code": "seen = []\nfor g in guests:\n    if g not in seen:\n        seen.append(g)\nprint(len(seen))",
+        "note": "The long way, with a list — slower on big lists, same answer."
+      }
+    ],
+    "hints": [
+      "How many times does ana appear?",
+      "len counts every entry. You want each person once.",
+      "len(set(guests))"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "guests": [
+          "ana",
+          "ben",
+          "ana",
+          "cy",
+          "ana"
+        ]
+      },
+      "expected": "3"
+    },
+    {
+      "input": {
+        "guests": [
+          "a"
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "guests": []
+      },
+      "expected": "0"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New RSVPs: ['di', 'di', 'di'] — how many unique guests?",
+    "data": {
+      "name": "guests",
+      "value": [
+        "di",
+        "di",
+        "di"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With ['di', 'di', 'di'], what gets printed?"
+    },
+    "recommended": "unique = len(set(guests))\nprint(unique)",
+    "fix_hint": "Nothing to change — three dis are still one person."
+  },
+  "one_liner": "len(guests) counts every copy — len(set(guests)) counts each one once.",
+  "trace_watch": [
+    "unique"
+  ]
+}

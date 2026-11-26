@@ -1,0 +1,239 @@
+{
+  "id": "070",
+  "skill": "dict-iteration",
+  "title": "Who scored over fifty?",
+  "scenario": "From the scores, list the players with more than 50 points.",
+  "data": {
+    "name": "scores",
+    "value": {
+      "ana": 62,
+      "ben": 41,
+      "cy": 88
+    }
+  },
+  "intro": {
+    "job": "From the scores, list the players with more than 50 points.",
+    "idea": {
+      "rule": "Looping a dict hands you the KEYS — when you need both, ask for .items().",
+      "detail": "for x in some_dict gives you only the keys: the labels on the jars, not what's inside. .items() hands you each pair, key and value together, so you can unpack them: for name, pts in scores.items(). Then you can test the number and still keep the name."
+    },
+    "watch": {
+      "code": "for k in d:\n    print(k)\nfor name, pts in d.items():\n    print((name, pts))",
+      "data": {
+        "name": "d",
+        "value": {
+          "ana": 62,
+          "ben": 41
+        }
+      },
+      "trace_watch": [
+        "k",
+        "name",
+        "pts"
+      ]
+    }
+  },
+  "model_restatement": "Go through the scores and list every player whose points are over 50.",
+  "clarify": [
+    {
+      "keywords": [
+        "exactly 50",
+        "exactly fifty",
+        "equal",
+        "at least",
+        "50 or more"
+      ],
+      "question": "Does exactly 50 count?",
+      "answer": "No — more than 50. Exactly 50 doesn't make the list."
+    },
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "sorted",
+        "sort"
+      ],
+      "question": "What order should the names be in?",
+      "answer": "Keep the dict's order."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no players",
+        "nobody",
+        "none"
+      ],
+      "question": "What if nobody qualifies?",
+      "answer": "Then an empty list."
+    },
+    {
+      "keywords": [
+        "names",
+        "points",
+        "format",
+        "print"
+      ],
+      "question": "Names, or names and points?",
+      "answer": "Just the names, as a list."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Go through the scores; if a player is over 50, add them to the list. Print the list.",
+  "draft_code": "over = []\nfor name in scores:\n    if name > 50:\n        over.append(name)\nprint(over)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is name?",
+      "kind": "value",
+      "var": "name"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "What happens on line 3, that first time?",
+      "kind": "outcome",
+      "choices": [
+        {
+          "label": "it compares and moves on",
+          "match": {
+            "unchanged": true
+          }
+        },
+        {
+          "label": "over becomes ['ana']",
+          "match": {
+            "var": "over",
+            "value": "['ana']"
+          }
+        },
+        {
+          "label": "an error",
+          "match": {
+            "error": true
+          },
+          "ask_which": true
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 4 in iteration 1, what is over?",
+      "kind": "value",
+      "var": "over"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Looping a dict gives you the keys — name is 'ana', a string — and Python can't tell whether 'ana' is bigger than 50.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Looping a dict reads the labels on the jars — you get 'ana', not what's inside, and a name can't be compared with 50.",
+    "bridge": "So how do you get the number inside each jar too?",
+    "fix": {
+      "rule": ".items() hands you each jar's label AND what's inside — name, pts — so you test the points and keep the name.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the big scorers."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next pair: the name and its points."
+        },
+        {
+          "line": 3,
+          "gloss": "Test the number, not the name."
+        },
+        {
+          "line": 4,
+          "gloss": "Over 50 — add the name."
+        }
+      ],
+      "contrast": {
+        "wrong": "for name in scores:",
+        "wrong_note": "keys only",
+        "right": "for name, pts in scores.items():",
+        "right_note": "key and value"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "over = []\nfor name, pts in scores.items():\n    if pts > 50:\n        over.append(name)\nprint(over)",
+    "alternatives": [
+      {
+        "code": "over = []\nfor name in scores:\n    if scores[name] > 50:\n        over.append(name)\nprint(over)",
+        "note": "Look the value up by key — also fine."
+      },
+      {
+        "code": "print([name for name, pts in scores.items() if pts > 50])",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "First iteration: what is name, exactly?",
+      "The loop hands you keys. You need each player's points too.",
+      "for name, pts in scores.items():"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "scores": {
+          "ana": 62,
+          "ben": 41,
+          "cy": 88
+        }
+      },
+      "expected": "['ana', 'cy']"
+    },
+    {
+      "input": {
+        "scores": {
+          "x": 1
+        }
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Exactly fifty: {'x': 50} — who's over fifty?",
+    "data": {
+      "name": "scores",
+      "value": {
+        "x": 50
+      }
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new scores, what gets printed?"
+    },
+    "recommended": "over = []\nfor name, pts in scores.items():\n    if pts > 50:\n        over.append(name)\nprint(over)",
+    "fix_hint": "Nothing to change — same test, new numbers."
+  },
+  "one_liner": "Looping a dict hands you the KEYS — when you need both, ask for .items().",
+  "trace_watch": [
+    "name",
+    "over"
+  ]
+}

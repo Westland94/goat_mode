@@ -1,0 +1,193 @@
+{
+  "id": "029",
+  "skill": "while-loops",
+  "title": "Battery drain",
+  "scenario": "A battery drains 15 per hour. How many whole hours until it's BELOW 20?",
+  "data": {
+    "name": "start",
+    "value": 95
+  },
+  "intro": {
+    "job": "A battery drains 15 per hour. How many whole hours until it's BELOW 20?",
+    "idea": {
+      "rule": "'Below 20' means keep going AT 20 — > quits one step early; >= doesn't.",
+      "detail": "The while condition is the question asked before every hour: 'keep going?'. 'Below 20' means stop only once charge < 20 — so the loop keeps going while charge >= 20, including when it sits at exactly 20."
+    },
+    "watch": {
+      "code": "level = top\nsteps = 0\nwhile level >= 10:\n    level -= 10\n    steps += 1\nprint(steps)",
+      "data": {
+        "name": "top",
+        "value": 30
+      },
+      "trace_watch": [
+        "level",
+        "steps"
+      ]
+    }
+  },
+  "model_restatement": "Drain 15 an hour, counting hours, until the charge is under 20; print the hours.",
+  "clarify": [
+    {
+      "keywords": [
+        "exactly 20",
+        "equal",
+        "at 20",
+        "20 exactly"
+      ],
+      "question": "Does exactly 20 count as below 20?",
+      "answer": "No — 20 is not below 20. Keep draining."
+    },
+    {
+      "keywords": [
+        "partial",
+        "fraction",
+        "whole hours",
+        "half"
+      ],
+      "question": "Partial hours?",
+      "answer": "Whole hours only."
+    },
+    {
+      "keywords": [
+        "negative",
+        "below zero",
+        "zero"
+      ],
+      "question": "Can the charge go below zero?",
+      "answer": "It won't get the chance today — you stop under 20."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start at the battery's charge. While it's above 20, drain 15 and count an hour. Print the hours.",
+  "draft_code": "charge = start\nhours = 0\nwhile charge > 20:\n    charge -= 15\n    hours += 1\nprint(hours)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "After hour 1, what is charge?",
+      "kind": "value",
+      "var": "charge"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "The loop has stopped. What is charge?",
+      "kind": "value",
+      "var": "charge"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — when the loop stops, what is charge?",
+      "kind": "value",
+      "var": "charge"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "while charge > 20 stops as soon as charge hits exactly 20 — but 20 isn't below 20, so one hour goes uncounted.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "The loop asks 'more than 20?' — at exactly 20 the answer is no, so it stops one hour early, with the battery still not below 20.",
+    "bridge": "So what question keeps the loop going at exactly 20?",
+    "fix": {
+      "rule": "while charge >= 20: keep draining until the charge is truly below 20.",
+      "walk": [
+        {
+          "line": 3,
+          "gloss": "Keep going while the charge is 20 or more."
+        },
+        {
+          "line": 4,
+          "gloss": "Drain an hour's worth."
+        },
+        {
+          "line": 5,
+          "gloss": "Count that hour."
+        },
+        {
+          "line": 6,
+          "gloss": "Once it's below 20, show the hours."
+        }
+      ],
+      "contrast": {
+        "wrong": "while charge > 20:",
+        "wrong_note": "stops at exactly 20",
+        "right": "while charge >= 20:",
+        "right_note": "stops below 20"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "charge = start\nhours = 0\nwhile charge >= 20:\n    charge -= 15\n    hours += 1\nprint(hours)",
+    "alternatives": [
+      {
+        "code": "charge = start\nhours = 0\nwhile not charge < 20:\n    charge -= 15\n    hours += 1\nprint(hours)",
+        "note": "Say the goal literally: keep going while it's NOT below 20."
+      }
+    ],
+    "hints": [
+      "When the loop stops, what is charge — and is that below 20?",
+      "> 20 is False at exactly 20.",
+      "while charge >= 20:"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "start": 95
+      },
+      "expected": "6"
+    },
+    {
+      "input": {
+        "start": 100
+      },
+      "expected": "6"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A battery that starts at 50 — how many hours?",
+    "data": {
+      "name": "start",
+      "value": 50
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With start = 50, what gets printed?"
+    },
+    "recommended": "charge = start\nhours = 0\nwhile charge >= 20:\n    charge -= 15\n    hours += 1\nprint(hours)",
+    "fix_hint": "Nothing to change — 50, 35, 20, 5: three hours."
+  },
+  "one_liner": "'Below 20' means keep going AT 20 — > quits one step early; >= doesn't.",
+  "trace_watch": [
+    "charge",
+    "hours"
+  ]
+}

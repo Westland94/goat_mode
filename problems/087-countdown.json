@@ -1,0 +1,207 @@
+{
+  "id": "087",
+  "skill": "for-range",
+  "title": "Countdown",
+  "scenario": "Print the countdown from n down to 1, including 1.",
+  "data": {
+    "name": "n",
+    "value": 5
+  },
+  "intro": {
+    "job": "Print the countdown from n down to 1, including 1.",
+    "idea": {
+      "rule": "range stops BEFORE the end — counting down to 1, you have to say 0.",
+      "detail": "range(start, stop, step) hands out numbers from start up to — but never including — stop, stepping by step each time. Counting down, range(n, 0, -1) hands out n, n - 1, … down to 1: the stop 0 is never handed out, so 1 is the last number. When the last number matters, the stop has to be one past it — here, one BELOW it: 0."
+    },
+    "watch": {
+      "code": "out = []\nfor i in range(m, 0, -1):\n    out.append(i)\nprint(out)",
+      "data": {
+        "name": "m",
+        "value": 3
+      },
+      "trace_watch": [
+        "i",
+        "out"
+      ]
+    }
+  },
+  "model_restatement": "Make the list n, n - 1, … 1 — including 1 itself — and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "start",
+        "starting",
+        "begin",
+        "from n",
+        "highest"
+      ],
+      "question": "Where does the countdown start?",
+      "answer": "At n."
+    },
+    {
+      "keywords": [
+        "include",
+        "including",
+        "inclusive",
+        "up to",
+        "down to"
+      ],
+      "question": "Does the countdown include 1?",
+      "answer": "Yes — 1 is the last number."
+    },
+    {
+      "keywords": [
+        "zero",
+        "0",
+        "negative",
+        "nothing"
+      ],
+      "question": "Could n be 0?",
+      "answer": "Today n is always at least 1."
+    },
+    {
+      "keywords": [
+        "format",
+        "list",
+        "output",
+        "print",
+        "give"
+      ],
+      "question": "How should I give the countdown?",
+      "answer": "Print it as one list."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count down from n to 1. Put each number in a list, then print the list.",
+  "draft_code": "nums = []\nfor i in range(n, 1, -1):\n    nums.append(i)\nprint(nums)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "The loop has finished. What is i now?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — when the loop has finished, what is i?",
+      "kind": "value",
+      "var": "i"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "range(n, 1, -1) stops before 1 — with n = 5 the last i is 2, so 1 never makes it into the list.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "range(n, 1, -1) is a ticket roll that ends one ticket early — it hands out 5 down to 2, and 1 never comes off the roll.",
+    "bridge": "So what stop value would let 1 through?",
+    "fix": {
+      "rule": "range(n, 0, -1): start at n, stop just past 1 — so 1 itself is the last ticket.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the countdown."
+        },
+        {
+          "line": 2,
+          "gloss": "Hand out n, n - 1, … down to 1 — the stop is 0, one past the end."
+        },
+        {
+          "line": 3,
+          "gloss": "Add this number to the list."
+        },
+        {
+          "line": 4,
+          "gloss": "After the last number, show the list."
+        }
+      ],
+      "contrast": {
+        "wrong": "range(n, 1, -1)",
+        "wrong_note": "stops at 2",
+        "right": "range(n, 0, -1)",
+        "right_note": "stops at 1"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "nums = []\nfor i in range(n, 0, -1):\n    nums.append(i)\nprint(nums)",
+    "alternatives": [
+      {
+        "code": "print(list(range(n, 0, -1)))",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "When the loop ends, what's the last i?",
+      "range stops before its second number — even counting down.",
+      "range(n, 0, -1)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 5
+      },
+      "expected": "[5, 4, 3, 2, 1]"
+    },
+    {
+      "input": {
+        "n": 1
+      },
+      "expected": "[1]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "What if n is 1?",
+    "data": {
+      "name": "n",
+      "value": 1
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 1, what gets printed?"
+    },
+    "recommended": "nums = []\nfor i in range(n, 0, -1):\n    nums.append(i)\nprint(nums)",
+    "fix_hint": "Nothing to change — range(1, 0, -1) hands out just the 1."
+  },
+  "one_liner": "range stops BEFORE the end — counting down to 1, you have to say 0.",
+  "trace_watch": [
+    "i",
+    "nums"
+  ]
+}

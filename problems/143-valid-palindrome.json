@@ -1,0 +1,213 @@
+{
+  "id": "143",
+  "skill": "two-pointers-palindrome",
+  "title": "Valid Palindrome",
+  "section": "leetcode",
+  "lc": {
+    "number": 125,
+    "title": "Valid Palindrome",
+    "difficulty": "Easy",
+    "slug": "valid-palindrome"
+  },
+  "scenario": "A phrase counts as a palindrome if, after turning every uppercase letter into lowercase and dropping everything that isn't a letter or a digit, it reads the same forwards and backwards. Given a string s, return True if it's a palindrome by that rule, otherwise False.\n\nExample 1:\nInput: s = \"A man, a plan, a canal: Panama\"\nOutput: True\nWhy: cleaned, it's \"amanaplanacanalpanama\".\n\nExample 2:\nInput: s = \"race a car\"\nOutput: False\n\nExample 3:\nInput: s = \" \"\nOutput: True\nWhy: cleaned, it's empty — and empty reads the same both ways.\n\nConstraints:\n1 <= len(s) <= 2 * 10^5\ns is printable ASCII.\n\nWrite: def is_palindrome(s) — the driver calls it on Example 1 and prints the result.",
+  "data": {
+    "name": "s",
+    "value": "A man, a plan, a canal: Panama"
+  },
+  "intro": {
+    "job": "A phrase counts as a palindrome if, after turning every uppercase letter into lowercase and dropping everything that isn't a letter or a digit, it reads the same forwards and backwards. Given a string s, return True if it's a palindrome by that rule, otherwise False.\n\nExample 1:\nInput: s = \"A man, a plan, a canal: Panama\"\nOutput: True\nWhy: cleaned, it's \"amanaplanacanalpanama\".\n\nExample 2:\nInput: s = \"race a car\"\nOutput: False\n\nExample 3:\nInput: s = \" \"\nOutput: True\nWhy: cleaned, it's empty — and empty reads the same both ways.\n\nConstraints:\n1 <= len(s) <= 2 * 10^5\ns is printable ASCII.\n\nWrite: def is_palindrome(s) — the driver calls it on Example 1 and prints the result.",
+    "idea": {
+      "rule": "Clean first, then compare — 'A' and 'a' are the same letter, and commas and spaces aren't letters at all.",
+      "detail": "This is problem 040 (Reads the same backwards) with a twist: the rule says to ignore case and anything that isn't a letter or digit. So build the cleaned string first — keep only isalnum() characters, lowercased. Then walk two fingers in from both ends of the CLEANED string, comparing as they go."
+    },
+    "watch": {
+      "code": "def is_palindrome(s):\n    clean = \"\"\n    for ch in s:\n        if ch.isalnum():\n            clean += ch.lower()\n    left, right = 0, len(clean) - 1\n    while left < right:\n        a, b = clean[left], clean[right]\n        if a != b:\n            return False\n        left += 1\n        right -= 1\n    return True\n\nprint(is_palindrome(s))",
+      "data": {
+        "name": "s",
+        "value": "Taco cat!"
+      },
+      "trace_watch": [
+        "clean",
+        "a",
+        "b"
+      ]
+    }
+  },
+  "model_restatement": "Ignoring case and non-letters, say whether the phrase reads the same both ways.",
+  "clarify": [
+    {
+      "keywords": [
+        "digits",
+        "numbers",
+        "numeric"
+      ],
+      "question": "Do digits count?",
+      "answer": "Yes — letters and digits both count; everything else is dropped."
+    },
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase"
+      ],
+      "question": "Does case matter?",
+      "answer": "No — 'A' and 'a' are the same letter."
+    },
+    {
+      "keywords": [
+        "empty",
+        "blank",
+        "nothing left",
+        "nothing"
+      ],
+      "question": "What if nothing is left after cleaning?",
+      "answer": "Then it's a palindrome — True."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Put one finger at each end of the string. Compare the two characters; if they differ, return False. Move both fingers inward. Return True.",
+  "draft_code": "def is_palindrome(s):\n    left, right = 0, len(s) - 1\n    while left < right:\n        a, b = s[left], s[right]\n        if a != b:\n            return False\n        left += 1\n        right -= 1\n    return True\n\nprint(is_palindrome(s))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "First comparison: a is 'A'. What is b?",
+      "kind": "value",
+      "var": "b"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — once the cleaning loop is done, what is clean?",
+      "kind": "value",
+      "var": "clean"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 1
+      },
+      "prompt": "With the fix — first comparison: what is a?",
+      "kind": "value",
+      "var": "a"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft compares the raw string: its first check is 'A' against 'a' — different characters, so it returns False straight away, before the cleaning rule ever matters.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Comparing the raw phrase is judging a mirror with the lights on and smudges everywhere — 'A' and 'a' look different even though they're the same letter.",
+    "bridge": "The rule says case and punctuation don't count. What should the string look like before any comparing starts?",
+    "fix": {
+      "rule": "Clean first — keep only letters and digits, lowercased — then walk two fingers in from both ends of the clean string.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "An empty clean string."
+        },
+        {
+          "line": 4,
+          "gloss": "Keep only letters and digits..."
+        },
+        {
+          "line": 5,
+          "gloss": "...lowercased."
+        },
+        {
+          "line": 7,
+          "gloss": "Two fingers walk inward on the CLEAN string."
+        },
+        {
+          "line": 9,
+          "gloss": "Any mismatch — not a palindrome."
+        }
+      ],
+      "contrast": {
+        "wrong": "compare s[left] and s[right] raw",
+        "wrong_note": "'A' ≠ 'a'",
+        "right": "clean first, then compare",
+        "right_note": "same letter, same answer"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def is_palindrome(s):\n    clean = \"\"\n    for ch in s:\n        if ch.isalnum():\n            clean += ch.lower()\n    left, right = 0, len(clean) - 1\n    while left < right:\n        a, b = clean[left], clean[right]\n        if a != b:\n            return False\n        left += 1\n        right -= 1\n    return True\n\nprint(is_palindrome(s))",
+    "alternatives": [
+      {
+        "code": "def is_palindrome(s):\n    clean = \"\"\n    for ch in s:\n        if ch.isalnum():\n            clean += ch.lower()\n    return clean == clean[::-1]\n\nprint(is_palindrome(s))",
+        "note": "Clean, then compare with the reverse — same rule, no fingers."
+      }
+    ],
+    "hints": [
+      "What are the first two characters the draft compares?",
+      "The rule ignores case and punctuation — the draft doesn't.",
+      "Build clean = the lowercased isalnum() characters, then compare from both ends of clean."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "s": "A man, a plan, a canal: Panama"
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "s": "race a car"
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "s": " "
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: s = \"No 'x' in Nixon\" — palindrome?",
+    "data": {
+      "name": "s",
+      "value": "No 'x' in Nixon"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def is_palindrome(s):\n    clean = \"\"\n    for ch in s:\n        if ch.isalnum():\n            clean += ch.lower()\n    left, right = 0, len(clean) - 1\n    while left < right:\n        a, b = clean[left], clean[right]\n        if a != b:\n            return False\n        left += 1\n        right -= 1\n    return True\n\nprint(is_palindrome(s))",
+    "fix_hint": "Nothing to change — cleaned it's 'noxinnixon', which reads the same both ways."
+  },
+  "one_liner": "Clean first, then compare — 'A' and 'a' are the same letter, and commas and spaces aren't letters at all.",
+  "trace_watch": [
+    "left",
+    "right",
+    "a",
+    "b",
+    "clean"
+  ]
+}

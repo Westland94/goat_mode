@@ -1,0 +1,298 @@
+{
+  "id": "124",
+  "skill": "combo-group-max",
+  "title": "Which shelf holds the most books?",
+  "scenario": "Books filed by genre. Which genre holds the most books?",
+  "data": {
+    "name": "books",
+    "value": [
+      [
+        "zoo",
+        "Zebra"
+      ],
+      [
+        "history",
+        "Rome"
+      ],
+      [
+        "history",
+        "Greece"
+      ],
+      [
+        "history",
+        "Egypt"
+      ]
+    ]
+  },
+  "intro": {
+    "job": "Books filed by genre. Which genre holds the most books?",
+    "idea": {
+      "rule": "Group first, then take the biggest pile — biggest by size, not by name.",
+      "detail": "Two patterns chained: grouping (003) files each book under its genre; max (021) takes the biggest pile — but max needs to know biggest by what. Hand it bare strings and it compares names, not pile sizes: 'zoo' beats 'history' alphabetically while holding one book against three."
+    },
+    "watch": {
+      "code": "groups = {}\nfor g, t in books:\n    if g not in groups:\n        groups[g] = []\n    groups[g].append(t)\nbest = max(groups, key=lambda g: len(groups[g]))\nprint(best)",
+      "data": {
+        "name": "books",
+        "value": [
+          [
+            "a",
+            "1"
+          ],
+          [
+            "b",
+            "2"
+          ],
+          [
+            "b",
+            "3"
+          ]
+        ]
+      },
+      "trace_watch": [
+        "groups",
+        "best"
+      ]
+    }
+  },
+  "model_restatement": "Find the genre with the most books — and print its name.",
+  "clarify": [
+    {
+      "keywords": [
+        "tie",
+        "same size",
+        "equal"
+      ],
+      "question": "What if two genres tie?",
+      "answer": "Not today — one genre always has strictly more books."
+    },
+    {
+      "keywords": [
+        "name",
+        "alphabetical",
+        "biggest name"
+      ],
+      "question": "Why isn't the biggest name the answer?",
+      "answer": "Because max on bare strings compares names, not pile sizes — 'zoo' beats 'history' alphabetically while holding one book."
+    },
+    {
+      "keywords": [
+        "count",
+        "how many"
+      ],
+      "question": "Do we count the books or the genres?",
+      "answer": "The books in each genre — the biggest pile wins."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "File each book under its genre. Take the biggest genre. Print it.",
+  "draft_code": "groups = {}\nfor g, t in books:\n    if g not in groups:\n        groups[g] = []\n    groups[g].append(t)\nbest = max(groups)\nprint(best)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 4
+      },
+      "prompt": "After the fourth book, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "After line 6, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — on the print line, what is best?",
+      "kind": "value",
+      "var": "best"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max on bare strings compares names, not pile sizes — 'zoo' beats 'history' alphabetically while holding one book against three.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Picking the biggest genre by name is like picking the biggest dog by whose name comes last in the alphabet — 'Zippy' the chihuahua beats 'Max' the Great Dane.",
+    "bridge": "What does max compare when you hand it bare strings — and what should it compare instead?",
+    "fix": {
+      "rule": "Group first, then max by pile size: max(groups, key=lambda g: len(groups[g])).",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "File each book under its genre."
+        },
+        {
+          "line": 5,
+          "gloss": "Add it to that genre's pile."
+        },
+        {
+          "line": 6,
+          "gloss": "Biggest pile wins — biggest by size, not by name."
+        }
+      ],
+      "contrast": {
+        "wrong": "max(groups)",
+        "wrong_note": "biggest name wins",
+        "right": "max(groups, key=len of the pile)",
+        "right_note": "biggest pile wins"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "groups = {}\nfor g, t in books:\n    if g not in groups:\n        groups[g] = []\n    groups[g].append(t)\nbest = max(groups, key=lambda g: len(groups[g]))\nprint(best)",
+    "alternatives": [
+      {
+        "code": "from collections import Counter\nprint(Counter(g for g, t in books).most_common(1)[0][0])",
+        "note": "Count the genres and take the most common — the pile sizes do the ranking."
+      }
+    ],
+    "hints": [
+      "What does max compare when you hand it bare strings?",
+      "The genre name isn't the size of its pile — what is?",
+      "max(groups, key=lambda g: len(groups[g])) — biggest by pile size."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "books": [
+          [
+            "zoo",
+            "Zebra"
+          ],
+          [
+            "history",
+            "Rome"
+          ],
+          [
+            "history",
+            "Greece"
+          ],
+          [
+            "history",
+            "Egypt"
+          ]
+        ]
+      },
+      "expected": "history"
+    },
+    {
+      "input": {
+        "books": [
+          [
+            "b",
+            "1"
+          ],
+          [
+            "a",
+            "2"
+          ],
+          [
+            "a",
+            "3"
+          ]
+        ]
+      },
+      "expected": "a"
+    },
+    {
+      "input": {
+        "books": [
+          [
+            "m",
+            "1"
+          ],
+          [
+            "z",
+            "2"
+          ],
+          [
+            "m",
+            "3"
+          ],
+          [
+            "z",
+            "4"
+          ],
+          [
+            "m",
+            "5"
+          ]
+        ]
+      },
+      "expected": "m"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more shelf: [('apple', '1'), ('pear', '2'), ('pear', '3'), ('apple', '4'), ('apple', '5'), ('apple', '6')] — which genre holds the most?",
+    "data": {
+      "name": "books",
+      "value": [
+        [
+          "apple",
+          "1"
+        ],
+        [
+          "pear",
+          "2"
+        ],
+        [
+          "pear",
+          "3"
+        ],
+        [
+          "apple",
+          "4"
+        ],
+        [
+          "apple",
+          "5"
+        ],
+        [
+          "apple",
+          "6"
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelf, what gets printed?"
+    },
+    "recommended": "groups = {}\nfor g, t in books:\n    if g not in groups:\n        groups[g] = []\n    groups[g].append(t)\nbest = max(groups, key=lambda g: len(groups[g]))\nprint(best)",
+    "fix_hint": "Nothing to change — the piles are counted, not the names."
+  },
+  "one_liner": "Group first, then take the biggest pile — biggest by size, not by name.",
+  "trace_watch": [
+    "groups",
+    "best"
+  ]
+}

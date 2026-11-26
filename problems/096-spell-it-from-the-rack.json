@@ -1,0 +1,209 @@
+{
+  "id": "096",
+  "skill": "counting-spend-once",
+  "title": "Spell it from the rack",
+  "scenario": "Can the word be spelled from the tile rack, each tile used at most once?",
+  "data": {
+    "name": "pair",
+    "value": [
+      "balloon",
+      "balon"
+    ]
+  },
+  "intro": {
+    "job": "Can the word be spelled from the tile rack, each tile used at most once?",
+    "idea": {
+      "rule": "Being on the rack once isn't enough — each tile can only be spent once.",
+      "detail": "Think of the tile rack as a wallet of letters. Count how many of each letter it holds, then 'spend' one for every letter the word needs. If you try to spend a letter whose count is already 0, the word can't be spelled — even though that letter IS on the rack."
+    },
+    "watch": {
+      "code": "word, tiles = pair\nok = True\nleft = {}\nfor ch in tiles:\n    left[ch] = left.get(ch, 0) + 1\nfor ch in word:\n    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1\nprint(ok)",
+      "data": {
+        "name": "pair",
+        "value": [
+          "mom",
+          "mo"
+        ]
+      },
+      "trace_watch": [
+        "ch",
+        "left",
+        "ok"
+      ]
+    }
+  },
+  "model_restatement": "Check whether the rack has enough of every letter the word needs, counting repeats.",
+  "clarify": [
+    {
+      "keywords": [
+        "spaces",
+        "space",
+        "punctuation"
+      ],
+      "question": "Spaces or punctuation?",
+      "answer": "Lowercase letters only today."
+    },
+    {
+      "keywords": [
+        "reuse",
+        "twice",
+        "more than once",
+        "use again"
+      ],
+      "question": "Can a tile be used twice?",
+      "answer": "No — each tile can be used at most once."
+    },
+    {
+      "keywords": [
+        "format",
+        "print",
+        "output",
+        "true",
+        "false"
+      ],
+      "question": "What should I print?",
+      "answer": "True if the word can be spelled, otherwise False."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Word and tiles come as a pair. For each letter in the word, check it's on the rack; if one isn't, the word can't be spelled. Print the answer.",
+  "draft_code": "word, tiles = pair\nok = True\nfor ch in word:\n    if ch not in tiles:\n        ok = False\nprint(ok)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 5
+      },
+      "prompt": "The word's second 'l' has just been checked — the loop moves on to 'o'. What is ok?",
+      "kind": "value",
+      "var": "ok"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 5
+      },
+      "prompt": "With the fix — after counting the whole rack (iteration 5), what is left?",
+      "kind": "value",
+      "var": "left"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "'l' in tiles only asks whether there's AN 'l' — it's True both times, so the second 'l' gets waved through even though the rack has just one.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "'in' checks the wallet has that coin — it doesn't take the coin out, so you can spend the same 'l' forever.",
+    "bridge": "So how could you keep track of how many of each letter are left to spend?",
+    "fix": {
+      "rule": "Count the rack's letters, then spend one per word letter — a count of 0 means you're out.",
+      "walk": [
+        {
+          "line": 3,
+          "gloss": "An empty wallet."
+        },
+        {
+          "line": 4,
+          "gloss": "Go through the rack..."
+        },
+        {
+          "line": 5,
+          "gloss": "...and count each letter into the wallet."
+        },
+        {
+          "line": 7,
+          "gloss": "For each word letter: none left? Then the word can't be spelled; otherwise spend one."
+        }
+      ],
+      "contrast": {
+        "wrong": "if ch not in tiles:",
+        "wrong_note": "is there one at all?",
+        "right": "if left.get(ch, 0) == 0:",
+        "right_note": "is there one left to spend?"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "word, tiles = pair\nok = True\nleft = {}\nfor ch in tiles:\n    left[ch] = left.get(ch, 0) + 1\nfor ch in word:\n    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1\nprint(ok)",
+    "alternatives": [
+      {
+        "code": "word, tiles = pair\nok = True\nletters = list(tiles)\nfor ch in word:\n    if ch in letters:\n        letters.remove(ch)\n    else:\n        ok = False\nprint(ok)",
+        "note": "Spend by removing from a list — the same idea, slower on long racks."
+      }
+    ],
+    "hints": [
+      "How many 'l's does the word need? How many does the rack have?",
+      "'in' never uses a letter up.",
+      "Count the rack's letters, then subtract one per word letter."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "pair": [
+          "balloon",
+          "balon"
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "pair": [
+          "mom",
+          "mo"
+        ]
+      },
+      "expected": "False"
+    },
+    {
+      "input": {
+        "pair": [
+          "ab",
+          "abc"
+        ]
+      },
+      "expected": "True"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New word: 'deed' from the tiles 'de' — can it be spelled?",
+    "data": {
+      "name": "pair",
+      "value": [
+        "deed",
+        "de"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With word 'deed' and tiles 'de', what gets printed?"
+    },
+    "recommended": "word, tiles = pair\nok = True\nleft = {}\nfor ch in tiles:\n    left[ch] = left.get(ch, 0) + 1\nfor ch in word:\n    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1\nprint(ok)",
+    "fix_hint": "Nothing to change — the second 'd' finds the wallet empty."
+  },
+  "one_liner": "Being on the rack once isn't enough — each tile can only be spent once.",
+  "trace_watch": [
+    "ch",
+    "ok",
+    "left"
+  ]
+}

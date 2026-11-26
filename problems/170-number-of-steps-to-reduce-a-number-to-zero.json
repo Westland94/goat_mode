@@ -1,0 +1,201 @@
+{
+  "id": "170",
+  "skill": "numbers-operators",
+  "title": "Number of Steps to Reduce a Number to Zero",
+  "section": "leetcode",
+  "lc": {
+    "number": 1342,
+    "title": "Number of Steps to Reduce a Number to Zero",
+    "difficulty": "Easy",
+    "slug": "number-of-steps-to-reduce-a-number-to-zero"
+  },
+  "scenario": "You get a non-negative integer num. In one step, if num is even you halve it; if it's odd you subtract 1. Return how many steps it takes to reach 0.\n\nExample 1:\nInput: num = 14\nOutput: 6\nWhy: 14 → 7 → 6 → 3 → 2 → 1 → 0.\n\nExample 2:\nInput: num = 8\nOutput: 4\nWhy: 8 → 4 → 2 → 1 → 0.\n\nExample 3:\nInput: num = 0\nOutput: 0\n\nConstraints:\n0 <= num <= 10^6\n\nWrite: def number_of_steps(num) — the driver calls it on num = 14 and prints the number of steps.",
+  "data": {
+    "name": "num",
+    "value": 14
+  },
+  "intro": {
+    "job": "You get a non-negative integer num. In one step, if num is even you halve it; if it's odd you subtract 1. Return how many steps it takes to reach 0.\n\nExample 1:\nInput: num = 14\nOutput: 6\nWhy: 14 → 7 → 6 → 3 → 2 → 1 → 0.\n\nExample 2:\nInput: num = 8\nOutput: 4\nWhy: 8 → 4 → 2 → 1 → 0.\n\nExample 3:\nInput: num = 0\nOutput: 0\n\nConstraints:\n0 <= num <= 10^6\n\nWrite: def number_of_steps(num) — the driver calls it on num = 14 and prints the number of steps.",
+    "idea": {
+      "rule": "Even halves, odd subtracts one — the rule picks the move on every step.",
+      "detail": "Like problem 005 (Split the candies), it's operators and their rules. Each step has two possible moves, and num decides which one: halve when it's even, subtract 1 when it's odd. Counting down by 1 every time also reaches 0 — but it takes num steps, not the number the rules give. 14 by the rules is 6 steps; one at a time it's 14."
+    },
+    "watch": {
+      "code": "def number_of_steps(num):\n    steps = 0\n    while num > 0:\n        if num % 2 == 0:\n            num //= 2\n        else:\n            num -= 1\n        steps += 1\n    return steps\n\nprint(number_of_steps(num))",
+      "data": {
+        "name": "num",
+        "value": 6
+      },
+      "trace_watch": [
+        "num",
+        "steps"
+      ]
+    }
+  },
+  "model_restatement": "Count the steps to bring num to 0, halving when it's even and subtracting 1 when it's odd.",
+  "clarify": [
+    {
+      "keywords": [
+        "zero",
+        "0"
+      ],
+      "question": "What if num is already 0?",
+      "answer": "Then it takes 0 steps."
+    },
+    {
+      "keywords": [
+        "odd",
+        "even",
+        "which"
+      ],
+      "question": "Which move do I make on each step?",
+      "answer": "Halve when num is even; subtract 1 when it's odd."
+    },
+    {
+      "keywords": [
+        "negative"
+      ],
+      "question": "Can num be negative?",
+      "answer": "No — num is non-negative."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Count down: subtract 1 from num until it reaches 0, counting the steps.",
+  "draft_code": "def number_of_steps(num):\n    steps = 0\n    while num > 0:\n        num -= 1\n        steps += 1\n    return steps\n\nprint(number_of_steps(num))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Step 1: after line 4, what is num?",
+      "kind": "value",
+      "var": "num"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 3
+      },
+      "prompt": "Step 3: after counting, what is steps?",
+      "kind": "value",
+      "var": "steps"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "With the fix — step 1: num is even. After halving, what is num?",
+      "kind": "value",
+      "var": "num"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft subtracts 1 on every step, so 14 takes 14 steps. The rule says halve when even: 14 → 7 is one step, not seven.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Counting down by one is taking the stairs one at a time when the rules say even floors have an express lift.",
+    "bridge": "num is 14 — even. What should the first step turn it into?",
+    "fix": {
+      "rule": "Check num on every step: halve it when it's even, subtract 1 when it's odd, and count each step.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "Even?"
+        },
+        {
+          "line": 5,
+          "gloss": "Then halve it."
+        },
+        {
+          "line": 7,
+          "gloss": "Odd: subtract 1."
+        },
+        {
+          "line": 8,
+          "gloss": "Either way, that's one step."
+        }
+      ],
+      "contrast": {
+        "wrong": "num -= 1  (every step)",
+        "wrong_note": "14 takes 14 steps",
+        "right": "num //= 2 if even, else num -= 1",
+        "right_note": "14 takes 6 steps"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def number_of_steps(num):\n    steps = 0\n    while num > 0:\n        if num % 2 == 0:\n            num //= 2\n        else:\n            num -= 1\n        steps += 1\n    return steps\n\nprint(number_of_steps(num))",
+    "alternatives": [
+      {
+        "code": "def number_of_steps(num):\n    if num == 0:\n        return 0\n    return bin(num).count(\"1\") + num.bit_length() - 1\n\nprint(number_of_steps(num))",
+        "note": "Count bits instead: every 1-bit costs a subtract, and every bit after the first costs a halve — bin(num).count(\"1\") + num.bit_length() - 1."
+      }
+    ],
+    "hints": [
+      "14 is even. What should the first step do?",
+      "The draft never halves — every step subtracts 1.",
+      "if num % 2 == 0: num //= 2  else: num -= 1;  steps += 1"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "num": 14
+      },
+      "expected": "6"
+    },
+    {
+      "input": {
+        "num": 8
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "num": 0
+      },
+      "expected": "0"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: num = 8 — what does your code print?",
+    "data": {
+      "name": "num",
+      "value": 8
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def number_of_steps(num):\n    steps = 0\n    while num > 0:\n        if num % 2 == 0:\n            num //= 2\n        else:\n            num -= 1\n        steps += 1\n    return steps\n\nprint(number_of_steps(num))",
+    "fix_hint": "8 → 4 → 2 → 1 → 0: three halvings and one subtract, 4 steps."
+  },
+  "one_liner": "Even halves, odd subtracts one — the rule picks the move on every step.",
+  "trace_watch": [
+    "num",
+    "steps"
+  ]
+}

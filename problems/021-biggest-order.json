@@ -1,0 +1,213 @@
+{
+  "id": "021",
+  "skill": "nested-data",
+  "title": "Biggest order",
+  "scenario": "For each customer, their single biggest order amount.",
+  "data": {
+    "name": "orders",
+    "value": {
+      "ana": [
+        5,
+        12,
+        7
+      ],
+      "ben": [
+        3
+      ]
+    }
+  },
+  "intro": {
+    "job": "For each customer, their single biggest order amount.",
+    "idea": {
+      "rule": "max(orders) looks at the OUTER box — the names. max(orders[name]) opens that customer's box first.",
+      "detail": "orders is a dict whose values are lists. orders['ana'] opens the outer box and hands you ana's list [5, 12, 7]; one more step — max(...) — reaches into that list. Each pair of brackets opens one more box, so say what's in your hand after each one."
+    },
+    "watch": {
+      "code": "top = max(box['cy'])\nprint(top)",
+      "data": {
+        "name": "box",
+        "value": {
+          "cy": [
+            4,
+            9
+          ]
+        }
+      },
+      "trace_watch": [
+        "top"
+      ]
+    }
+  },
+  "model_restatement": "For every customer, find the largest amount in their list of orders.",
+  "clarify": [
+    {
+      "keywords": [
+        "no orders",
+        "empty list",
+        "empty"
+      ],
+      "question": "Could a customer have no orders?",
+      "answer": "Not today — everyone has at least one."
+    },
+    {
+      "keywords": [
+        "tie",
+        "ties",
+        "same amount",
+        "equal"
+      ],
+      "question": "What if two orders tie for biggest?",
+      "answer": "Then that amount — once."
+    },
+    {
+      "keywords": [
+        "format",
+        "dict",
+        "output",
+        "print",
+        "shape"
+      ],
+      "question": "What shape should the answer be?",
+      "answer": "A dict: customer → biggest amount."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each customer, take the biggest of the orders. Put it in a dict. Print it.",
+  "draft_code": "biggest = {}\nfor name in orders:\n    biggest[name] = max(orders)\nprint(biggest)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1 (ana), what is biggest?",
+      "kind": "value",
+      "var": "biggest"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after iteration 1, what is biggest?",
+      "kind": "value",
+      "var": "biggest"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "max(orders) is handed the whole dict of customers — and max of a dict looks at its keys, so it picks the biggest NAME, 'ben', not an amount.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "max(orders) reaches into the wrong box: it opens the box of customers and picks the biggest name tag — 'ben' — instead of opening ana's box of amounts.",
+    "bridge": "So which box should max be handed — the box of customers, or ana's box of orders?",
+    "fix": {
+      "rule": "max(orders[name]): open the customer's box, then hand the whole list to max.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty dict for the answers."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next customer."
+        },
+        {
+          "line": 3,
+          "gloss": "Open their list of orders and keep the biggest."
+        },
+        {
+          "line": 4,
+          "gloss": "Show every customer's biggest order."
+        }
+      ],
+      "contrast": {
+        "wrong": "max(orders)",
+        "wrong_note": "the biggest customer name",
+        "right": "max(orders[name])",
+        "right_note": "the biggest order"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "biggest = {}\nfor name in orders:\n    biggest[name] = max(orders[name])\nprint(biggest)",
+    "alternatives": [
+      {
+        "code": "print({name: max(amounts) for name, amounts in orders.items()})",
+        "note": "A dict comprehension — the shortcut."
+      }
+    ],
+    "hints": [
+      "After iteration 1, did ana get an amount — or a name?",
+      "max(orders) looks at the dict's keys — the customer names. Open this customer's box first.",
+      "biggest[name] = max(orders[name])"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "orders": {
+          "ana": [
+            5,
+            12,
+            7
+          ],
+          "ben": [
+            3
+          ]
+        }
+      },
+      "expected": "{'ana': 12, 'ben': 3}"
+    },
+    {
+      "input": {
+        "orders": {
+          "x": [
+            1
+          ]
+        }
+      },
+      "expected": "{'x': 1}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One customer, one order: {'cy': [9]} — what's printed?",
+    "data": {
+      "name": "orders",
+      "value": {
+        "cy": [
+          9
+        ]
+      }
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new orders, what gets printed?"
+    },
+    "recommended": "biggest = {}\nfor name in orders:\n    biggest[name] = max(orders[name])\nprint(biggest)",
+    "fix_hint": "Nothing to change — max still finds the biggest."
+  },
+  "one_liner": "max(orders) looks at the OUTER box — the names. max(orders[name]) opens that customer's box first.",
+  "trace_watch": [
+    "name",
+    "biggest"
+  ]
+}

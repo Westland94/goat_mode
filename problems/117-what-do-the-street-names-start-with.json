@@ -1,0 +1,222 @@
+{
+  "id": "117",
+  "skill": "strings-common-prefix",
+  "title": "What do the street names start with?",
+  "scenario": "What do these street names all start with, in common?",
+  "data": {
+    "name": "words",
+    "value": [
+      "sunset",
+      "sunscreen",
+      "supper"
+    ]
+  },
+  "intro": {
+    "job": "What do these street names all start with, in common?",
+    "idea": {
+      "rule": "Trim until it fits — one trim per word stops too early when two are needed.",
+      "detail": "Start by guessing the whole first street name is the shared start. Then check it against each other name: if the name doesn't start with your guess, shorten the guess by one letter and check again — and keep shortening until it fits. A name might need one trim or five, so the trimming is a while loop, not a single if."
+    },
+    "watch": {
+      "code": "prefix = words[0]\nfor w in words[1:]:\n    while not w.startswith(prefix):\n        prefix = prefix[:-1]\nprint(prefix)",
+      "data": {
+        "name": "words",
+        "value": [
+          "interspecies",
+          "interstellar",
+          "interstate"
+        ]
+      },
+      "trace_watch": [
+        "w",
+        "prefix"
+      ]
+    }
+  },
+  "model_restatement": "Find the longest beginning that every street name shares, and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "nothing in common",
+        "no common",
+        "empty",
+        "none",
+        "share nothing"
+      ],
+      "question": "What if they share nothing?",
+      "answer": "Print an empty line — the shared start is ''."
+    },
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase"
+      ],
+      "question": "Does case matter?",
+      "answer": "All lowercase today."
+    },
+    {
+      "keywords": [
+        "one name",
+        "single"
+      ],
+      "question": "What if there's just one name?",
+      "answer": "Not today — at least two."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Start with the first name as the prefix. For each other name, if it doesn't start with the prefix, cut one letter off the prefix. Print the prefix.",
+  "draft_code": "prefix = words[0]\nfor w in words[1:]:\n    if not w.startswith(prefix):\n        prefix = prefix[:-1]\nprint(prefix)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 ('sunscreen'): after the trim, what is prefix?",
+      "kind": "value",
+      "var": "prefix"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": "after"
+      },
+      "prompt": "The loop is done. What is prefix?",
+      "kind": "value",
+      "var": "prefix"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2 ('supper'): after the first trim, what is prefix?",
+      "kind": "value",
+      "var": "prefix"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "if trims at most once per name: 'sunscreen' doesn't start with 'sunset', so it becomes 'sunse' — which 'sunscreen' still doesn't start with, but the loop has already moved on.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "One trim per name is a tailor who takes in a suit once and calls it done — it still doesn't fit, but he's already on to the next customer.",
+    "bridge": "After one trim, 'sunscreen' still doesn't start with the prefix. What should happen before moving on?",
+    "fix": {
+      "rule": "while not w.startswith(prefix): keep trimming until this name fits, however many letters that takes.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Guess: the whole first name is shared."
+        },
+        {
+          "line": 2,
+          "gloss": "Check the guess against each other name."
+        },
+        {
+          "line": 3,
+          "gloss": "Doesn't fit yet? Keep going until it does..."
+        },
+        {
+          "line": 4,
+          "gloss": "...one letter off the end each time."
+        }
+      ],
+      "contrast": {
+        "wrong": "if not w.startswith(prefix):",
+        "wrong_note": "one trim per name",
+        "right": "while not w.startswith(prefix):",
+        "right_note": "trim until it fits"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "prefix = words[0]\nfor w in words[1:]:\n    while not w.startswith(prefix):\n        prefix = prefix[:-1]\nprint(prefix)",
+    "alternatives": [
+      {
+        "code": "out = ''\nfor chars in zip(*words):\n    if len(set(chars)) == 1:\n        out += chars[0]\n    else:\n        break\nprint(out)",
+        "note": "Walk down the columns and stop at the first one that disagrees — correct, and it never trims at all."
+      }
+    ],
+    "hints": [
+      "After iteration 2, does 'supper' start with prefix?",
+      "if trims once. Some names need two trims or more.",
+      "while not w.startswith(prefix):"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "words": [
+          "sunset",
+          "sunscreen",
+          "supper"
+        ]
+      },
+      "expected": "su"
+    },
+    {
+      "input": {
+        "words": [
+          "interspecies",
+          "interstellar",
+          "interstate"
+        ]
+      },
+      "expected": "inters"
+    },
+    {
+      "input": {
+        "words": [
+          "dog",
+          "racecar",
+          "car"
+        ]
+      },
+      "expected": ""
+    }
+  ],
+  "follow_up": {
+    "prompt": "New names: ['candle', 'candy', 'can'] — shared start?",
+    "data": {
+      "name": "words",
+      "value": [
+        "candle",
+        "candy",
+        "can"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new names, what gets printed?"
+    },
+    "recommended": "prefix = words[0]\nfor w in words[1:]:\n    while not w.startswith(prefix):\n        prefix = prefix[:-1]\nprint(prefix)",
+    "fix_hint": "Nothing to change — while keeps trimming until each name fits."
+  },
+  "one_liner": "Trim until it fits — one trim per word stops too early when two are needed.",
+  "trace_watch": [
+    "w",
+    "prefix"
+  ]
+}

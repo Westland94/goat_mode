@@ -1,0 +1,221 @@
+{
+  "id": "041",
+  "skill": "two-pointers-move-zeroes",
+  "title": "Shove the zeroes back",
+  "scenario": "Shove all the zeroes to the end, keeping the other numbers in their order.",
+  "data": {
+    "name": "nums",
+    "value": [
+      0,
+      0,
+      1,
+      3,
+      12
+    ]
+  },
+  "intro": {
+    "job": "Shove all the zeroes to the end, keeping the other numbers in their order.",
+    "idea": {
+      "rule": "Don't change a list while you're walking it — the walker steps over whatever slides into the spot it just left.",
+      "detail": "A for loop walks a list by position: first spot, second spot, and so on. Remove something and everything behind it slides forward one spot — so the item that slides into the spot you just checked never gets looked at. Walk one list, and build the answer somewhere else."
+    },
+    "watch": {
+      "code": "kept = []\nzeros = 0\nfor x in nums:\n    if x == 0:\n        zeros += 1\n    else:\n        kept.append(x)\nprint(kept + [0] * zeros)",
+      "data": {
+        "name": "nums",
+        "value": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      "trace_watch": [
+        "x",
+        "kept",
+        "zeros"
+      ]
+    }
+  },
+  "model_restatement": "Move every zero to the end, keeping the non-zero numbers in their original order.",
+  "clarify": [
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "keep order",
+        "sorted"
+      ],
+      "question": "Do the other numbers keep their order?",
+      "answer": "Yes — exactly the order they came in."
+    },
+    {
+      "keywords": [
+        "in place",
+        "new list",
+        "copy"
+      ],
+      "question": "In place, or a new list?",
+      "answer": "Either is fine today — just print the result."
+    },
+    {
+      "keywords": [
+        "negative",
+        "negatives"
+      ],
+      "question": "Could there be negative numbers?",
+      "answer": "Not today."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk through the numbers; whenever you meet a zero, take it out. Print the numbers.",
+  "draft_code": "for x in nums:\n    if x == 0:\n        nums.remove(x)\nprint(nums)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1: after the remove, what is nums?",
+      "kind": "value",
+      "var": "nums"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2: what is x?",
+      "kind": "value",
+      "var": "x"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 7,
+        "iteration": 3
+      },
+      "prompt": "With the fix — after iteration 3, what is kept?",
+      "kind": "value",
+      "var": "kept"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Removing the first 0 slides everything forward — the second 0 moves into spot 0, which the loop has already visited, so the loop's next look (spot 1) lands on 1. The second zero is never checked.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Removing while walking is pulling a chair out of a row while you count chairs — everyone shuffles up one seat, and you step right past the person who just sat down behind you.",
+    "bridge": "So what if you walked the list without changing it, and built the answer in a new list?",
+    "fix": {
+      "rule": "Walk nums untouched; keep the non-zeroes in a new list and count the zeroes — then glue the zeroes on the end.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "A new list for the numbers we keep."
+        },
+        {
+          "line": 2,
+          "gloss": "A tally of zeroes."
+        },
+        {
+          "line": 3,
+          "gloss": "Walk the original — nothing in it moves."
+        },
+        {
+          "line": 4,
+          "gloss": "A zero? Count it instead of removing it."
+        }
+      ],
+      "contrast": {
+        "wrong": "nums.remove(x)  (inside the loop)",
+        "wrong_note": "the list shifts under the walker",
+        "right": "kept.append(x) / zeros += 1",
+        "right_note": "the walked list never changes"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "kept = []\nzeros = 0\nfor x in nums:\n    if x == 0:\n        zeros += 1\n    else:\n        kept.append(x)\nprint(kept + [0] * zeros)",
+    "alternatives": [
+      {
+        "code": "write = 0\nfor x in nums:\n    if x != 0:\n        nums[write] = x\n        write += 1\nfor i in range(write, len(nums)):\n    nums[i] = 0\nprint(nums)",
+        "note": "In place with a write pointer — the classic two-pointer answer; it never removes anything."
+      }
+    ],
+    "hints": [
+      "Iteration 2: is x the second zero?",
+      "Removing the first zero shifted the second one into the spot the loop already passed.",
+      "Don't remove while looping — collect the non-zeroes in a new list, then add the zeroes."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "nums": [
+          0,
+          0,
+          1,
+          3,
+          12
+        ]
+      },
+      "expected": "[1, 3, 12, 0, 0]"
+    },
+    {
+      "input": {
+        "nums": [
+          0,
+          2,
+          0,
+          4
+        ]
+      },
+      "expected": "[2, 4, 0, 0]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Three zeroes in a row: [0, 0, 0, 5] — what's printed?",
+    "data": {
+      "name": "nums",
+      "value": [
+        0,
+        0,
+        0,
+        5
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With nums = [0, 0, 0, 5], what gets printed?"
+    },
+    "recommended": "kept = []\nzeros = 0\nfor x in nums:\n    if x == 0:\n        zeros += 1\n    else:\n        kept.append(x)\nprint(kept + [0] * zeros)",
+    "fix_hint": "Nothing to change — the walked list never shifts, so every zero is counted."
+  },
+  "one_liner": "Don't change a list while you're walking it — the walker steps over whatever slides into the spot it just left.",
+  "trace_watch": [
+    "x",
+    "nums",
+    "kept",
+    "zeros"
+  ]
+}

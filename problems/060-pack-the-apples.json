@@ -1,0 +1,225 @@
+{
+  "id": "060",
+  "skill": "numbers-operators",
+  "title": "Pack the apples",
+  "scenario": "23 apples, 4 boxes. Whole apples per box, and how many left over?",
+  "data": {
+    "name": "apples",
+    "value": 23
+  },
+  "intro": {
+    "job": "23 apples, 4 boxes. Whole apples per box, and how many left over?",
+    "idea": {
+      "rule": "/ always makes a float; // is division that drops the fraction — use it when the answer must be whole things.",
+      "detail": "23 / 4 is 5.75 — a calculator answer. When you're packing whole things you want two numbers instead: how many fit (23 // 4 is 5) and how many are left (23 % 4 is 3). // and % always travel together."
+    },
+    "watch": {
+      "code": "k = 4\nper = sweets // k\nleft = sweets % k\nexact = sweets / k\nprint((per, left, exact))",
+      "data": {
+        "name": "sweets",
+        "value": 9
+      },
+      "trace_watch": [
+        "per",
+        "left",
+        "exact"
+      ]
+    }
+  },
+  "model_restatement": "Work out how many whole apples go in each box, and how many are left over.",
+  "clarify": [
+    {
+      "keywords": [
+        "whole",
+        "fraction",
+        "fractions",
+        "decimal",
+        "decimals",
+        "half",
+        "halves",
+        "cut",
+        "split"
+      ],
+      "question": "Can an apple be split?",
+      "answer": "Whole apples only — nobody gets a piece of an apple."
+    },
+    {
+      "keywords": [
+        "left",
+        "leftover",
+        "leftovers",
+        "remainder",
+        "extra",
+        "rest"
+      ],
+      "question": "What happens to the leftovers?",
+      "answer": "They stay in the crate. Tell me how many."
+    },
+    {
+      "keywords": [
+        "zero boxes",
+        "no boxes",
+        "0 boxes",
+        "how many boxes",
+        "always"
+      ],
+      "question": "Is it always 4 boxes?",
+      "answer": "Always 4 boxes today."
+    },
+    {
+      "keywords": [
+        "format",
+        "output",
+        "tuple",
+        "print",
+        "both",
+        "give"
+      ],
+      "question": "How should I give the answer?",
+      "answer": "Print both numbers together: (each, left over)."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "There are 4 boxes. Divide the apples by the boxes for each box's share. The leftovers are whatever doesn't divide evenly. Print both.",
+  "draft_code": "boxes = 4\nper = apples / boxes\nleft = apples % boxes\nprint((per, left))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is per?",
+      "kind": "value",
+      "var": "per"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 0
+      },
+      "prompt": "After line 3, what is left?",
+      "kind": "value",
+      "var": "left"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is per?",
+      "kind": "value",
+      "var": "per"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "/ always gives a float, so 23 / 4 is 5.75 — a fraction of an apple, when we promised whole ones.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "/ is a calculator: it always answers with a decimal — 5.75 apples — even when you're packing whole things.",
+    "bridge": "So what kind of division would hand you just the 5?",
+    "fix": {
+      "rule": "// divides and drops whatever doesn't fit — 23 // 4 is 5, and the 3 that didn't fit is exactly what % gives you.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Four boxes."
+        },
+        {
+          "line": 2,
+          "gloss": "How many whole apples fit into each box."
+        },
+        {
+          "line": 3,
+          "gloss": "What's left in the crate after every box gets its share."
+        },
+        {
+          "line": 4,
+          "gloss": "Show both numbers together."
+        }
+      ],
+      "contrast": {
+        "wrong": "per = apples / boxes",
+        "wrong_note": "gives 5.75",
+        "right": "per = apples // boxes",
+        "right_note": "gives 5"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "boxes = 4\nper = apples // boxes\nleft = apples % boxes\nprint((per, left))",
+    "alternatives": [
+      {
+        "code": "boxes = 4\nper, left = divmod(apples, boxes)\nprint((per, left))",
+        "note": "divmod does both at once — the shortcut."
+      },
+      {
+        "code": "boxes = 4\nper = int(apples / boxes)\nleft = apples % boxes\nprint((per, left))",
+        "note": "Works for positive numbers, but // says what you mean."
+      }
+    ],
+    "hints": [
+      "Look at per after line 2. Is that a number of whole apples?",
+      "/ always gives a float. There's a division that drops the fraction.",
+      "per = apples // boxes"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "apples": 23
+      },
+      "expected": "(5, 3)"
+    },
+    {
+      "input": {
+        "apples": 8
+      },
+      "expected": "(2, 0)"
+    },
+    {
+      "input": {
+        "apples": 3
+      },
+      "expected": "(0, 3)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "10 apples, 4 boxes — what changes?",
+    "data": {
+      "name": "apples",
+      "value": 10
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With 10 apples, what gets printed?"
+    },
+    "recommended": "boxes = 4\nper = apples // boxes\nleft = apples % boxes\nprint((per, left))",
+    "fix_hint": "Nothing structural — 10 splits into 2 per box with 2 left over; the draft still answers with a fraction."
+  },
+  "one_liner": "/ always makes a float; // is division that drops the fraction — use it when the answer must be whole things.",
+  "trace_watch": [
+    "per",
+    "left"
+  ]
+}

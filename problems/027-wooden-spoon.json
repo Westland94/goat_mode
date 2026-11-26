@@ -1,0 +1,207 @@
+{
+  "id": "027",
+  "skill": "lists-sorting",
+  "title": "Wooden spoon",
+  "scenario": "Announce the LOWEST score (the wooden spoon).",
+  "data": {
+    "name": "scores",
+    "value": [
+      42,
+      87,
+      65
+    ]
+  },
+  "intro": {
+    "job": "Announce the LOWEST score (the wooden spoon).",
+    "idea": {
+      "rule": "Same line-up, other end — smallest first means the spoon is at the FRONT.",
+      "detail": "sort() lines the scores up smallest first. The best is at the end, [-1]; the lowest is at the front, [0]."
+    },
+    "watch": {
+      "code": "nums.sort()\nlow = nums[0]\nprint(low)",
+      "data": {
+        "name": "nums",
+        "value": [
+          3,
+          9,
+          4
+        ]
+      },
+      "trace_watch": [
+        "nums",
+        "low"
+      ]
+    }
+  },
+  "model_restatement": "Find the lowest score and print it.",
+  "clarify": [
+    {
+      "keywords": [
+        "tie",
+        "ties",
+        "tied",
+        "same score"
+      ],
+      "question": "What if two scores tie for lowest?",
+      "answer": "Print that score once."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no scores",
+        "none"
+      ],
+      "question": "What if there are no scores?",
+      "answer": "There's always at least one."
+    },
+    {
+      "keywords": [
+        "min",
+        "library",
+        "builtin",
+        "built-in"
+      ],
+      "question": "Can I use min()?",
+      "answer": "min() would do it — here, use sort so we can watch the line-up."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Sort the scores, take the one at the end, and announce it.",
+  "draft_code": "scores.sort()\nspoon = scores[-1]\nprint(spoon)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is scores?",
+      "kind": "value",
+      "var": "scores"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is spoon?",
+      "kind": "value",
+      "var": "spoon"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 2, what is spoon?",
+      "kind": "value",
+      "var": "spoon"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "After sort(), the end of the line is the BIGGEST score — scores[-1] hands the spoon to 87.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Smallest first means the end of the line is the trophy, not the spoon — scores[-1] grabs the winner.",
+    "bridge": "So which end of the line is the lowest score standing at?",
+    "fix": {
+      "rule": "After sort(), the lowest is at the front — scores[0].",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Line them up, smallest first."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the front — the lowest."
+        },
+        {
+          "line": 3,
+          "gloss": "Hand over the spoon."
+        }
+      ],
+      "contrast": {
+        "wrong": "scores[-1]",
+        "wrong_note": "the end: biggest",
+        "right": "scores[0]",
+        "right_note": "the front: smallest"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "scores.sort()\nspoon = scores[0]\nprint(spoon)",
+    "alternatives": [
+      {
+        "code": "print(min(scores))",
+        "note": "min() skips the sort — the shortcut."
+      }
+    ],
+    "hints": [
+      "After line 1, which score is at the end?",
+      "sort() is smallest first. The spoon is at the other end.",
+      "spoon = scores[0]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "scores": [
+          42,
+          87,
+          65
+        ]
+      },
+      "expected": "42"
+    },
+    {
+      "input": {
+        "scores": [
+          5
+        ]
+      },
+      "expected": "5"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A tie at the top: [9, 9, 1] — who gets the spoon?",
+    "data": {
+      "name": "scores",
+      "value": [
+        9,
+        9,
+        1
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With scores = [9, 9, 1], what gets printed?"
+    },
+    "recommended": "scores.sort()\nspoon = scores[0]\nprint(spoon)",
+    "fix_hint": "Nothing to change — sorted, the lowest is still at the front."
+  },
+  "one_liner": "Same line-up, other end — smallest first means the spoon is at the FRONT.",
+  "trace_watch": [
+    "scores",
+    "spoon"
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "id": "077",
+  "skill": "dict-iteration",
+  "title": "The full shelves",
+  "scenario": "From the stock counts, list the items with more than 100 units.",
+  "data": {
+    "name": "stock",
+    "value": {
+      "bolts": 140,
+      "nails": 60,
+      "screws": 210
+    }
+  },
+  "intro": {
+    "job": "From the stock counts, list the items with more than 100 units.",
+    "idea": {
+      "rule": "Looping a dict hands you the KEYS — when you need both, ask for .items().",
+      "detail": "for x in some_dict gives you only the keys: the labels on the jars, not what's inside. .items() hands you each pair, key and value together, so you can unpack them: for name, qty in stock.items(). Then you can test the number and still keep the name."
+    },
+    "watch": {
+      "code": "for k in d:\n    print(k)\nfor name, qty in d.items():\n    print((name, qty))",
+      "data": {
+        "name": "d",
+        "value": {
+          "bolts": 140,
+          "nails": 60
+        }
+      },
+      "trace_watch": [
+        "k",
+        "name",
+        "qty"
+      ]
+    }
+  },
+  "model_restatement": "Go through the stock and list every item whose count is over 100.",
+  "clarify": [
+    {
+      "keywords": [
+        "exactly 100",
+        "exactly",
+        "equal",
+        "at least",
+        "100 or more"
+      ],
+      "question": "Does exactly 100 count?",
+      "answer": "No — more than 100. Exactly 100 doesn't make the list."
+    },
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "sorted",
+        "sort"
+      ],
+      "question": "What order should the names be in?",
+      "answer": "Keep the dict's order."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no items",
+        "nothing",
+        "none"
+      ],
+      "question": "What if nothing is over 100?",
+      "answer": "Then an empty list."
+    },
+    {
+      "keywords": [
+        "names",
+        "counts",
+        "format",
+        "print"
+      ],
+      "question": "Names, or names and counts?",
+      "answer": "Just the names, as a list."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Go through the stock; if an item is over 100, add it to the list. Print the list.",
+  "draft_code": "over = []\nfor name in stock:\n    if name > 100:\n        over.append(name)\nprint(over)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 1
+      },
+      "prompt": "First time through the loop — what is name?",
+      "kind": "value",
+      "var": "name"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "What happens on line 3, that first time?",
+      "kind": "outcome",
+      "choices": [
+        {
+          "label": "it compares and moves on",
+          "match": {
+            "unchanged": true
+          },
+          "ask_which": false
+        },
+        {
+          "label": "over becomes ['bolts']",
+          "match": {
+            "var": "over",
+            "value": "['bolts']"
+          },
+          "ask_which": false
+        },
+        {
+          "label": "an error",
+          "match": {
+            "error": true
+          },
+          "ask_which": true
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after line 4 in iteration 1, what is over?",
+      "kind": "value",
+      "var": "over"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Looping a dict gives you the keys — name is 'bolts', a string — and Python can't tell whether 'bolts' is bigger than 100.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Looping a dict reads the labels on the jars — you get 'bolts', not what's inside, and a name can't be compared with 100.",
+    "bridge": "So how do you get the number inside each jar too?",
+    "fix": {
+      "rule": ".items() hands you each jar's label AND what's inside — name, qty — so you test the count and keep the name.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the full shelves."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next pair: the item and its count."
+        },
+        {
+          "line": 3,
+          "gloss": "Test the number, not the name."
+        },
+        {
+          "line": 4,
+          "gloss": "Over 100 — add the name."
+        }
+      ],
+      "contrast": {
+        "wrong": "for name in stock:",
+        "wrong_note": "keys only",
+        "right": "for name, qty in stock.items():",
+        "right_note": "key and value"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "over = []\nfor name, qty in stock.items():\n    if qty > 100:\n        over.append(name)\nprint(over)",
+    "alternatives": [
+      {
+        "code": "over = []\nfor name in stock:\n    if stock[name] > 100:\n        over.append(name)\nprint(over)",
+        "note": "Look the value up by key — also fine."
+      },
+      {
+        "code": "print([name for name, qty in stock.items() if qty > 100])",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "First iteration: what is name, exactly?",
+      "The loop hands you keys. You need each item's count too.",
+      "for name, qty in stock.items():"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "stock": {
+          "bolts": 140,
+          "nails": 60,
+          "screws": 210
+        }
+      },
+      "expected": "['bolts', 'screws']"
+    },
+    {
+      "input": {
+        "stock": {
+          "x": 1
+        }
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Exactly one hundred: {'x': 100} — what's over 100?",
+    "data": {
+      "name": "stock",
+      "value": {
+        "x": 100
+      }
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new stock, what gets printed?"
+    },
+    "recommended": "over = []\nfor name, qty in stock.items():\n    if qty > 100:\n        over.append(name)\nprint(over)",
+    "fix_hint": "Nothing to change — same test, new numbers."
+  },
+  "one_liner": "Looping a dict hands you the KEYS — when you need both, ask for .items().",
+  "trace_watch": [
+    "name",
+    "over"
+  ]
+}

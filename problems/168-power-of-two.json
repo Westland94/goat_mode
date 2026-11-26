@@ -1,0 +1,188 @@
+{
+  "id": "168",
+  "skill": "numbers-operators",
+  "title": "Power of Two",
+  "section": "leetcode",
+  "lc": {
+    "number": 231,
+    "title": "Power of Two",
+    "difficulty": "Easy",
+    "slug": "power-of-two"
+  },
+  "scenario": "You get an integer n. Return True if n is a power of two — 1, 2, 4, 8, 16, ... — and False otherwise.\n\nExample 1:\nInput: n = 1\nOutput: True\nWhy: 2⁰ = 1.\n\nExample 2:\nInput: n = 16\nOutput: True\n\nExample 3:\nInput: n = 3\nOutput: False\n\nConstraints:\n-2^31 <= n <= 2^31 - 1\n\nWrite: def is_power_of_two(n) — the driver calls it on n = 6 and prints the result.",
+  "data": {
+    "name": "n",
+    "value": 6
+  },
+  "intro": {
+    "job": "You get an integer n. Return True if n is a power of two — 1, 2, 4, 8, 16, ... — and False otherwise.\n\nExample 1:\nInput: n = 1\nOutput: True\nWhy: 2⁰ = 1.\n\nExample 2:\nInput: n = 16\nOutput: True\n\nExample 3:\nInput: n = 3\nOutput: False\n\nConstraints:\n-2^31 <= n <= 2^31 - 1\n\nWrite: def is_power_of_two(n) — the driver calls it on n = 6 and prints the result.",
+    "idea": {
+      "rule": "Even isn't enough — a power of two halves all the way down to 1.",
+      "detail": "Like problem 005 (Split the candies), this is about what the operators really tell you. n % 2 == 0 says n is even — but 6, 10 and 12 are even and aren't powers of two, and 1 IS a power of two (2⁰) without being even. A power of two is made of nothing but 2s: keep halving while n is even, and you land exactly on 1. Anything else leaves an odd number bigger than 1."
+    },
+    "watch": {
+      "code": "def is_power_of_two(n):\n    if n <= 0:\n        return False\n    while n % 2 == 0:\n        n //= 2\n    return n == 1\n\nprint(is_power_of_two(n))",
+      "data": {
+        "name": "n",
+        "value": 8
+      },
+      "trace_watch": [
+        "n"
+      ]
+    }
+  },
+  "model_restatement": "Say whether n is a power of two.",
+  "clarify": [
+    {
+      "keywords": [
+        "one",
+        "1"
+      ],
+      "question": "Does 1 count as a power of two?",
+      "answer": "Yes — 2⁰ = 1."
+    },
+    {
+      "keywords": [
+        "negative",
+        "zero"
+      ],
+      "question": "What about zero or negative numbers?",
+      "answer": "Never a power of two — return False."
+    },
+    {
+      "keywords": [
+        "even"
+      ],
+      "question": "Is every even number a power of two?",
+      "answer": "No — 6 is even, but it isn't a power of two."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "A power of two is even — check whether n divides by 2 with nothing left over.",
+  "draft_code": "def is_power_of_two(n):\n    remainder = n % 2\n    return remainder == 0\n\nprint(is_power_of_two(n))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "After line 2, what is remainder?",
+      "kind": "value",
+      "var": "remainder"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after halving once, what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "6 % 2 is 0, so the draft says yes — but 6 is 2 × 3. Being even only means ONE factor of 2; a power of two is nothing but 2s.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Checking for one factor of 2 is checking that a necklace has one red bead — a power of two is red beads all the way.",
+    "bridge": "6 halves to 3. Is 3 a power of two — and can it be halved again?",
+    "fix": {
+      "rule": "Rule out n <= 0, halve n while it's even, and check that you end on exactly 1.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Zero and negatives are never powers of two."
+        },
+        {
+          "line": 4,
+          "gloss": "While there's a factor of 2 left..."
+        },
+        {
+          "line": 5,
+          "gloss": "...take it out."
+        },
+        {
+          "line": 6,
+          "gloss": "Only 2s? Then you're left with exactly 1."
+        }
+      ],
+      "contrast": {
+        "wrong": "n % 2 == 0",
+        "wrong_note": "any even number passes",
+        "right": "halve while even, then n == 1",
+        "right_note": "nothing but 2s"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def is_power_of_two(n):\n    if n <= 0:\n        return False\n    while n % 2 == 0:\n        n //= 2\n    return n == 1\n\nprint(is_power_of_two(n))",
+    "alternatives": [
+      {
+        "code": "def is_power_of_two(n):\n    return n > 0 and (n & (n - 1)) == 0\n\nprint(is_power_of_two(n))",
+        "note": "The bit trick: a power of two has exactly one 1-bit, so n > 0 and (n & (n - 1)) == 0."
+      }
+    ],
+    "hints": [
+      "6 is even. Is it 2, 4, 8 or 16?",
+      "Even means one factor of 2 — a power of two must be made only of 2s, and 1 counts too.",
+      "if n <= 0: return False; while n % 2 == 0: n //= 2; return n == 1"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 1
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "n": 16
+      },
+      "expected": "True"
+    },
+    {
+      "input": {
+        "n": 6
+      },
+      "expected": "False"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: n = 12 — what does your code print?",
+    "data": {
+      "name": "n",
+      "value": 12
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def is_power_of_two(n):\n    if n <= 0:\n        return False\n    while n % 2 == 0:\n        n //= 2\n    return n == 1\n\nprint(is_power_of_two(n))",
+    "fix_hint": "12 halves to 6, then 3 — 3 isn't 1, so 12 is not a power of two."
+  },
+  "one_liner": "Even isn't enough — a power of two halves all the way down to 1.",
+  "trace_watch": [
+    "n",
+    "remainder"
+  ]
+}

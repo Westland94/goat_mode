@@ -1,0 +1,200 @@
+{
+  "id": "031",
+  "skill": "conditionals",
+  "title": "Shipping bands",
+  "scenario": "Shipping: $100+ free, $50+ is $5, under $50 is $9.",
+  "data": {
+    "name": "totals",
+    "value": [
+      120,
+      75,
+      20
+    ]
+  },
+  "intro": {
+    "job": "Shipping: $100+ free, $50+ is $5, under $50 is $9.",
+    "idea": {
+      "rule": "elif is a waterfall — the first true branch catches everything flowing past it, so test the strictest first.",
+      "detail": "Same waterfall as the grade bands: Python runs only the first true branch. Put the strictest band ($100+) on top."
+    },
+    "watch": {
+      "code": "if amount >= 100:\n    fee = 0\nelif amount >= 50:\n    fee = 5\nelse:\n    fee = 9\nprint(fee)",
+      "data": {
+        "name": "amount",
+        "value": 150
+      },
+      "trace_watch": [
+        "fee"
+      ]
+    }
+  },
+  "model_restatement": "Work out the shipping fee for each order total, in order.",
+  "clarify": [
+    {
+      "keywords": [
+        "exactly",
+        "boundary",
+        "edge",
+        "equal",
+        "inclusive"
+      ],
+      "question": "Is exactly $100 free?",
+      "answer": "Yes — $100 is free, $50 is $5."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no orders",
+        "nothing"
+      ],
+      "question": "What if there are no orders?",
+      "answer": "Then an empty list."
+    },
+    {
+      "keywords": [
+        "format",
+        "list",
+        "print",
+        "output",
+        "same order",
+        "shape"
+      ],
+      "question": "What shape?",
+      "answer": "A list of fees, in the same order as the totals."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each total: if it's $50 or more, $5; otherwise, if it's $100 or more, free; otherwise $9. Print the fees.",
+  "draft_code": "fees = []\nfor t in totals:\n    if t >= 50:\n        fees.append(5)\n    elif t >= 100:\n        fees.append(0)\n    else:\n        fees.append(9)\nprint(fees)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 is the $120 order. After its append, what is fees?",
+      "kind": "value",
+      "var": "fees"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after the $120 order, what is fees?",
+      "kind": "value",
+      "var": "fees"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "120 >= 50 is already True, so the first branch charges $5 — the >= 100 branch below never gets checked.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Same waterfall: $120 lands in the first bucket that says yes — and '$50 or more' says yes before 'free' gets a turn.",
+    "bridge": "So which test has to come first for $120 to ship free?",
+    "fix": {
+      "rule": "Strictest test on top: $120 hits '>= 100' before it ever reaches '>= 50'.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list of fees."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next order total."
+        },
+        {
+          "line": 3,
+          "gloss": "Check the strictest band first: $100 or more?"
+        },
+        {
+          "line": 4,
+          "gloss": "Yes for $120 — free, and the rest of the chain is skipped."
+        }
+      ],
+      "contrast": {
+        "wrong": "if t >= 50:",
+        "wrong_note": "catches $120 first",
+        "right": "if t >= 100:",
+        "right_note": "lets $120 ship free"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "fees = []\nfor t in totals:\n    if t >= 100:\n        fees.append(0)\n    elif t >= 50:\n        fees.append(5)\n    else:\n        fees.append(9)\nprint(fees)",
+    "alternatives": [
+      {
+        "code": "fees = []\nfor t in totals:\n    if t < 50:\n        fees.append(9)\n    elif t < 100:\n        fees.append(5)\n    else:\n        fees.append(0)\nprint(fees)",
+        "note": "The same waterfall from the bottom up."
+      }
+    ],
+    "hints": [
+      "Follow $120 through the ifs. Which test does it hit first?",
+      "elif only runs if everything above it was False.",
+      "Test t >= 100 first, then t >= 50."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "totals": [
+          120,
+          75,
+          20
+        ]
+      },
+      "expected": "[0, 5, 9]"
+    },
+    {
+      "input": {
+        "totals": [
+          100,
+          50,
+          49
+        ]
+      },
+      "expected": "[0, 5, 9]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Right on the boundaries: [100, 50, 49] — what are the fees?",
+    "data": {
+      "name": "totals",
+      "value": [
+        100,
+        50,
+        49
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With totals = [100, 50, 49], what gets printed?"
+    },
+    "recommended": "fees = []\nfor t in totals:\n    if t >= 100:\n        fees.append(0)\n    elif t >= 50:\n        fees.append(5)\n    else:\n        fees.append(9)\nprint(fees)",
+    "fix_hint": "Nothing to change — same bands, new totals."
+  },
+  "one_liner": "elif is a waterfall — the first true branch catches everything flowing past it, so test the strictest first.",
+  "trace_watch": [
+    "t",
+    "fees"
+  ]
+}

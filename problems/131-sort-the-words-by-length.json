@@ -1,0 +1,213 @@
+{
+  "id": "131",
+  "skill": "combo-sort-key",
+  "title": "Sort the words by length",
+  "scenario": "Words on cards, in a jumble. Put them shortest first.",
+  "data": {
+    "name": "words",
+    "value": [
+      "fig",
+      "banana",
+      "kiwi",
+      "apple"
+    ]
+  },
+  "intro": {
+    "job": "Words on cards, in a jumble. Put them shortest first.",
+    "idea": {
+      "rule": "Sort by length, not by alphabet — key=len measures each word first.",
+      "detail": "Two patterns chained: sorting (013) puts the words in order; len (015) as the key — the key idea moves over from max (124) — says what 'in order' means. The draft sorts without a key, so it sorts alphabetically and the short words land wherever the alphabet puts them."
+    },
+    "watch": {
+      "code": "ordered = sorted(words, key=len)\nprint(ordered)",
+      "data": {
+        "name": "words",
+        "value": [
+          "pear",
+          "plum",
+          "fig"
+        ]
+      },
+      "trace_watch": [
+        "ordered"
+      ]
+    }
+  },
+  "model_restatement": "Put the words shortest first — and print them.",
+  "clarify": [
+    {
+      "keywords": [
+        "same",
+        "tie",
+        "equal"
+      ],
+      "question": "What if two words are the same length?",
+      "answer": "They stay in their original order — the sort is stable."
+    },
+    {
+      "keywords": [
+        "key",
+        "len"
+      ],
+      "question": "What does key=len do?",
+      "answer": "It sorts by each word's length instead of the word itself — len is the measuring stick."
+    },
+    {
+      "keywords": [
+        "longest",
+        "shortest",
+        "order"
+      ],
+      "question": "Shortest first or longest first?",
+      "answer": "Shortest first — add reverse=True to flip it."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Sort the words by their length. Print them shortest first.",
+  "draft_code": "ordered = sorted(words)\nprint(ordered)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is ordered?",
+      "kind": "value",
+      "var": "ordered"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "On the print line, what is ordered?",
+      "kind": "value",
+      "var": "ordered"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is ordered?",
+      "kind": "value",
+      "var": "ordered"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft sorts without a key, so it sorts alphabetically — 'fig' lands third even though it's the shortest word on the shelf.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "sorted without a key sorts the words themselves — alphabetically. A key sorts by what the key measures.",
+    "bridge": "What is sorted measuring here — the words, or their lengths?",
+    "fix": {
+      "rule": "Measure first, then sort: sorted(words, key=len).",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Sort by length — key=len measures each word first."
+        },
+        {
+          "line": 2,
+          "gloss": "Print them shortest first."
+        }
+      ],
+      "contrast": {
+        "wrong": "sorted(words)",
+        "wrong_note": "alphabetical — shortest lands anywhere",
+        "right": "sorted(words, key=len)",
+        "right_note": "shortest first, in length order"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "ordered = sorted(words, key=len)\nprint(ordered)",
+    "alternatives": [
+      {
+        "code": "words.sort(key=len)\nprint(words)",
+        "note": "Sort the list itself by length — same order, no new list."
+      }
+    ],
+    "hints": [
+      "What order are the words in now?",
+      "Alphabetical isn't length — what measures a word?",
+      "ordered = sorted(words, key=len) — then print it."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "words": [
+          "fig",
+          "banana",
+          "kiwi",
+          "apple"
+        ]
+      },
+      "expected": "['fig', 'kiwi', 'apple', 'banana']"
+    },
+    {
+      "input": {
+        "words": [
+          "bb",
+          "a",
+          "ccc"
+        ]
+      },
+      "expected": "['a', 'bb', 'ccc']"
+    },
+    {
+      "input": {
+        "words": [
+          "zebra",
+          "ox",
+          "cat"
+        ]
+      },
+      "expected": "['ox', 'cat', 'zebra']"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more shelf: ['pear', 'fig', 'watermelon', 'kiwi'] — shortest first?",
+    "data": {
+      "name": "words",
+      "value": [
+        "pear",
+        "fig",
+        "watermelon",
+        "kiwi"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelf, what gets printed?"
+    },
+    "recommended": "ordered = sorted(words, key=len)\nprint(ordered)",
+    "fix_hint": "Nothing to change — key=len measures each word, whatever the shelf is."
+  },
+  "one_liner": "Sort by length, not by alphabet — key=len measures each word first.",
+  "trace_watch": [
+    "ordered"
+  ]
+}

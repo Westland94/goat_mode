@@ -1,0 +1,250 @@
+{
+  "id": "062",
+  "skill": "booleans-logic",
+  "title": "The discount door",
+  "scenario": "Give a discount to any shopper with a coupon OR a birthday today.",
+  "data": {
+    "name": "shoppers",
+    "value": [
+      [
+        "ana",
+        true,
+        false
+      ],
+      [
+        "ben",
+        false,
+        true
+      ],
+      [
+        "cy",
+        false,
+        false
+      ]
+    ]
+  },
+  "intro": {
+    "job": "Give a discount to any shopper with a coupon OR a birthday today.",
+    "idea": {
+      "rule": "and needs both keys; or needs either one — read the condition out loud as English.",
+      "detail": "Python's and is True only when both sides are True; or is True when at least one side is. English is looser — 'coupons and birthdays get a discount' really means either one. Before you write the condition, say it out loud the way Python will read it: 'has a coupon OR has a birthday today'."
+    },
+    "watch": {
+      "code": "coupon, birthday = flags\nif coupon or birthday:\n    deal = 'yes'\nelse:\n    deal = 'no'\nprint(deal)",
+      "data": {
+        "name": "flags",
+        "value": [
+          true,
+          false
+        ]
+      },
+      "trace_watch": [
+        "coupon",
+        "birthday",
+        "deal"
+      ]
+    }
+  },
+  "model_restatement": "Go through the shoppers and list everyone with a coupon or a birthday today.",
+  "clarify": [
+    {
+      "keywords": [
+        "both"
+      ],
+      "question": "What if someone has both?",
+      "answer": "Then they're definitely in."
+    },
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "in order",
+        "output order"
+      ],
+      "question": "What order should the list be in?",
+      "answer": "The order they arrived in."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no shoppers",
+        "nobody",
+        "none"
+      ],
+      "question": "What if there are no shoppers?",
+      "answer": "Then nobody gets a discount: an empty list."
+    },
+    {
+      "keywords": [
+        "spending",
+        "spend",
+        "minimum",
+        "amount"
+      ],
+      "question": "Any spending rule?",
+      "answer": "No spending rule today."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "We discount coupon holders and birthday shoppers. For each shopper, check coupon and birthday; if that passes, add them to the list. Print who's in.",
+  "draft_code": "inside = []\nfor name, coupon, birthday in shoppers:\n    if coupon and birthday:\n        inside.append(name)\nprint(inside)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 2
+      },
+      "prompt": "Ana (coupon, no birthday) has been checked. As the loop picks up ben, what is inside?",
+      "kind": "value",
+      "var": "inside"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 2,
+        "iteration": 2
+      },
+      "prompt": "With the fix — as the loop picks up ben, what is inside?",
+      "kind": "value",
+      "var": "inside"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "coupon and birthday is True only when both are True — ana has a coupon but no birthday, so the 'and' says no.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "and is a door with two locks: ana has the coupon key but not the birthday key, so the door stays shut.",
+    "bridge": "So which word lets her in with just one key?",
+    "fix": {
+      "rule": "or opens the door if either key fits — say it out loud: 'coupon or birthday'.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Nobody's inside yet."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next shopper: their name, coupon and birthday flags."
+        },
+        {
+          "line": 3,
+          "gloss": "Either key is enough: a coupon, or a birthday."
+        },
+        {
+          "line": 4,
+          "gloss": "They're in — add their name."
+        }
+      ],
+      "contrast": {
+        "wrong": "if coupon and birthday:",
+        "wrong_note": "needs both keys",
+        "right": "if coupon or birthday:",
+        "right_note": "either key works"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "inside = []\nfor name, coupon, birthday in shoppers:\n    if coupon or birthday:\n        inside.append(name)\nprint(inside)",
+    "alternatives": [
+      {
+        "code": "inside = [name for name, coupon, birthday in shoppers if coupon or birthday]\nprint(inside)",
+        "note": "The shortcut — once you can trace the long way."
+      }
+    ],
+    "hints": [
+      "Ana has a coupon but no birthday. Does 'coupon and birthday' let her in?",
+      "and needs both to be True. You want either one.",
+      "if coupon or birthday:"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "shoppers": [
+          [
+            "ana",
+            true,
+            false
+          ],
+          [
+            "ben",
+            false,
+            true
+          ],
+          [
+            "cy",
+            false,
+            false
+          ]
+        ]
+      },
+      "expected": "['ana', 'ben']"
+    },
+    {
+      "input": {
+        "shoppers": [
+          [
+            "dee",
+            false,
+            false
+          ],
+          [
+            "eve",
+            false,
+            false
+          ]
+        ]
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Ana has BOTH, ben has a coupon: [['ana', true, true], ['ben', true, false]] — who's in?",
+    "data": {
+      "name": "shoppers",
+      "value": [
+        [
+          "ana",
+          true,
+          true
+        ],
+        [
+          "ben",
+          true,
+          false
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With ana holding both, what gets printed?"
+    },
+    "recommended": "inside = []\nfor name, coupon, birthday in shoppers:\n    if coupon or birthday:\n        inside.append(name)\nprint(inside)",
+    "fix_hint": "Nothing to change — or is True when one side is True, and also when both are."
+  },
+  "one_liner": "and needs both keys; or needs either one — read the condition out loud as English.",
+  "trace_watch": [
+    "name",
+    "coupon",
+    "birthday",
+    "inside"
+  ]
+}

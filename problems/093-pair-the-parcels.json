@@ -1,0 +1,249 @@
+{
+  "id": "093",
+  "skill": "hashmap-two-sum",
+  "title": "Pair the parcels",
+  "scenario": "Two parcels must add up to exactly the van's weight limit. Which two?",
+  "data": {
+    "name": "load",
+    "value": [
+      [
+        6,
+        2,
+        5,
+        7
+      ],
+      12
+    ]
+  },
+  "intro": {
+    "job": "Two parcels must add up to exactly the van's weight limit. Which two?",
+    "idea": {
+      "rule": "Check for the partner BEFORE you file the number — otherwise a number can pair with itself.",
+      "detail": "The hashmap trick: walk the list once, and keep a dict of every weight you've already seen and where it was. For each new weight, the partner you need is limit - w — one dict lookup tells you whether you've met it. Look first, then file: the dict should only ever hold weights from BEFORE this one."
+    },
+    "watch": {
+      "code": "weights, limit = load\nseen = {}\npair = None\nfor i, w in enumerate(weights):\n    if limit - w in seen:\n        pair = (seen[limit - w], i)\n        break\n    seen[w] = i\nprint(pair)",
+      "data": {
+        "name": "load",
+        "value": [
+          [
+            2,
+            9,
+            3
+          ],
+          11
+        ]
+      },
+      "trace_watch": [
+        "w",
+        "seen",
+        "pair"
+      ]
+    }
+  },
+  "model_restatement": "Find the positions of two different parcels that add up to the van's limit.",
+  "clarify": [
+    {
+      "keywords": [
+        "same weight twice",
+        "same one twice",
+        "use twice",
+        "itself",
+        "same parcel",
+        "used twice"
+      ],
+      "question": "Can one parcel be used twice?",
+      "answer": "No — two different parcels. (Two parcels can weigh the same, though.)"
+    },
+    {
+      "keywords": [
+        "no pair",
+        "none",
+        "no answer",
+        "not possible",
+        "work"
+      ],
+      "question": "What if no two parcels work?",
+      "answer": "Today there's always exactly one answer."
+    },
+    {
+      "keywords": [
+        "format",
+        "positions",
+        "indexes",
+        "indices",
+        "values",
+        "print",
+        "output"
+      ],
+      "question": "Positions or weights?",
+      "answer": "Print the two positions, earlier one first: (i, j)."
+    },
+    {
+      "keywords": [
+        "sorted",
+        "sort",
+        "order"
+      ],
+      "question": "Are the weights sorted?",
+      "answer": "No — in the order they're listed."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Load holds the weights and the limit. Walk the weights; file each one in seen, then check whether its partner is in seen. Print the first pair you find.",
+  "draft_code": "weights, limit = load\nseen = {}\npair = None\nfor i, w in enumerate(weights):\n    seen[w] = i\n    if limit - w in seen:\n        pair = (seen[limit - w], i)\n        break\nprint(pair)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 (weight 6): after line 5, what is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 7,
+        "iteration": 1
+      },
+      "prompt": "Still iteration 1: line 7 runs. What is pair?",
+      "kind": "value",
+      "var": "pair"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 8,
+        "iteration": 2
+      },
+      "prompt": "With the fix — iteration 2 (weight 2) is over. What is seen?",
+      "kind": "value",
+      "var": "seen"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Line 5 files the 6 before line 6 looks for its partner — and the partner of 6 (for 12) is 6, which is now in seen. The 6 pairs with itself: (0, 0).",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Filing first is writing your own name on the guest list and then finding yourself on it — the 6 shakes hands with itself.",
+    "bridge": "So what order would only ever find partners from EARLIER in the list?",
+    "fix": {
+      "rule": "Look first, then file: seen only holds earlier weights, so a number can't find itself.",
+      "walk": [
+        {
+          "line": 4,
+          "gloss": "Walk the weights, with their positions."
+        },
+        {
+          "line": 5,
+          "gloss": "Have we already met this weight's partner?"
+        },
+        {
+          "line": 6,
+          "gloss": "Yes — that's the pair: the partner's position, then this one's."
+        },
+        {
+          "line": 8,
+          "gloss": "No — file this weight, so later weights can find it."
+        }
+      ],
+      "contrast": {
+        "wrong": "seen[w] = i  (then check)",
+        "wrong_note": "a weight can find itself",
+        "right": "check, then seen[w] = i",
+        "right_note": "only earlier weights count"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "weights, limit = load\nseen = {}\npair = None\nfor i, w in enumerate(weights):\n    if limit - w in seen:\n        pair = (seen[limit - w], i)\n        break\n    seen[w] = i\nprint(pair)",
+    "alternatives": [
+      {
+        "code": "weights, limit = load\npair = None\nfor i in range(len(weights)):\n    for j in range(i + 1, len(weights)):\n        if weights[i] + weights[j] == limit and pair is None:\n            pair = (i, j)\nprint(pair)",
+        "note": "Check every pair — correct, but it looks again and again (slow on long lists)."
+      }
+    ],
+    "hints": [
+      "Iteration 1: when line 6 looks for 12 - 6, what's already in seen?",
+      "Line 5 files the 6 before you look — so the 6 finds itself.",
+      "Move seen[w] = i to after the if (and its break)."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "load": [
+          [
+            6,
+            2,
+            5,
+            7
+          ],
+          12
+        ]
+      },
+      "expected": "(2, 3)"
+    },
+    {
+      "input": {
+        "load": [
+          [
+            5,
+            5,
+            1
+          ],
+          10
+        ]
+      },
+      "expected": "(0, 1)"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Two parcels weigh the same: [4, 4, 1] with limit 8 — which two?",
+    "data": {
+      "name": "load",
+      "value": [
+        [
+          4,
+          4,
+          1
+        ],
+        8
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With weights [4, 4, 1] and limit 8, what gets printed?"
+    },
+    "recommended": "weights, limit = load\nseen = {}\npair = None\nfor i, w in enumerate(weights):\n    if limit - w in seen:\n        pair = (seen[limit - w], i)\n        break\n    seen[w] = i\nprint(pair)",
+    "fix_hint": "Nothing to change — two different 4s can pair, because the first 4 is filed before the second one looks."
+  },
+  "one_liner": "Check for the partner BEFORE you file the number — otherwise a number can pair with itself.",
+  "trace_watch": [
+    "i",
+    "w",
+    "seen",
+    "pair"
+  ]
+}

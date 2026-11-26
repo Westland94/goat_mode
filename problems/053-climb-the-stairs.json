@@ -1,0 +1,201 @@
+{
+  "id": "053",
+  "skill": "dp-climbing-stairs",
+  "title": "Climb the stairs",
+  "scenario": "You climb a staircase taking 1 or 2 steps at a time. How many different ways can you climb 5 steps?",
+  "data": {
+    "name": "n",
+    "value": 5
+  },
+  "intro": {
+    "job": "You climb a staircase taking 1 or 2 steps at a time. How many different ways can you climb 5 steps?",
+    "idea": {
+      "rule": "Each step comes from the two BEFORE it — update both from the old values at once.",
+      "detail": "To reach step i, your last move was either a 1-step (from i - 1) or a 2-step (from i - 2) — so ways(i) = ways(i - 1) + ways(i - 2). Instead of recursing, roll forward: keep just the last two answers, a and b, and move them up one step at a time — both from the values they held before the pass, so each step is built from the two before it. Each pass of the loop climbs one step, so it has to run all the way up to and including step n."
+    },
+    "watch": {
+      "code": "a = 1\nb = 1\nfor i in range(2, n + 1):\n    a, b = b, a + b\nanswer = b\nprint(answer)",
+      "data": {
+        "name": "n",
+        "value": 4
+      },
+      "trace_watch": [
+        "i",
+        "a",
+        "b"
+      ]
+    }
+  },
+  "model_restatement": "Count the different sequences of 1-steps and 2-steps that add up to n.",
+  "clarify": [
+    {
+      "keywords": [
+        "3 steps",
+        "three",
+        "bigger steps"
+      ],
+      "question": "Can I take 3 steps at once?",
+      "answer": "No — only 1 or 2."
+    },
+    {
+      "keywords": [
+        "order",
+        "different order",
+        "same steps"
+      ],
+      "question": "Does order matter?",
+      "answer": "Yes — 1 then 2 is a different way from 2 then 1."
+    },
+    {
+      "keywords": [
+        "zero",
+        "n is 1",
+        "small",
+        "smallest"
+      ],
+      "question": "What's the smallest staircase?",
+      "answer": "At least 1 step."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Steps 0 and 1 have 1 way each. For each step from 2 up to n, the ways are the two before it added. Print the ways for n.",
+  "draft_code": "a = 1\nb = 1\nfor i in range(2, n + 1):\n    b = a + b\n    a = b\nanswer = b\nprint(answer)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Iteration 2 (step 3): after line 4, what is b?",
+      "kind": "value",
+      "var": "b"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "The loop is done. What is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — when the loop is done, what is answer?",
+      "kind": "value",
+      "var": "answer"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "b = a + b then a = b updates one at a time — b is already new when a copies it, so each pass doubles b: 2, 4, 8, 16, not 2, 3, 5, 8.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Each step comes from the two BEFORE it — update both from the old values at once.",
+    "bridge": "After step 3, b should be 3 — the ways for steps 1 and 2 added. What is b after the second pass, and which line made it that?",
+    "fix": {
+      "rule": "a, b = b, a + b: both update from the OLD values at once, so each step is built from the two before it.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Ways to stand on step 0 (doing nothing)."
+        },
+        {
+          "line": 2,
+          "gloss": "Ways to reach step 1."
+        },
+        {
+          "line": 3,
+          "gloss": "Climb step 2, 3, … all the way to n."
+        },
+        {
+          "line": 4,
+          "gloss": "Both change at once from the old values — new b is old a + old b, and a takes old b."
+        }
+      ],
+      "contrast": {
+        "wrong": "b = a + b\na = b",
+        "wrong_note": "b is already new when a copies it — each step doubles",
+        "right": "a, b = b, a + b",
+        "right_note": "both read the old values, so each step adds the two before it"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "a = 1\nb = 1\nfor i in range(2, n + 1):\n    a, b = b, a + b\nanswer = b\nprint(answer)",
+    "alternatives": [
+      {
+        "code": "def climb(k):\n    if k <= 1:\n        return 1\n    return climb(k - 1) + climb(k - 2)\nprint(climb(n))",
+        "note": "Count the ways by splitting on the first step — correct, but it re-counts the same stairs again and again."
+      }
+    ],
+    "hints": [
+      "After step 3, what should b be — and what is it?",
+      "The second line copies b after b already changed.",
+      "a, b = b, a + b"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "n": 5
+      },
+      "expected": "8"
+    },
+    {
+      "input": {
+        "n": 4
+      },
+      "expected": "5"
+    },
+    {
+      "input": {
+        "n": 2
+      },
+      "expected": "2"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A 6-step staircase — how many ways?",
+    "data": {
+      "name": "n",
+      "value": 6
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With n = 6, what gets printed?"
+    },
+    "recommended": "a = 1\nb = 1\nfor i in range(2, n + 1):\n    a, b = b, a + b\nanswer = b\nprint(answer)",
+    "fix_hint": "Nothing to change — 8 + 5 = 13."
+  },
+  "one_liner": "Each step comes from the two BEFORE it — update both from the old values at once.",
+  "trace_watch": [
+    "i",
+    "a",
+    "b",
+    "answer"
+  ]
+}

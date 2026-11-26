@@ -1,0 +1,220 @@
+{
+  "id": "128",
+  "skill": "combo-enumerate-break",
+  "title": "First word over four letters",
+  "scenario": "Words on a shelf. Where is the first word longer than four letters?",
+  "data": {
+    "name": "words",
+    "value": [
+      "sun",
+      "planet",
+      "moon",
+      "galaxy"
+    ]
+  },
+  "intro": {
+    "job": "Words on a shelf. Where is the first word longer than four letters?",
+    "idea": {
+      "rule": "Stop at the first match — without break the last match wins.",
+      "detail": "Two patterns chained: enumerate — new in this problem — hands you each word with its position; the early exit stops at the first word over four letters. The draft keeps walking after it finds the answer, so the last long word overwrites the first."
+    },
+    "watch": {
+      "code": "found = -1\nfor i, w in enumerate(words):\n    if len(w) > 4:\n        found = i\n        break\nprint(found)",
+      "data": {
+        "name": "words",
+        "value": [
+          "aaa",
+          "bbbbb",
+          "cc",
+          "ddddd"
+        ]
+      },
+      "trace_watch": [
+        "found"
+      ]
+    }
+  },
+  "model_restatement": "Find the first word longer than four letters — and print its position.",
+  "clarify": [
+    {
+      "keywords": [
+        "no word",
+        "none"
+      ],
+      "question": "What if no word is over four letters?",
+      "answer": "Then the answer is -1 — found never changes."
+    },
+    {
+      "keywords": [
+        "first",
+        "position",
+        "index"
+      ],
+      "question": "Is the answer the word or its position?",
+      "answer": "Its position — enumerate hands you the index with the word."
+    },
+    {
+      "keywords": [
+        "long",
+        "length"
+      ],
+      "question": "How long does a word have to be?",
+      "answer": "More than four letters — len(w) > 4, so a four-letter word doesn't count."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Walk the words with their positions. Stop at the first word over four letters. Print its position — or -1.",
+  "draft_code": "found = -1\nfor i, w in enumerate(words):\n    if len(w) > 4:\n        found = i\nprint(found)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "First long word: what is found?",
+      "kind": "value",
+      "var": "found"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 5,
+        "iteration": "after"
+      },
+      "prompt": "On the print line, what is found?",
+      "kind": "value",
+      "var": "found"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "With the fix — first long word: what is found?",
+      "kind": "value",
+      "var": "found"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft never stops: 'planet' sets found to 1, then 'galaxy' overwrites it with 3, so the first long word is lost.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "A loop that keeps walking after the answer overwrites it — break freezes the first match.",
+    "bridge": "What does found hold after the loop — the first long word's spot, or the last one's?",
+    "fix": {
+      "rule": "Stop at the first match: break the moment you find it.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Walk the words with their positions."
+        },
+        {
+          "line": 3,
+          "gloss": "Longer than four letters?"
+        },
+        {
+          "line": 4,
+          "gloss": "Remember this spot."
+        },
+        {
+          "line": 5,
+          "gloss": "Stop — the first match is the answer."
+        }
+      ],
+      "contrast": {
+        "wrong": "keep walking",
+        "wrong_note": "last match overwrites the first",
+        "right": "break at the first match",
+        "right_note": "the first spot sticks"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "found = -1\nfor i, w in enumerate(words):\n    if len(w) > 4:\n        found = i\n        break\nprint(found)",
+    "alternatives": [
+      {
+        "code": "print(next((i for i, w in enumerate(words) if len(w) > 4), -1))",
+        "note": "next takes the first match straight from the generator — -1 if there is none."
+      }
+    ],
+    "hints": [
+      "What happens to found after the first match?",
+      "The loop keeps going — stop it once you've found one.",
+      "Add break after found = i."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "words": [
+          "sun",
+          "planet",
+          "moon",
+          "galaxy"
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "words": [
+          "a",
+          "bb",
+          "ccc"
+        ]
+      },
+      "expected": "-1"
+    },
+    {
+      "input": {
+        "words": [
+          "xxxxx",
+          "yyyyy"
+        ]
+      },
+      "expected": "0"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more shelf: ['red', 'orange', 'blue', 'purple'] — where is the first word over four letters?",
+    "data": {
+      "name": "words",
+      "value": [
+        "red",
+        "orange",
+        "blue",
+        "purple"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelf, what gets printed?"
+    },
+    "recommended": "found = -1\nfor i, w in enumerate(words):\n    if len(w) > 4:\n        found = i\n        break\nprint(found)",
+    "fix_hint": "Nothing to change — break stops at the first long word, whatever the shelf is."
+  },
+  "one_liner": "Stop at the first match — without break the last match wins.",
+  "trace_watch": [
+    "found"
+  ]
+}

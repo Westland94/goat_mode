@@ -1,0 +1,280 @@
+{
+  "id": "091",
+  "skill": "grouping-into-lists",
+  "title": "Songs by artist",
+  "scenario": "Songs come in as (artist, title) pairs. I need, per artist, the list of their songs.",
+  "data": {
+    "name": "songs",
+    "value": [
+      [
+        "ana",
+        "blue"
+      ],
+      [
+        "ben",
+        "red"
+      ],
+      [
+        "ana",
+        "gold"
+      ]
+    ]
+  },
+  "intro": {
+    "job": "Songs come in as (artist, title) pairs. I need, per artist, the list of their songs.",
+    "idea": {
+      "rule": "To group, keep one list per key and append to it — assigning a new list throws the old one away.",
+      "detail": "groups[artist] = [title] makes a brand-new one-song list every time — the songs already collected for that artist are thrown away. setdefault(artist, []) hands back the list that's already there (or makes an empty one the first time), and .append(title) adds to it — so the list grows instead of restarting."
+    },
+    "watch": {
+      "code": "by_kind = {}\nfor kind, name in pets:\n    by_kind.setdefault(kind, []).append(name)\nprint(by_kind)",
+      "data": {
+        "name": "pets",
+        "value": [
+          [
+            "bird",
+            "tweety"
+          ],
+          [
+            "fish",
+            "nemo"
+          ],
+          [
+            "bird",
+            "polly"
+          ]
+        ]
+      },
+      "trace_watch": [
+        "kind",
+        "name",
+        "by_kind"
+      ]
+    }
+  },
+  "model_restatement": "Group the titles by artist — one list per artist, in the order the songs came in.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no songs",
+        "none",
+        "nothing"
+      ],
+      "question": "What if there are no songs?",
+      "answer": "Then an empty dict."
+    },
+    {
+      "keywords": [
+        "order",
+        "same order",
+        "in order"
+      ],
+      "question": "Does order matter?",
+      "answer": "Yes — keep the songs in the order they came in."
+    },
+    {
+      "keywords": [
+        "twice",
+        "same",
+        "duplicate",
+        "again",
+        "repeat"
+      ],
+      "question": "What if the same song appears twice for one artist?",
+      "answer": "Then it appears twice in their list."
+    },
+    {
+      "keywords": [
+        "counts",
+        "count",
+        "items",
+        "titles",
+        "how many"
+      ],
+      "question": "Do you want counts, or the titles?",
+      "answer": "The titles."
+    },
+    {
+      "keywords": [
+        "library",
+        "defaultdict",
+        "collections",
+        "import"
+      ],
+      "question": "Can I use a library?",
+      "answer": "Yes — defaultdict(list) works too."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Make an empty dict. For each song, put the title in that artist's list. Print it.",
+  "draft_code": "groups = {}\nfor artist, title in songs:\n    groups[artist] = [title]\nprint(groups)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 1
+      },
+      "prompt": "After iteration 1, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "After iteration 3, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 3,
+        "iteration": 3
+      },
+      "prompt": "With the fix — after iteration 3, what is groups?",
+      "kind": "value",
+      "var": "groups"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "groups[artist] = [title] makes a fresh one-song list every time — ana's 'blue' is thrown away when 'gold' arrives.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Assign replaces: the third song hands ana a brand-new list ['gold'] — and 'blue', collected two turns ago, is gone.",
+    "bridge": "So how do you keep the list that's already there and add to it?",
+    "fix": {
+      "rule": "setdefault(artist, []) hands back ana's list — or an empty one the first time — and .append adds to it.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Start with an empty dict."
+        },
+        {
+          "line": 2,
+          "gloss": "Take each song in turn."
+        },
+        {
+          "line": 3,
+          "gloss": "Get that artist's list — or an empty one — and add this title."
+        },
+        {
+          "line": 4,
+          "gloss": "Show the groups."
+        }
+      ],
+      "contrast": {
+        "wrong": "groups[artist] = [title]",
+        "wrong_note": "a new list every time",
+        "right": "groups.setdefault(artist, []).append(title)",
+        "right_note": "the same list, growing"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "groups = {}\nfor artist, title in songs:\n    groups.setdefault(artist, []).append(title)\nprint(groups)",
+    "alternatives": [
+      {
+        "code": "groups = {}\nfor artist, title in songs:\n    if artist not in groups:\n        groups[artist] = []\n    groups[artist].append(title)\nprint(groups)",
+        "note": "Say the empty list out loud first — also fine."
+      },
+      {
+        "code": "from collections import defaultdict\ngroups = defaultdict(list)\nfor artist, title in songs:\n    groups[artist].append(title)\nprint(dict(groups))",
+        "note": "Let the dict supply the empty list for you."
+      }
+    ],
+    "hints": [
+      "After iteration 3, does ana still have 'blue'?",
+      "groups[artist] = [title] starts a new list — it doesn't add to the old one.",
+      "groups.setdefault(artist, []).append(title)"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "songs": []
+      },
+      "expected": "{}"
+    },
+    {
+      "input": {
+        "songs": [
+          [
+            "ana",
+            "blue"
+          ],
+          [
+            "ben",
+            "red"
+          ],
+          [
+            "ana",
+            "gold"
+          ]
+        ]
+      },
+      "expected": "{'ana': ['blue', 'gold'], 'ben': ['red']}"
+    },
+    {
+      "input": {
+        "songs": [
+          [
+            "cy",
+            "green"
+          ]
+        ]
+      },
+      "expected": "{'cy': ['green']}"
+    }
+  ],
+  "follow_up": {
+    "prompt": "The same song twice for one artist: [['ana', 'blue'], ['ana', 'blue']] — what gets printed?",
+    "data": {
+      "name": "songs",
+      "value": [
+        [
+          "ana",
+          "blue"
+        ],
+        [
+          "ana",
+          "blue"
+        ]
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the same song twice, what gets printed?"
+    },
+    "recommended": "groups = {}\nfor artist, title in songs:\n    groups.setdefault(artist, []).append(title)\nprint(groups)",
+    "fix_hint": "Nothing to change — grouping keeps every song, even a repeat."
+  },
+  "one_liner": "To group, keep one list per key and append to it — assigning a new list throws the old one away.",
+  "trace_watch": [
+    "artist",
+    "title",
+    "groups"
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "id": "063",
+  "skill": "lists-indexing",
+  "title": "Second in line",
+  "scenario": "Who's second in line?",
+  "data": {
+    "name": "line",
+    "value": [
+      "ana",
+      "ben",
+      "cy",
+      "di"
+    ]
+  },
+  "intro": {
+    "job": "Who's second in line?",
+    "idea": {
+      "rule": "Indexing counts from 0 — the second person stands at index 1.",
+      "detail": "A list numbers its spots from 0: the first person is at index 0, the second at 1. To get the person in place k, ask for index k - 1. Asking for index 2 gets you the third person."
+    },
+    "watch": {
+      "code": "first = queue[0]\nprint(first)",
+      "data": {
+        "name": "queue",
+        "value": [
+          "x",
+          "y"
+        ]
+      },
+      "trace_watch": [
+        "first"
+      ]
+    }
+  },
+  "model_restatement": "Print the name of the person in second place in the line.",
+  "clarify": [
+    {
+      "keywords": [
+        "short",
+        "shorter",
+        "fewer",
+        "less than two",
+        "not enough"
+      ],
+      "question": "What if fewer than two people are in line?",
+      "answer": "Today there are always at least two."
+    },
+    {
+      "keywords": [
+        "count from",
+        "first is",
+        "front",
+        "who's first",
+        "which end"
+      ],
+      "question": "Which end is the front?",
+      "answer": "The start of the list — ana is first."
+    },
+    {
+      "keywords": [
+        "quotes",
+        "format",
+        "print",
+        "output",
+        "give"
+      ],
+      "question": "How should I give the answer?",
+      "answer": "Just print the name."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Look at spot 2 in the line and print who's there.",
+  "draft_code": "second = line[2]\nprint(second)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is second?",
+      "kind": "value",
+      "var": "second"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is second?",
+      "kind": "value",
+      "var": "second"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "Indexes start at 0, so line[2] is the third spot — cy — not the second.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Python's line starts at spot 0: ana at 0, ben at 1 — so line[2] is the third person, cy.",
+    "bridge": "So which index is the second person standing on?",
+    "fix": {
+      "rule": "Place minus one: the second person is at index 1.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Spot 1 — the second person, counting from 0."
+        },
+        {
+          "line": 2,
+          "gloss": "Show who's there."
+        }
+      ],
+      "contrast": {
+        "wrong": "line[2]",
+        "wrong_note": "the third person",
+        "right": "line[1]",
+        "right_note": "the second person"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "second = line[1]\nprint(second)",
+    "alternatives": [],
+    "hints": [
+      "Who's at index 0?",
+      "Indexes start at 0 — the second spot is one less than 2.",
+      "second = line[1]"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "line": [
+          "ana",
+          "ben",
+          "cy",
+          "di"
+        ]
+      },
+      "expected": "ben"
+    },
+    {
+      "input": {
+        "line": [
+          "a",
+          "b",
+          "c"
+        ]
+      },
+      "expected": "b"
+    }
+  ],
+  "follow_up": {
+    "prompt": "Just two in line: ['a', 'b'] — who's second?",
+    "data": {
+      "name": "line",
+      "value": [
+        "a",
+        "b"
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With line = ['a', 'b'], what gets printed?"
+    },
+    "recommended": "second = line[1]\nprint(second)",
+    "fix_hint": "Nothing to change — the second person is still at index 1."
+  },
+  "one_liner": "Indexing counts from 0 — the second person stands at index 1.",
+  "trace_watch": [
+    "second"
+  ]
+}

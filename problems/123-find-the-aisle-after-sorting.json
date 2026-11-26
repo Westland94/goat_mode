@@ -1,0 +1,229 @@
+{
+  "id": "123",
+  "skill": "combo-sort-binary-search",
+  "title": "Find the aisle after sorting",
+  "scenario": "Five shelf numbers, unsorted. Where does 4 sit once they're sorted?",
+  "data": {
+    "name": "shelves",
+    "value": [
+      9,
+      2,
+      7,
+      4,
+      5
+    ]
+  },
+  "intro": {
+    "job": "Five shelf numbers, unsorted. Where does 4 sit once they're sorted?",
+    "idea": {
+      "rule": "Binary search only trusts a sorted list — sort first, then halve.",
+      "detail": "Two patterns chained: sorting (013) puts the shelf numbers in order; binary search (047) trusts that order — the middle tells you which half to throw away. On an unsorted list the middle tells you nothing: 7 is bigger than 4, but 4 is sitting to the right of it, and the search throws the right half away."
+    },
+    "watch": {
+      "code": "shelves = sorted(shelves)\nlo = 0\nhi = len(shelves) - 1\nwhile lo <= hi:\n    mid = (lo + hi) // 2\n    if shelves[mid] == 4:\n        break\n    elif shelves[mid] < 4:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nprint(mid if shelves[mid] == 4 else -1)",
+      "data": {
+        "name": "shelves",
+        "value": [
+          8,
+          1,
+          6,
+          4
+        ]
+      },
+      "trace_watch": [
+        "mid"
+      ]
+    }
+  },
+  "model_restatement": "Find where 4 sits in the sorted list — and print its index.",
+  "clarify": [
+    {
+      "keywords": [
+        "missing",
+        "not there",
+        "absent"
+      ],
+      "question": "What if 4 is missing?",
+      "answer": "Then the answer is -1 — the search runs out of halves."
+    },
+    {
+      "keywords": [
+        "sorted",
+        "sort"
+      ],
+      "question": "Why sort first?",
+      "answer": "Halving trusts the order — on an unsorted list the middle tells you nothing about which half holds 4."
+    },
+    {
+      "keywords": [
+        "index",
+        "position"
+      ],
+      "question": "Is the answer the index or the position?",
+      "answer": "The index in the sorted list — 0-based, like the shelf numbers."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Halve the list: look at the middle, go left if it's too big, right if it's too small. Print the index — or -1.",
+  "draft_code": "lo = 0\nhi = len(shelves) - 1\nwhile lo <= hi:\n    mid = (lo + hi) // 2\n    if shelves[mid] == 4:\n        break\n    elif shelves[mid] < 4:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nprint(mid if shelves[mid] == 4 else -1)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "First probe: what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 2
+      },
+      "prompt": "Second probe: what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 5,
+        "iteration": 3
+      },
+      "prompt": "With the fix — third probe: what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The list isn't sorted, so the middle tells the search nothing — 7 is bigger than 4, but 4 is sitting to the right of it, and the search throws the right half away.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Halving an unsorted list is like looking for a book by opening the middle of a shuffled shelf and assuming everything left is smaller — the middle tells you nothing.",
+    "bridge": "What does the middle element tell you — and what has to be true about the list for it to tell you that?",
+    "fix": {
+      "rule": "Sort first, then halve: the middle tells you which half to throw away — now the throws are safe.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Sort the shelves first — the halving needs order."
+        },
+        {
+          "line": 5,
+          "gloss": "Look at the middle shelf."
+        },
+        {
+          "line": 6,
+          "gloss": "Four? Stop — found it."
+        },
+        {
+          "line": 8,
+          "gloss": "Too small — search the right half."
+        },
+        {
+          "line": 10,
+          "gloss": "Too big — search the left half."
+        }
+      ],
+      "contrast": {
+        "wrong": "halve the unsorted list",
+        "wrong_note": "throws away the half holding 4",
+        "right": "sort, then halve",
+        "right_note": "the middle points at 4"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "shelves = sorted(shelves)\nlo = 0\nhi = len(shelves) - 1\nwhile lo <= hi:\n    mid = (lo + hi) // 2\n    if shelves[mid] == 4:\n        break\n    elif shelves[mid] < 4:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nprint(mid if shelves[mid] == 4 else -1)",
+    "alternatives": [
+      {
+        "code": "print(sorted(shelves).index(4))",
+        "note": "Sort, then ask the list where 4 is — the one-liner is the chain."
+      }
+    ],
+    "hints": [
+      "What does the middle element tell the search?",
+      "On an unsorted list the middle can't tell you which half holds 4.",
+      "Sort the list first: shelves = sorted(shelves) — then halve."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "shelves": [
+          9,
+          2,
+          7,
+          4,
+          5
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "shelves": [
+          8,
+          1,
+          6,
+          4
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "shelves": [
+          4,
+          9,
+          2
+        ]
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more shelf: [7, 4, 1, 9, 2] — where does 4 sit once sorted?",
+    "data": {
+      "name": "shelves",
+      "value": [
+        7,
+        4,
+        1,
+        9,
+        2
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new shelf, what gets printed?"
+    },
+    "recommended": "shelves = sorted(shelves)\nlo = 0\nhi = len(shelves) - 1\nwhile lo <= hi:\n    mid = (lo + hi) // 2\n    if shelves[mid] == 4:\n        break\n    elif shelves[mid] < 4:\n        lo = mid + 1\n    else:\n        hi = mid - 1\nprint(mid if shelves[mid] == 4 else -1)",
+    "fix_hint": "Nothing to change — sorting puts 4 at index 2, and the halving walks straight to it."
+  },
+  "one_liner": "Binary search only trusts a sorted list — sort first, then halve.",
+  "trace_watch": [
+    "mid"
+  ]
+}

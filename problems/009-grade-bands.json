@@ -1,0 +1,219 @@
+{
+  "id": "009",
+  "skill": "conditionals",
+  "title": "Grade bands",
+  "scenario": "Band each score: 90+ 'top', 60+ 'pass', else 'retry'.",
+  "data": {
+    "name": "scores",
+    "value": [
+      95,
+      72,
+      40
+    ]
+  },
+  "intro": {
+    "job": "Band each score: 90+ 'top', 60+ 'pass', else 'retry'.",
+    "idea": {
+      "rule": "elif is a waterfall — the first true branch catches everything flowing past it, so test the strictest first.",
+      "detail": "Python checks an if/elif chain top to bottom and runs only the first branch that's true; everything below it is skipped. So a loose test like >= 60 placed first swallows every high score before >= 90 ever gets a look. Strictest test on top; the looser ones catch what falls through."
+    },
+    "watch": {
+      "code": "if score >= 90:\n    band = 'top'\nelif score >= 60:\n    band = 'pass'\nelse:\n    band = 'retry'\nprint(band)",
+      "data": {
+        "name": "score",
+        "value": 95
+      },
+      "trace_watch": [
+        "band"
+      ]
+    }
+  },
+  "model_restatement": "Turn each score into its band — top, pass or retry — in the same order as the scores.",
+  "clarify": [
+    {
+      "keywords": [
+        "exactly",
+        "boundary",
+        "edge",
+        "inclusive",
+        "equal",
+        "equals"
+      ],
+      "question": "Does exactly 90 count as top?",
+      "answer": "Yes — 90 is top, 60 is pass."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no scores",
+        "none",
+        "nothing"
+      ],
+      "question": "What if there are no scores?",
+      "answer": "Then an empty list."
+    },
+    {
+      "keywords": [
+        "over 100",
+        "above 100",
+        "negative",
+        "invalid",
+        "range"
+      ],
+      "question": "Can a score be over 100 or negative?",
+      "answer": "No — scores are always 0 to 100."
+    },
+    {
+      "keywords": [
+        "format",
+        "same order",
+        "in order",
+        "output order",
+        "list",
+        "shape"
+      ],
+      "question": "What shape should the answer be?",
+      "answer": "A list of bands, in the same order as the scores."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "For each score: if it's at least 60 it's a pass; otherwise, if it's at least 90 it's top; otherwise it's a retry. Print the bands.",
+  "draft_code": "bands = []\nfor s in scores:\n    if s >= 60:\n        bands.append('pass')\n    elif s >= 90:\n        bands.append('top')\n    else:\n        bands.append('retry')\nprint(bands)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "Iteration 1 is the 95. After its append, what is bands?",
+      "kind": "value",
+      "var": "bands"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "With the fix — after the 95's append, what is bands?",
+      "kind": "value",
+      "var": "bands"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "95 >= 60 is already true, so the first branch catches it as 'pass' — the elif s >= 90 below it never even gets checked.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "An if/elif chain is a waterfall: 95 lands in the first bucket that says yes — and 'at least 60' says yes before 'at least 90' gets a turn.",
+    "bridge": "So which test has to come first for 95 to land in 'top'?",
+    "fix": {
+      "rule": "Strictest test on top: 95 hits '>= 90' before it ever reaches '>= 60'.",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "An empty list for the bands."
+        },
+        {
+          "line": 2,
+          "gloss": "Take the next score."
+        },
+        {
+          "line": 3,
+          "gloss": "Check the strict band first: is it at least 90?"
+        },
+        {
+          "line": 4,
+          "gloss": "Yes for 95 — it goes in as 'top', and the rest of the chain is skipped."
+        }
+      ],
+      "contrast": {
+        "wrong": "if s >= 60:",
+        "wrong_note": "catches 95 first",
+        "right": "if s >= 90:",
+        "right_note": "lets 95 reach 'top'"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "bands = []\nfor s in scores:\n    if s >= 90:\n        bands.append('top')\n    elif s >= 60:\n        bands.append('pass')\n    else:\n        bands.append('retry')\nprint(bands)",
+    "alternatives": [
+      {
+        "code": "bands = []\nfor s in scores:\n    if s < 60:\n        bands.append('retry')\n    elif s < 90:\n        bands.append('pass')\n    else:\n        bands.append('top')\nprint(bands)",
+        "note": "The same waterfall, tested from the bottom up — also fine."
+      }
+    ],
+    "hints": [
+      "Follow 95 through the ifs. Which test does it hit first?",
+      "elif only runs if everything above it was false — and 95 >= 60 is already true.",
+      "Test s >= 90 first, then s >= 60."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "scores": [
+          95,
+          72,
+          40
+        ]
+      },
+      "expected": "['top', 'pass', 'retry']"
+    },
+    {
+      "input": {
+        "scores": [
+          90,
+          60,
+          59
+        ]
+      },
+      "expected": "['top', 'pass', 'retry']"
+    },
+    {
+      "input": {
+        "scores": []
+      },
+      "expected": "[]"
+    }
+  ],
+  "follow_up": {
+    "prompt": "A new band: 75 and up is 'good'. Where does it slot in?",
+    "data": {
+      "name": "scores",
+      "value": [
+        80,
+        95,
+        60
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With scores [80, 95, 60], what does your code print?"
+    },
+    "recommended": "bands = []\nfor s in scores:\n    if s >= 90:\n        bands.append('top')\n    elif s >= 75:\n        bands.append('good')\n    elif s >= 60:\n        bands.append('pass')\n    else:\n        bands.append('retry')\nprint(bands)",
+    "fix_hint": "Strictest first: 90, then 75, then 60."
+  },
+  "one_liner": "elif is a waterfall — the first true branch catches everything flowing past it, so test the strictest first.",
+  "trace_watch": [
+    "s",
+    "bands"
+  ]
+}

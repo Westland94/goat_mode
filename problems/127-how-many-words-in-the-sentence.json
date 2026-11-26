@@ -1,0 +1,185 @@
+{
+  "id": "127",
+  "skill": "combo-split-len",
+  "title": "How many words in the sentence?",
+  "scenario": "A sentence on a card. How many words are in it?",
+  "data": {
+    "name": "sentence",
+    "value": "the quick brown fox"
+  },
+  "intro": {
+    "job": "A sentence on a card. How many words are in it?",
+    "idea": {
+      "rule": "Split the sentence into words first — then len counts words, not characters.",
+      "detail": "Two patterns chained: splitting the sentence — new in this problem — turns it into a list of words; len (015) counts the list. The draft counts the sentence itself, so it counts characters, not words."
+    },
+    "watch": {
+      "code": "words = sentence.split()\nprint(len(words))",
+      "data": {
+        "name": "sentence",
+        "value": "hi there"
+      },
+      "trace_watch": [
+        "words"
+      ]
+    }
+  },
+  "model_restatement": "Count the words in the sentence — and print the number.",
+  "clarify": [
+    {
+      "keywords": [
+        "empty",
+        "no words",
+        "none"
+      ],
+      "question": "What if there are no words?",
+      "answer": "Not today — there's always at least one word."
+    },
+    {
+      "keywords": [
+        "split",
+        "spaces"
+      ],
+      "question": "What does split cut on?",
+      "answer": "Whatever sits between spaces — split cuts the sentence at the spaces."
+    },
+    {
+      "keywords": [
+        "letters",
+        "characters"
+      ],
+      "question": "Do the letters count?",
+      "answer": "No — the words do. len counts what you hand it: the sentence is letters, the split list is words."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Split the sentence at the spaces. Count the pieces. Print the count.",
+  "draft_code": "n = len(sentence)\nprint(n)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "After line 1, what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": {
+        "line": 2,
+        "iteration": 0
+      },
+      "prompt": "On the print line, what is n?",
+      "kind": "value",
+      "var": "n"
+    },
+    {
+      "id": "P3",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 1,
+        "iteration": 0
+      },
+      "prompt": "With the fix — after line 1, what is words?",
+      "kind": "value",
+      "var": "words"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The draft hands len the whole sentence, so it counts 19 characters instead of 4 words.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "len counts what you hand it — hand it the sentence and it counts characters; hand it the split list and it counts words.",
+    "bridge": "What is len counting here — words, or the characters in the sentence?",
+    "fix": {
+      "rule": "Split first, then count: len(sentence.split()).",
+      "walk": [
+        {
+          "line": 1,
+          "gloss": "Split the sentence at the spaces — now it's a list of words."
+        },
+        {
+          "line": 2,
+          "gloss": "Count the list, not the sentence."
+        }
+      ],
+      "contrast": {
+        "wrong": "len(sentence)",
+        "wrong_note": "counts characters",
+        "right": "len(sentence.split())",
+        "right_note": "counts words"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "words = sentence.split()\nprint(len(words))",
+    "alternatives": [
+      {
+        "code": "print(len(sentence.split()))",
+        "note": "Split and count in one line — the list never needs a name."
+      }
+    ],
+    "hints": [
+      "What does len see when you hand it the whole sentence?",
+      "Turn the sentence into a list of words first.",
+      "words = sentence.split() — then len(words)."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "sentence": "the quick brown fox"
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "sentence": "a b"
+      },
+      "expected": "2"
+    },
+    {
+      "input": {
+        "sentence": "x"
+      },
+      "expected": "1"
+    }
+  ],
+  "follow_up": {
+    "prompt": "One more card: 'one two three four five' — how many words?",
+    "data": {
+      "name": "sentence",
+      "value": "one two three four five"
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new card, what gets printed?"
+    },
+    "recommended": "words = sentence.split()\nprint(len(words))",
+    "fix_hint": "Nothing to change — split cuts at the spaces, whatever the sentence is."
+  },
+  "one_liner": "Split the sentence into words first — then len counts words, not characters.",
+  "trace_watch": [
+    "words"
+  ]
+}

@@ -1,0 +1,234 @@
+{
+  "id": "149",
+  "skill": "binary-search-first-bad",
+  "title": "First Bad Version",
+  "section": "leetcode",
+  "lc": {
+    "number": 278,
+    "title": "First Bad Version",
+    "difficulty": "Easy",
+    "slug": "first-bad-version"
+  },
+  "scenario": "Versions 1 to n of a product were released in order. At some version a bug appeared, and every version after that one is bad too. You're given is_bad(version), which says whether a version is bad. Return the first bad version, calling is_bad as few times as you can.\n\nExample 1:\nInput: n = 5, first bad = 4\nOutput: 4\nWhy: is_bad(3) is False, is_bad(5) is True, is_bad(4) is True — so 4 is the first bad one.\n\nExample 2:\nInput: n = 1, first bad = 1\nOutput: 1\n\nConstraints:\n1 <= first bad <= n <= 2^31 - 1\n\nWrite: def first_bad_version(n, is_bad) — the driver builds is_bad from case = [n, first_bad] = [5, 2] and prints the result.",
+  "data": {
+    "name": "case",
+    "value": [
+      5,
+      2
+    ]
+  },
+  "intro": {
+    "job": "Versions 1 to n of a product were released in order. At some version a bug appeared, and every version after that one is bad too. You're given is_bad(version), which says whether a version is bad. Return the first bad version, calling is_bad as few times as you can.\n\nExample 1:\nInput: n = 5, first bad = 4\nOutput: 4\nWhy: is_bad(3) is False, is_bad(5) is True, is_bad(4) is True — so 4 is the first bad one.\n\nExample 2:\nInput: n = 1, first bad = 1\nOutput: 1\n\nConstraints:\n1 <= first bad <= n <= 2^31 - 1\n\nWrite: def first_bad_version(n, is_bad) — the driver builds is_bad from case = [n, first_bad] = [5, 2] and prints the result.",
+    "idea": {
+      "rule": "A bad version you find is not necessarily the FIRST — keep narrowing to the left until lo and hi meet.",
+      "detail": "This is problem 048 (First bad version) in interview format. The versions run good, good, …, bad, bad: a bad middle means the first bad one is at mid or to its LEFT, so keep searching there (hi = mid - 1) instead of stopping. A good middle means it's to the right (lo = mid + 1). When the range is empty, lo is sitting on the first bad version."
+    },
+    "watch": {
+      "code": "def first_bad_version(n, is_bad):\n    lo, hi = 1, n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if is_bad(mid):\n            hi = mid - 1\n        else:\n            lo = mid + 1\n    return lo\n\nn, first_bad = case\ndef is_bad(version):\n    return version >= first_bad\nprint(first_bad_version(n, is_bad))",
+      "data": {
+        "name": "case",
+        "value": [
+          4,
+          3
+        ]
+      },
+      "trace_watch": [
+        "lo",
+        "hi",
+        "mid"
+      ]
+    }
+  },
+  "model_restatement": "Find the earliest version that is bad, by halving.",
+  "clarify": [
+    {
+      "keywords": [
+        "none bad",
+        "no bad",
+        "all good",
+        "no version",
+        "is bad"
+      ],
+      "question": "What if no version is bad?",
+      "answer": "Not today — at least one version is bad."
+    },
+    {
+      "keywords": [
+        "good after",
+        "comes back",
+        "fixed later",
+        "come after",
+        "good version"
+      ],
+      "question": "Can a good version come after a bad one?",
+      "answer": "No — once it's bad, everything after is bad."
+    },
+    {
+      "keywords": [
+        "start",
+        "zero",
+        "1-indexed",
+        "numbered"
+      ],
+      "question": "Do versions start at 0 or 1?",
+      "answer": "At 1 — versions are numbered 1 to n."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Halve the versions. If the middle version is bad, that's the answer — return it. Otherwise search to the right. Return lo.",
+  "draft_code": "def first_bad_version(n, is_bad):\n    lo, hi = 1, n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if is_bad(mid):\n            return mid\n        else:\n            lo = mid + 1\n    return lo\n\nn, first_bad = case\ndef is_bad(version):\n    return version >= first_bad\nprint(first_bad_version(n, is_bad))",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 1
+      },
+      "prompt": "First look: what is mid?",
+      "kind": "value",
+      "var": "mid"
+    },
+    {
+      "id": "P2",
+      "phase": "draft",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": {
+        "line": 6,
+        "iteration": 1
+      },
+      "prompt": "With the fix — version 3 is bad. After line 6, what is hi?",
+      "kind": "value",
+      "var": "hi"
+    },
+    {
+      "id": "P4",
+      "phase": "fixed",
+      "at": {
+        "line": 9,
+        "iteration": "after"
+      },
+      "prompt": "With the fix — the loop is done. What is lo?",
+      "kind": "value",
+      "var": "lo"
+    },
+    {
+      "id": "P5",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "The first middle is version 3, and it's bad — so the draft returns 3 on the spot. But version 2 is bad too: 3 is A bad version, not the FIRST one.",
+  "explain": {
+    "checkpoint": "P2",
+    "rule": "Stopping at the first bad version you trip over is calling the first cracked egg you pick up the first one laid — there may be cracked ones to its left.",
+    "bridge": "Version 3 is bad. Could the first bad version be earlier than 3?",
+    "fix": {
+      "rule": "A bad middle: hi = mid - 1, and keep looking left. When lo passes hi, lo is the first bad version.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Versions 1 to n are in range."
+        },
+        {
+          "line": 4,
+          "gloss": "Look at the middle version."
+        },
+        {
+          "line": 5,
+          "gloss": "Bad?"
+        },
+        {
+          "line": 6,
+          "gloss": "The first bad one is here or to the left — keep looking left."
+        },
+        {
+          "line": 9,
+          "gloss": "The range is empty: lo is the first bad version."
+        }
+      ],
+      "contrast": {
+        "wrong": "return mid",
+        "wrong_note": "stops at a bad version",
+        "right": "hi = mid - 1, then return lo",
+        "right_note": "finds the first"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def first_bad_version(n, is_bad):\n    lo, hi = 1, n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if is_bad(mid):\n            hi = mid - 1\n        else:\n            lo = mid + 1\n    return lo\n\nn, first_bad = case\ndef is_bad(version):\n    return version >= first_bad\nprint(first_bad_version(n, is_bad))",
+    "alternatives": [
+      {
+        "code": "def first_bad_version(n, is_bad):\n    for v in range(1, n + 1):\n        if is_bad(v):\n            return v\n\nn, first_bad = case\ndef is_bad(version):\n    return version >= first_bad\nprint(first_bad_version(n, is_bad))",
+        "note": "Check every version from the start — correct, but it calls is_bad up to n times."
+      }
+    ],
+    "hints": [
+      "The first middle is bad — is it the first bad one?",
+      "A bad middle only tells you the first bad version is here or earlier.",
+      "if is_bad(mid): hi = mid - 1 — and return lo at the end."
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "case": [
+          5,
+          4
+        ]
+      },
+      "expected": "4"
+    },
+    {
+      "input": {
+        "case": [
+          1,
+          1
+        ]
+      },
+      "expected": "1"
+    },
+    {
+      "input": {
+        "case": [
+          5,
+          2
+        ]
+      },
+      "expected": "2"
+    }
+  ],
+  "follow_up": {
+    "prompt": "New input: n = 7, first bad = 1 — which version?",
+    "data": {
+      "name": "case",
+      "value": [
+        7,
+        1
+      ]
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With the new input, what gets printed?"
+    },
+    "recommended": "def first_bad_version(n, is_bad):\n    lo, hi = 1, n\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if is_bad(mid):\n            hi = mid - 1\n        else:\n            lo = mid + 1\n    return lo\n\nn, first_bad = case\ndef is_bad(version):\n    return version >= first_bad\nprint(first_bad_version(n, is_bad))",
+    "fix_hint": "Nothing to change — the search keeps narrowing left until it reaches version 1."
+  },
+  "one_liner": "A bad version you find is not necessarily the FIRST — keep narrowing to the left until lo and hi meet.",
+  "trace_watch": [
+    "lo",
+    "hi",
+    "mid",
+    "is_bad"
+  ]
+}

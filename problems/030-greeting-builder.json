@@ -1,0 +1,169 @@
+{
+  "id": "030",
+  "skill": "functions-return",
+  "title": "Greeting builder",
+  "scenario": "Build a greeting string the app can put on a badge.",
+  "data": {
+    "name": "name",
+    "value": "ana"
+  },
+  "intro": {
+    "job": "Build a greeting string the app can put on a badge.",
+    "idea": {
+      "rule": "print shows YOU the number; return hands it back — a function that only prints is a dead end.",
+      "detail": "Same as the total helper: print shows text to a person, return hands a value to the code that called the function. A badge needs the value."
+    },
+    "watch": {
+      "code": "def shout(w):\n    return w.upper()\nloud = shout(word)\nprint(loud)",
+      "data": {
+        "name": "word",
+        "value": "yo"
+      },
+      "trace_watch": [
+        "loud"
+      ]
+    }
+  },
+  "model_restatement": "Write a helper that builds 'Hi, <name>!' and gives it back for the badge.",
+  "clarify": [
+    {
+      "keywords": [
+        "format",
+        "punctuation",
+        "comma",
+        "exclamation"
+      ],
+      "question": "Exact format?",
+      "answer": "Hi, then the name, then an exclamation mark: 'Hi, ana!'."
+    },
+    {
+      "keywords": [
+        "case",
+        "capital",
+        "uppercase",
+        "capitalise"
+      ],
+      "question": "Capitalise the name?",
+      "answer": "No — keep it as given."
+    },
+    {
+      "keywords": [
+        "empty",
+        "no name",
+        "blank"
+      ],
+      "question": "What if the name is empty?",
+      "answer": "There's always a name today."
+    }
+  ],
+  "clarify_fallback": "Good question — assume the simple case.",
+  "blueprint": "Write greet: make 'Hi, <name>!' and show it. Put greet's result on the badge and print the badge.",
+  "draft_code": "def greet(who):\n    print('Hi, ' + who + '!')\nbadge = greet(name)\nprint(badge)",
+  "checkpoints": [
+    {
+      "id": "P1",
+      "phase": "draft",
+      "at": {
+        "line": 4,
+        "iteration": 0
+      },
+      "prompt": "On the badge line (line 4), what is badge?",
+      "kind": "value",
+      "var": "badge"
+    },
+    {
+      "id": "P2",
+      "phase": "fixed",
+      "at": {
+        "line": 4,
+        "iteration": 0
+      },
+      "prompt": "With the fix — what is badge?",
+      "kind": "value",
+      "var": "badge"
+    },
+    {
+      "id": "P3",
+      "phase": "fixed",
+      "at": "end",
+      "prompt": "What gets printed?",
+      "kind": "value"
+    }
+  ],
+  "why_line": "greet prints the greeting but never returns it, so badge = greet(name) is None — the badge prints None.",
+  "explain": {
+    "checkpoint": "P1",
+    "rule": "Same cashier trap: greet reads 'Hi, ana!' out loud, then hands the badge an empty envelope — None.",
+    "bridge": "So what would put 'Hi, ana!' in the envelope?",
+    "fix": {
+      "rule": "return hands the greeting back, so badge holds the string itself.",
+      "walk": [
+        {
+          "line": 2,
+          "gloss": "Build the greeting and hand it back."
+        },
+        {
+          "line": 3,
+          "gloss": "Catch it in badge."
+        },
+        {
+          "line": 4,
+          "gloss": "Put it on the badge."
+        }
+      ],
+      "contrast": {
+        "wrong": "print('Hi, ' + who + '!')",
+        "wrong_note": "shows it, hands back None",
+        "right": "return 'Hi, ' + who + '!'",
+        "right_note": "hands the string back"
+      }
+    }
+  },
+  "fix": {
+    "recommended": "def greet(who):\n    return 'Hi, ' + who + '!'\nbadge = greet(name)\nprint(badge)",
+    "alternatives": [
+      {
+        "code": "def greet(who):\n    return f'Hi, {who}!'\nbadge = greet(name)\nprint(badge)",
+        "note": "An f-string builds the same text."
+      }
+    ],
+    "hints": [
+      "What is badge on line 4?",
+      "greet shows the text but hands back None.",
+      "return 'Hi, ' + who + '!'"
+    ]
+  },
+  "checks": [
+    {
+      "input": {
+        "name": "ana"
+      },
+      "expected": "Hi, ana!"
+    },
+    {
+      "input": {
+        "name": "cy"
+      },
+      "expected": "Hi, cy!"
+    }
+  ],
+  "follow_up": {
+    "prompt": "An empty name: '' — what's on the badge?",
+    "data": {
+      "name": "name",
+      "value": ""
+    },
+    "checkpoint": {
+      "id": "F1",
+      "at": "end",
+      "kind": "value",
+      "prompt": "With name = '', what gets printed?"
+    },
+    "recommended": "def greet(who):\n    return 'Hi, ' + who + '!'\nbadge = greet(name)\nprint(badge)",
+    "fix_hint": "Nothing to change — an empty name still greets 'Hi, !'."
+  },
+  "one_liner": "print shows YOU the number; return hands it back — a function that only prints is a dead end.",
+  "trace_watch": [
+    "badge"
+  ]
+}
