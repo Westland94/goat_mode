@@ -358,3 +358,8 @@ button.btn.opt[aria-pressed="true"] { animation: pick 160ms ease-out; }
 .sp-card.gone { animation: sp-card-out var(--motion-dur) var(--motion-ease) forwards; }
 .sp-graph-live .sp-fill { fill: var(--match); pointer-events: none; }
 .sp-graph-live .sp-token { fill: none; stroke: var(--vesper); stroke-width: 3; pointer-events: none; }
+/* sp25 (fix F1): the "past the end" marker after the last box at an IndexError step. Existing tokens only. */
+.sp-past { display: flex; flex-direction: column; align-items: center; min-width: 40px; padding: 4px 0; position: relative; z-index: 1; }
+.sp-past-box { min-width: 40px; min-height: 40px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--split); border-radius: var(--r-sm); color: var(--split); font-family: var(--mono); }
+.sp-past-label { font-family: var(--mono); font-size: var(--fs-xs); color: var(--split); font-weight: 700; margin-top: 2px; white-space: nowrap; }
+.sp-past-note { font-size: var(--fs-xs); color: var(--soft); white-space: nowrap; }

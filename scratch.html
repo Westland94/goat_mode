@@ -212,6 +212,25 @@
       // Event cap 400 (SCRATCHPAD-PLAN): events are counted along the stream; past the cap, values keep updating
       // with no highlight/animation classes.
       const EVENT_CAP = 400;
+      // sp18: a Python str repr → its characters (each shown as itself; control characters as their escape), or null.
+      function strChars(repr) {
+        if (typeof repr !== 'string' || repr.length < 2) return null;
+        const q = repr[0]; if ((q !== "'" && q !== '"') || repr[repr.length - 1] !== q) return null;
+        const body = repr.slice(1, -1), out = [];
+        const SIMPLE = { n: '\\n', t: '\\t', r: '\\r', '\\': '\\', "'": "'", '"': '"', '0': '\\0' };
+        for (let i = 0; i < body.length; i++) {
+          const c = body[i];
+          if (c !== '\\') { const cp = body.codePointAt(i); out.push(String.fromCodePoint(cp)); if (cp > 0xffff) i++; continue; }
+          const e = body[++i];
+          if (e === 'x') { out.push(String.fromCodePoint(parseInt(body.substr(i + 1, 2), 16))); i += 2; }
+          else if (e === 'u') { out.push(String.fromCodePoint(parseInt(body.substr(i + 1, 4), 16))); i += 4; }
+          else if (e === 'U') { out.push(String.fromCodePoint(parseInt(body.substr(i + 1, 8), 16))); i += 8; }
+          else out.push(SIMPLE[e] !== undefined ? SIMPLE[e] : '\\' + e);
+        }
+        return out;
+      }
+      // sp18: the stage's sequence — a list's top-level items, or a string's characters
+      const seqItems = (repr) => topItems(repr) || strChars(repr);
       function topItems(repr) {   // "[1, 'a,b', [2, 3]]" → ["1", "'a,b'", "[2, 3]"]; null if not a list repr
         if (typeof repr !== 'string') return null;
         const t = repr.trim(); if (t[0] !== '[' || t[t.length - 1] !== ']') return null;
@@ -228,7 +247,7 @@
         out.push(body.slice(start).trim());
         return out.map(noAddress);
       }
-      function evalIndex(expr, vars, name, len) {   // small, honest: ints, names, len(name), + and -; else null
+      function evalIndex(expr, vars, name, len, raw = false) {   // small, honest: ints, names, len(name), + and -; else null (sp25: raw → the integer itself, unclamped)
         const src = expr.replace(new RegExp(`len\\(\\s*${name}\\s*\\)`, 'g'), String(len)).trim();
         if (!/^[A-Za-z_0-9+\-\s]+$/.test(src)) return null;
         const toks = src.match(/[A-Za-z_][A-Za-z_0-9]*|\d+|[+\-]/g) || [];
@@ -242,6 +261,7 @@
           total += sign * v; sign = 1; want = 'op';
         }
         if (want === 'term') return null;
+        if (raw) return total;
         const i = total < 0 ? len + total : total;
         return i >= 0 && i < len ? i : null;
       }
@@ -260,11 +280,27 @@
       // insert / append gives the new tile a fresh id and shifts the rest, a pop / remove drops one id, a write keeps
       // the id (the tile stays, its value changes). The tile is keyed val:<id>, so between ANY two drawn steps (forward,
       // back or a long scrub) the motion layer slides each tile from where its value was to where it is.
-      function tileIds(prevVals, prevIds, before, after, fresh) {
+      // sp26 (fix F2): a shrinking slice assignment on this step's line — `name[a:b] = …` whose replacement is SHORTER
+      // than the slice. Returns {a, b, r} (r = replacement length), or null. Bounds evaluated on `before` (names,
+      // ints, len(name), + / -; negatives from the end; missing = 0 / len), clamped like Python.
+      function sliceShrink(lineText, name, vars, before, after) {
+        const S = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const m = lineText.match(new RegExp(`^\\s*${S}\\s*\\[\\s*([^:\\]]*)\\s*:\\s*([^:\\]]*)\\s*\\]\\s*=(?!=)`));
+        if (!m || !before || !after) return null;
+        const nb = before.length, bound = (t, dflt) => { if (!t.trim()) return dflt; const v = evalIndex(t, vars, name, nb, true); if (v === null) return null; return Math.max(0, Math.min(nb, v < 0 ? v + nb : v)); };
+        const a = bound(m[1], 0), b0 = bound(m[2], nb); if (a === null || b0 === null) return null;
+        const b = Math.max(a, b0), r = after.length - nb + (b - a);
+        if (r < 0 || r >= b - a) return null;                                  // shrink only (growth / same size: unchanged)
+        for (let i = 0; i < a; i++) if (before[i] !== after[i]) return null;   // must really be before[:a] + R + before[b:]
+        for (let i = b; i < nb; i++) if (before[i] !== after[i - (b - a) + r]) return null;
+        return { a, b, r };
+      }
+      function tileIds(prevVals, prevIds, before, after, fresh, slice = null) {
         const same = (x, y) => x && y && x.length === y.length && x.every((v, i) => v === y[i]);
         const idsB = before ? (same(prevVals, before) ? [...prevIds] : before.map((_, i) => (prevIds && prevIds[i] != null ? prevIds[i] : fresh()))) : null;
         if (!idsB) return after.map(() => fresh());
         const nb = before.length, na = after.length;
+        if (slice) return [...idsB.slice(0, slice.a + slice.r), ...idsB.slice(slice.b)];   // sp26: written slots keep their tiles, the cut tiles leave, the tail keeps its tiles (they slide left)
         if (na === nb) {
           const sorted = (x) => [...x].sort().join('\u0001');
           if (sorted(before) !== sorted(after) || same(before, after)) return idsB;   // writes (or nothing): tiles stay
@@ -286,7 +322,7 @@
         let events = 0, capped = false, nextId = 0, pv = null, pid = null;
         const fresh = () => nextId++;
         return { name, frames: run.steps.map((st) => {
-          const after = topItems((st.after || {})[name]), before = topItems((st.before || {})[name]);
+          const after = seqItems((st.after || {})[name]), before = seqItems((st.before || {})[name]);   // sp18: list or str
           const f = { values: after, writes: [], added: [], removed: [], reads: [], animate: false };
           if (!after) return f;
           if (before) {
@@ -301,12 +337,25 @@
               for (let i = nb; i < na; i++) f.added.push(i);
               for (let i = na; i < nb; i++) f.removed.push({ at: i, text: before[i] });
             }
+            // sp26: a shrinking slice — the replacement's slots are written in place (pulse only if the value changed),
+            // the cut part of the slice leaves (ghosts in its own slots), and the tail shifts left untouched
+            f.slice = sliceShrink(lines[st.line - 1] || '', name, st.before || {}, before, after);
+            if (f.slice) {
+              const { a, b, r } = f.slice;
+              f.writes = []; f.added = []; f.removed = [];
+              for (let i = a; i < a + r; i++) if (before[i] !== after[i]) f.writes.push(i);
+              for (let i = a + r; i < b; i++) f.removed.push({ at: i, text: before[i] });
+            }
             f.reads = readsOn(lines[st.line - 1] || '', name, st.before || {}, nb).filter((i) => !f.writes.includes(i));
+            // sp27 (fix F3): coming back under the cap. If the list was over the cap before this step, the stage showed
+            // the over-cap note and no boxes — there is nothing on screen to write, remove or read, so the boxes simply
+            // reappear (no ghost, no pulses).
+            if (nb > CAP) { f.writes = []; f.added = []; f.removed = []; f.reads = []; }
           } else f.added = after.map((_, i) => i);                         // the list appears at this step
           const n = f.writes.length + f.added.length + f.removed.length + f.reads.length;
           if (!capped && events + n <= EVENT_CAP) { events += n; f.animate = n > 0; } else if (n) capped = true;
           f.cappedFrom = capped;
-          f.ids = tileIds(pv, pid, before, after, fresh); pv = after; pid = f.ids;   // anim-3
+          f.ids = tileIds(pv, pid, before, after, fresh, f.slice || null); pv = after; pid = f.ids;   // anim-3 (+ sp26 slice shrink)
           return f;
         }), events };
       }
@@ -323,7 +372,8 @@
         const head = el('p', 'muted'); head.id = 'scratch-list-head';
         if (!f.values) { head.textContent = `${L.name} isn't a list at this step${(run.steps[k].after || {})[L.name] === undefined ? ' — not defined yet' : ''}.`; box.replaceChildren(head); return; }
         if (f.values.length > CAP) { overCap(head, L.name, f.values.length, CAP, 'value'); box.replaceChildren(head); return; }   // S14: run-time cap
-        head.textContent = `${L.name} — ${f.values.length} value${f.values.length === 1 ? '' : 's'} · step ${k + 1}` + (f.cappedFrom ? ' · animations off (400-event cap)' : '');
+        const unit = strChars((run.steps[k].after || {})[L.name]) ? 'character' : 'value';   // sp18
+        head.textContent = `${L.name} — ${f.values.length} ${unit}${f.values.length === 1 ? '' : 's'} · step ${k + 1}` + (f.cappedFrom ? ' · animations off (400-event cap)' : '');
         const row = el('div', 'sp-cells sp-live'); row.id = 'scratch-cells'; row.dataset.kind = 'list'; row.dataset.step = k;
         const a = f.animate;
         const cells = f.values.map((v, i) => {
@@ -348,19 +398,31 @@
       //   Rule 3: each pointer has an on/off control; off = gone from the marker row and the band from now on, for
       //           the whole run including scrubbing back; per run, per name; a new Run resets; overlay only.
       const HINTS = new Set(['l', 'r', 'left', 'right', 'start', 'end', 'i', 'j', 'lo', 'hi']);
+      // sp28 (fix F4): index users that only ever appear as `structure[-name]` count FROM THE END — the cell Python reads
+      // is len − value, so the pointer sits there (and Rule 1(b) applies to that resolved cell). A name used any other
+      // way in a subscript keeps the plain S10 rule. The label is unchanged.
+      function fromEndUsers(code, structure, users) {
+        const S = structure.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), out = new Set();
+        const subs = [...code.matchAll(new RegExp(`\\b${S}\\s*\\[([^\\[\\]]*)\\]`, 'g'))].map((m) => m[1]);
+        for (const u of users) {
+          const uses = subs.filter((t) => new RegExp(`\\b${u}\\b`).test(t));
+          if (uses.length && uses.every((t) => new RegExp(`^\\s*-\\s*${u}\\s*$`).test(t))) out.add(u);
+        }
+        return out;
+      }
       function buildPointers(run, structure, users) {
-        const U = new Set(users), seen = new Set();
+        const U = new Set(users), seen = new Set(), FE = fromEndUsers(run.code, structure, users);
         const steps = run.steps.map((st) => {
-          const after = st.after || {}, items = topItems(after[structure]), ptrs = {};
+          const after = st.after || {}, items = seqItems(after[structure]), ptrs = {};   // sp18: list or str
           if (!items) return { length: null, pointers: ptrs };
           for (const [name, rep] of Object.entries(after)) {
             if (name === structure || !U.has(name) || typeof rep !== 'string' || !/^-?\d+$/.test(rep)) continue;
-            const v = Number(rep);
-            if (v >= 0 && v < items.length) { ptrs[name] = { index: v, hinted: HINTS.has(name) }; seen.add(name); }
+            const v = FE.has(name) ? items.length - Number(rep) : Number(rep);   // sp28: from-the-end users resolve to len − value
+            if (v >= 0 && v < items.length) { ptrs[name] = { index: v, hinted: HINTS.has(name), ...(FE.has(name) ? { fromEnd: true } : {}) }; seen.add(name); }
           }
           return { length: items.length, pointers: Object.fromEntries(Object.entries(ptrs).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) };
         });
-        return { structure, users: [...U].sort(), names: [...seen].sort(), steps, off: new Set() };
+        return { structure, users: [...U].sort(), names: [...seen].sort(), steps, off: new Set(), fromEnd: [...FE].sort() };
       }
       function pointerState(k) {   // the overlay at step k after Rule 3: {pointers (on only), window}
         const P = window.scratchRun && window.scratchRun.pointers; if (!P) return null;
@@ -402,7 +464,7 @@
               if (entering) { if (!z.active) { z.count = 0; z.visited = []; } z.count += 1; z.active = true; z.depth = depth(k); }
               else { z.active = false; }
             } else if (z.active && depth(k) <= z.depth && !(st.line >= L.body[0] && st.line <= L.body[1])) z.active = false;   // left the loop another way (break)
-            const len = (topItems((st.after || {})[structure]) || []).length, idx = z.count - 1;
+            const len = (seqItems((st.after || {})[structure]) || []).length, idx = z.count - 1;   // sp18
             if (z.active && idx >= 0 && idx < len) { if (!z.visited.includes(idx)) z.visited.push(idx); out.push({ name: L.name, kind: L.kind, index: idx, visited: [...z.visited] }); }
             else if (z.visited.length) out.push({ name: L.name, kind: L.kind, index: null, visited: [...z.visited] });
           }
@@ -445,6 +507,21 @@
           if (S.window && i >= S.window[0] && i <= S.window[1]) cell.classList.add('in-window', ...(i === S.window[0] ? ['win-lo'] : []), ...(i === S.window[1] ? ['win-hi'] : []));
         });
         row.dataset.window = S.window ? S.window.join(',') : '';
+        // sp25 (fix F1): at an IndexError's own step, an index that is past the end of the structure has nothing to
+        // point at, so S10 draws nothing exactly where the code breaks. Find `name[expr]` on the error line whose
+        // index (evaluated on that step's `before`) is ≥ the length, and show one marker cell after the last box:
+        // "▲ i = 3" / "[10]" over "past the end". High side only; error step only; S10 rules unchanged.
+        const run = window.scratchRun, es = run && run.errorStep;
+        if (es && es.index === k && es.kind === 'IndexError') {
+          const st = run.steps[k], text = run.code.split('\n')[(st.line || 0) - 1] || '', len = live.length;
+          const re = new RegExp(`\\b${P.structure}\\s*\\[([^\\[\\]:]+)\\]`, 'g'); let m, hit = null;
+          while ((m = re.exec(text))) { const v = evalIndex(m[1], st.before || {}, P.structure, len, true); if (v !== null && v >= len) { hit = { expr: m[1].trim(), v }; break; } }
+          if (hit) {
+            const past = el('div', 'sp-past'); past.id = 'scratch-past-end'; past.dataset.index = hit.v;
+            past.append(el('div', 'sp-past-box', '·'), el('div', 'sp-past-label', /^[A-Za-z_]\w*$/.test(hit.expr) ? `▲ ${hit.expr} = ${hit.v}` : `[${hit.v}]`), el('div', 'sp-past-note', 'past the end'));
+            row.append(past);
+          }
+        }
         // anim-1: the band is one element per wrapped line of the row (keyed band:<line>), positioned behind the cells,
         // so a step change can tween its x and width instead of re-painting cell backgrounds. Geometry only.
         if (S.window) {
@@ -680,7 +757,7 @@
         for (const [x, y] of Gr.edgeOrder) if (pos[x] && pos[y]) { (adj.get(x) || adj.set(x, []).get(x)).push(y); (adj.get(y) || adj.set(y, []).get(y)).push(x); }
         const prev = new Map([[a, null]]), q = [a];
         while (q.length) { const u = q.shift(); if (u === b) break; for (const v of adj.get(u) || []) if (!prev.has(v)) { prev.set(v, u); q.push(v); } }
-        if (!prev.has(b)) return [a, b];   // no route on the map: the direct move (only possible on a disconnected map)
+        if (!prev.has(b)) return null;   // sp30: no route on the map (a disconnected island) — the caller fades instead of sliding
         const path = []; for (let u = b; u !== null; u = prev.get(u)) path.unshift(u); return path;
       }
       function graphMotion(Gr, f, pos, svg) {
@@ -690,12 +767,22 @@
         if (!last || dur <= 0) return;
         const tok = svg.querySelector('.sp-token');
         if (tok && last.tok && last.tok !== f.cur && pos[last.tok]) {
-          const path = graphPath(Gr, pos, last.tok, f.cur).map((n) => pos[n]), [fx, fy] = pos[f.cur];
-          const seg = path.slice(1).map((p, i) => Math.hypot(p[0] - path[i][0], p[1] - path[i][1])), total = seg.reduce((x, y) => x + y, 0) || 1;
-          let acc = 0;
-          const frames = path.map((p, i) => { if (i) acc += seg[i - 1]; return { transform: `translate(${p[0] - fx}px, ${p[1] - fy}px)`, offset: i === path.length - 1 ? 1 : acc / total }; });
-          tok.animate(frames, { duration: dur, easing, id: 'sp-motion' });
-          tok.dataset.path = path.length;
+          const route = graphPath(Gr, pos, last.tok, f.cur), [fx, fy] = pos[f.cur];
+          if (!route) {
+            // sp30 (fix F6): no route between the two nodes — never slide across empty map. The token fades out where it
+            // was, then fades in where it is now; it is never drawn between the two.
+            const [ox, oy] = pos[last.tok], away = `translate(${ox - fx}px, ${oy - fy}px)`;
+            tok.animate([{ transform: away, opacity: 1, offset: 0 }, { transform: away, opacity: 0, offset: 0.5 }, { transform: 'none', opacity: 0, offset: 0.5 }, { transform: 'none', opacity: 1, offset: 1 }],
+              { duration: dur, easing: 'linear', id: 'sp-motion' });
+            tok.dataset.path = 'fade';
+          } else {
+            const path = route.map((n) => pos[n]);
+            const seg = path.slice(1).map((p, i) => Math.hypot(p[0] - path[i][0], p[1] - path[i][1])), total = seg.reduce((x, y) => x + y, 0) || 1;
+            let acc = 0;
+            const frames = path.map((p, i) => { if (i) acc += seg[i - 1]; return { transform: `translate(${p[0] - fx}px, ${p[1] - fy}px)`, offset: i === path.length - 1 ? 1 : acc / total }; });
+            tok.animate(frames, { duration: dur, easing, id: 'sp-motion' });
+            tok.dataset.path = path.length;
+          }
         }
         for (const c of svg.querySelectorAll('.sp-fill')) {
           const n = Gr.order.find((m) => nodeLabel(m) === c.dataset.fill), from = (last.levels && last.levels[n]) || 0, to = levels[n];
@@ -847,6 +934,30 @@
         $('scratch-stackwrap').replaceChildren();   // S13
         if (lastShown) render(lastShown, false);   // S9: the stage goes back to the pasted structure (never touches the editor)
       }
+      // sp18: the first top-level `name = [` / `name = '` / `name = "` line in the code — the worker's first guess
+      function staticGuess(code) { const m = code.match(/^([A-Za-z_]\w*)\s*=\s*(?:\[|'|"|[rbuRBU]?"|[rbuRBU]?')/m); return m ? m[1] : null; }
+      // sp18: the first variable the trace binds, at the top level (call depth 1), to a str or list value
+      // sp29 (fix F5): names bound ONLY as iteration variables (for-loop or comprehension targets) are never promoted —
+      // a loop variable holding one key / one character is not a structure. A name that is also bound by a plain
+      // assignment somewhere (`name = …`, `name += …`, or as an unpacking target) can still be promoted.
+      function iterationOnly(code) {
+        const targets = new Set(), assigned = new Set();
+        for (const m of code.matchAll(/\bfor\s+([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s+in\b/g)) m[1].split(',').forEach((n) => targets.add(n.trim()));
+        for (const m of code.matchAll(/^[ \t]*([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*(?:[-+*/%&|^@]|\/\/|\*\*|<<|>>)?=(?!=)/gm)) m[1].split(',').forEach((n) => assigned.add(n.trim()));
+        return new Set([...targets].filter((n) => !assigned.has(n)));
+      }
+      function promote(res, code) {
+        const seen = new Set(), skip = iterationOnly(code || '');
+        for (let k = 0; k < (res.steps || []).length; k++) {
+          if (res.stacks && res.stacks[k] && res.stacks[k].depth > 1) continue;
+          for (const [name, rep] of Object.entries(res.steps[k].after || {})) {
+            if (seen.has(name)) continue; seen.add(name);
+            if (skip.has(name)) continue;   // sp29
+            if (seqItems(rep) !== null) return name;
+          }
+        }
+        return null;
+      }
       async function run() {
         const code = $('scratch-code').value;
         if (!code.trim()) { status('Write some code first — or paste an input above to start from its definition.'); return; }
@@ -856,10 +967,20 @@
         let go;
         try { go = await shim(); } catch { $('ctl-run').disabled = false; status('Run works in the web build of GOAT Mode for now — this Mac app build has no in-browser Python.'); return; }
         try {
-          const structure = current() === 'list' ? ((lastShown && lastShown.type === 'list' && lastShown.name) || 'nums')
-            : current() === 'graph' ? ((lastShown && lastShown.type === 'graph' && lastShown.name) || 'graph') : null;   // S12
-          const r = await go('api/scratch-trace', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(structure ? { code, structure } : { code }) });
-          const res = await r.json();
+          // sp18: the stage structure. Pasted input wins (List / String / Graph, by the picked type). With no pasted
+          // structure (List / String / Dict types), the FIRST top-level variable the trace binds to a str or list is
+          // promoted (andrew's `s = "…"` + l/r loop). The worker needs the name up front for its static index users,
+          // so the first request uses a guess from the code text (the first top-level `name = [ / ' / "` line); if the
+          // trace then promotes a different name, the same code is traced once more with that name.
+          const ty = current(), pasted = lastShown && lastShown.type === ty && (ty === 'list' || ty === 'string' || ty === 'graph') ? lastShown.name : null;
+          const guess = pasted || (ty === 'graph' ? 'graph' : staticGuess(code));
+          const ask = async (name) => { const rr = await go('api/scratch-trace', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(name ? { code, structure: name } : { code }) }); return [rr, await rr.json()]; };
+          let [r, res] = await ask(guess), structure = guess;
+          if (r.ok && !pasted && ty !== 'graph') {
+            const promoted = promote(res, code);
+            if (promoted && promoted !== guess) { [r, res] = await ask(promoted); }
+            structure = promoted;
+          }
           if (token !== runToken) return;                      // Stop (or a newer Run) took over while this ran
           if (!r.ok) { status(`The run couldn't start: ${res.error || r.status}`); return; }
           const err = res.error || null;
