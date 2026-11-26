@@ -18,6 +18,7 @@ import stage_emitter   # noqa: E402
 
 _FORCE_TIMEOUT = False  # Task 189: set only while answering the shim's __timeout route
 SCRATCH_MAX_STEPS = 1000  # Scratch S6: the Scratch Pad's step cap (route /api/scratch-trace)
+SCRATCH_RECURSION_LIMIT = 360  # Scratch S13: recursion limit during a scratch run (restored after). 360 → ~352 frames deep: a 1-step-per-call runaway raises RecursionError at ~352 steps, while a 3-step-per-call walk (132's no-seen draft) still meets the 1,000-step cap first (S12 behaviour kept)
 
 
 def _index_users(code, structure):
@@ -33,6 +34,60 @@ def _index_users(code, structure):
         if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name) and node.value.id == structure:
             names |= {n.id for n in ast.walk(node.slice) if isinstance(n, ast.Name)}
     return sorted(names)
+
+
+STACK_KEEP = 60   # Scratch S13: frames kept per step (innermost first); the page shows 50 and folds the rest
+_orig_depth = None
+
+
+def _stack_recorder():
+    """Scratch S13: record the call stack at every step of ONE scratch run, with no change to tracer.py.
+
+    tracer.run_one makes each step as {"line", "before", ..., "_depth": _depth(frame)} — _depth is looked up on the
+    module at call time, exactly once per step, with the frame the step runs in. Wrapping it for this run gives the
+    frame chain at the moment each step starts: stacks[i] belongs to steps[i] (the innermost STACK_KEEP frames +
+    the true depth). sys.setprofile (independent of the tracer's settrace) adds the RETURNS: a function returning
+    after step i is filed under i, innermost first, with its return value (or as unwound by an error)."""
+    global _orig_depth
+    stacks, returns = [], {}
+    _orig_depth = tracer._depth
+
+    def frame_info(f):
+        code = f.f_code
+        args = code.co_varnames[:code.co_argcount + code.co_kwonlyargcount]
+        shown = []
+        for a in args:
+            if a in f.f_locals:
+                try:
+                    shown.append([a, tracer.show(f.f_locals[a])[:40]])
+                except Exception:
+                    shown.append([a, "?"])
+        return {"fn": code.co_name, "line": f.f_lineno, "args": shown}
+
+    def wrapped(frame):
+        chain, f = [], frame
+        while f is not None:
+            if f.f_code.co_filename == tracer.FILENAME:
+                chain.append(f)
+            f = f.f_back
+        stacks.append({"depth": len(chain), "frames": [frame_info(x) for x in chain[:STACK_KEEP]]})
+        return _orig_depth(frame)
+
+    def prof(frame, event, arg):
+        if event == "return" and frame.f_code.co_filename == tracer.FILENAME and frame.f_code.co_name != "<module>" and stacks:
+            lst = returns.setdefault(len(stacks) - 1, [])
+            if len(lst) < STACK_KEEP:
+                lst.append({"fn": frame.f_code.co_name, "args": frame_info(frame)["args"], "value": tracer.show(arg)[:40]})
+
+    tracer._depth = wrapped
+    sys.setprofile(prof)
+    return stacks, returns
+
+
+def _stack_recorder_off():
+    sys.setprofile(None)
+    if _orig_depth is not None:
+        tracer._depth = _orig_depth
 
 
 def _walk_roles(code, structure):
@@ -142,10 +197,20 @@ def _post(route, body, prog, today):
         # one run and always restore it — lesson routes keep 2,000. No second runner.
         saved = tracer.MAX_STEPS
         tracer.MAX_STEPS = SCRATCH_MAX_STEPS
+        stacks, returns = _stack_recorder()   # S13: the call stack per step, without touching tracer.py
+        # S13: a lower recursion limit for scratch runs only, so runaway recursion raises RecursionError (the frozen
+        # stack + card) well inside the 1,000-step cap — at ~1 step per call, Python's default 1,000 would race it.
+        saved_limit = sys.getrecursionlimit()
+        sys.setrecursionlimit(SCRATCH_RECURSION_LIMIT)
         try:
             result = _run_trace(body["code"], body.get("data"))
         finally:
+            sys.setrecursionlimit(saved_limit)
             tracer.MAX_STEPS = saved
+            _stack_recorder_off()
+        if len(stacks) == len(result.get("steps") or []):
+            result["stacks"] = stacks
+            result["returns"] = {str(k): v for k, v in returns.items()}
         if body.get("structure"):   # S10: Rule 1(c)'s static index users for the page's pointer inference
             result["index_users"] = _index_users(body["code"], body["structure"])
             result.update(_walk_roles(body["code"], body["structure"]))   # S12: graph walk roles

@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Scratch Pad — GOAT Mode</title>
   <link rel="stylesheet" href="style.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100..900&display=swap" rel="stylesheet">
 </head>
 <body data-beat="scratch">
   <!-- Scratch S3: the page shell (SCRATCHPAD-PLAN "Page layout"): type picker → stage ABOVE → editor BELOW → controls →
@@ -35,6 +32,7 @@
       <p id="scratch-help" class="muted mt">List: values separated by commas — e.g. 3, 1, 4, 1, 5</p>
       <div id="scratch-fixit" class="sp-fixit" role="alert" hidden></div>
       <div id="scratch-render" aria-live="polite"><p class="muted mt" id="scratch-empty">Your structure will appear here.</p></div>
+      <div id="scratch-stackwrap"></div>
     </section>
 
     <section id="scratch-editor" class="card mt" aria-label="Code">
@@ -257,9 +255,36 @@
         }
         return [...out];
       }
+      // anim-3: value-tile identity. Each value tile gets a stable id that FOLLOWS ITS VALUE through the stream: a swap
+      // or in-place sort permutes the ids (equal values matched to the same index first, then the nearest one), an
+      // insert / append gives the new tile a fresh id and shifts the rest, a pop / remove drops one id, a write keeps
+      // the id (the tile stays, its value changes). The tile is keyed val:<id>, so between ANY two drawn steps (forward,
+      // back or a long scrub) the motion layer slides each tile from where its value was to where it is.
+      function tileIds(prevVals, prevIds, before, after, fresh) {
+        const same = (x, y) => x && y && x.length === y.length && x.every((v, i) => v === y[i]);
+        const idsB = before ? (same(prevVals, before) ? [...prevIds] : before.map((_, i) => (prevIds && prevIds[i] != null ? prevIds[i] : fresh()))) : null;
+        if (!idsB) return after.map(() => fresh());
+        const nb = before.length, na = after.length;
+        if (na === nb) {
+          const sorted = (x) => [...x].sort().join('\u0001');
+          if (sorted(before) !== sorted(after) || same(before, after)) return idsB;   // writes (or nothing): tiles stay
+          const used = new Set();
+          return after.map((v, i) => {
+            let best = -1;
+            for (let j = 0; j < nb; j++) if (!used.has(j) && before[j] === v && (best === -1 || Math.abs(j - i) < Math.abs(best - i))) best = j;
+            used.add(best); return idsB[best];
+          });
+        }
+        let p = 0; while (p < nb && p < na && before[p] === after[p]) p++;
+        let sfx = 0; while (sfx < nb - p && sfx < na - p && before[nb - 1 - sfx] === after[na - 1 - sfx]) sfx++;
+        if (na > nb && p + sfx >= nb) return [...idsB.slice(0, p), ...Array.from({ length: na - nb }, fresh), ...idsB.slice(p)];
+        if (na < nb && p + sfx >= na) return [...idsB.slice(0, p), ...idsB.slice(p + (nb - na))];
+        return after.map((_, i) => (i < nb ? idsB[i] : fresh()));
+      }
       function buildListFrames(run, name) {
         const lines = run.code.split('\n');
-        let events = 0, capped = false;
+        let events = 0, capped = false, nextId = 0, pv = null, pid = null;
+        const fresh = () => nextId++;
         return { name, frames: run.steps.map((st) => {
           const after = topItems((st.after || {})[name]), before = topItems((st.before || {})[name]);
           const f = { values: after, writes: [], added: [], removed: [], reads: [], animate: false };
@@ -281,20 +306,30 @@
           const n = f.writes.length + f.added.length + f.removed.length + f.reads.length;
           if (!capped && events + n <= EVENT_CAP) { events += n; f.animate = n > 0; } else if (n) capped = true;
           f.cappedFrom = capped;
+          f.ids = tileIds(pv, pid, before, after, fresh); pv = after; pid = f.ids;   // anim-3
           return f;
         }), events };
+      }
+      // S14: the paste caps (25 values / 14 nodes) re-checked at run time. Code can build a bigger structure than the
+      // paste allowed; at a step where it's over the cap the device draws nothing for it and says so plainly (never a
+      // silent trim). The Variables panel still shows the full value; the 400-event cap still applies underneath.
+      function overCap(head, name, n, cap, unit) {
+        head.textContent = `${name} has ${n.toLocaleString()} ${unit}s at this step — the Scratch Pad draws up to ${cap}. The Variables panel still shows all of it.`;
+        head.classList.add('sp-overcap'); head.dataset.overcap = String(n);
       }
       function drawList(k) {
         const run = window.scratchRun; if (!run || !run.list) return;
         const L = run.list, f = L.frames[k], box = $('scratch-render');
         const head = el('p', 'muted'); head.id = 'scratch-list-head';
         if (!f.values) { head.textContent = `${L.name} isn't a list at this step${(run.steps[k].after || {})[L.name] === undefined ? ' — not defined yet' : ''}.`; box.replaceChildren(head); return; }
+        if (f.values.length > CAP) { overCap(head, L.name, f.values.length, CAP, 'value'); box.replaceChildren(head); return; }   // S14: run-time cap
         head.textContent = `${L.name} — ${f.values.length} value${f.values.length === 1 ? '' : 's'} · step ${k + 1}` + (f.cappedFrom ? ' · animations off (400-event cap)' : '');
         const row = el('div', 'sp-cells sp-live'); row.id = 'scratch-cells'; row.dataset.kind = 'list'; row.dataset.step = k;
         const a = f.animate;
         const cells = f.values.map((v, i) => {
           const cell = el('div', 'sp-cell' + (a && f.writes.includes(i) ? ' write' : '') + (a && f.added.includes(i) ? ' added' : '') + (a && f.reads.includes(i) ? ' read' : ''));
-          cell.dataset.index = i; cell.append(el('div', 'sp-val', v), el('div', 'sp-idx', String(i))); return cell;
+          const tile = el('div', 'sp-val', v); if (f.ids) tile.dataset.motion = `val:${f.ids[i]}`;   // anim-3: the tile follows its value
+          cell.dataset.index = i; cell.dataset.motion = `box:${i}`; cell.append(tile, el('div', 'sp-idx', String(i))); return cell;
         });
         if (a) for (const r of [...f.removed].sort((x, y) => y.at - x.at)) {   // a fading ghost where the box was
           const g = el('div', 'sp-cell gone'); g.setAttribute('aria-hidden', 'true'); g.append(el('div', 'sp-val', r.text), el('div', 'sp-idx', '×'));
@@ -333,21 +368,95 @@
         const idx = Object.values(on).map((p) => p.index).sort((a, b) => a - b);
         return { pointers: on, window: idx.length >= 2 ? [idx[0], idx[idx.length - 1]] : null };
       }
+      // ---- anim-ic: the iteration cursor (Andrew's playtest fix). A loop that walks the list — `for n in nums`,
+      // `for i in range(len(nums))`, `for i, x in enumerate(nums)` — gets a cursor on the element being visited.
+      // Deterministic: the k-th time the loop variable is assigned at the for-line (a header step whose NEXT step is
+      // in the loop body — the tracer's own iteration rule) puts the cursor on index k, so duplicate values still
+      // advance 0, 1, 2. The header step that exits the loop removes the cursor; visited elements keep a soft mark.
+      // Steps deeper in the call stack (a function called from the body) keep the cursor where it is. No loop over
+      // the list → no cursor; loops over the list nested inside one another → no cursor (which one "is" the
+      // iteration is ambiguous; the S10 pointers still show index variables). Derived from the stream + the code
+      // text only; nothing new from the worker.
+      function buildCursor(run, structure) {
+        const lines = run.code.split('\n'), ind = (t) => t.length - t.trimStart().length;
+        const S = structure.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const pats = [[new RegExp(`^${S}$`), 'each'], [new RegExp(`^range\\(\\s*len\\(\\s*${S}\\s*\\)\\s*\\)$`), 'index'], [new RegExp(`^enumerate\\(\\s*${S}\\s*\\)$`), 'index']];
+        const loops = [];
+        lines.forEach((t, i) => {
+          const m = t.match(/^\s*for\s+([A-Za-z_]\w*)(?:\s*,\s*[A-Za-z_]\w*)?\s+in\s+(.+?)\s*:\s*(#.*)?$/); if (!m) return;
+          const kind = (pats.find(([re]) => re.test(m[2].trim())) || [])[1]; if (!kind) return;
+          let end = i; for (let j = i + 1; j < lines.length; j++) { if (!lines[j].trim()) continue; if (ind(lines[j]) <= ind(t)) break; end = j; }
+          loops.push({ line: i + 1, body: [i + 2, end + 1], name: m[1], kind });
+        });
+        const nested = (a, b) => a !== b && b.line > a.line && b.line <= a.body[1];
+        const usable = loops.filter((a) => !loops.some((b) => nested(a, b) || nested(b, a)));
+        if (!usable.length) return null;
+        const depth = (k) => (run.stacks && run.stacks[k] ? run.stacks[k].depth : 1);
+        const state = new Map(usable.map((L) => [L, { count: 0, active: false, depth: null, visited: [] }]));
+        const frames = run.steps.map((st, k) => {
+          const out = [];
+          for (const L of usable) {
+            const z = state.get(L), nxt = run.steps[k + 1];
+            if (st.line === L.line && (z.depth === null || depth(k) <= z.depth)) {
+              const entering = nxt && nxt.line >= L.body[0] && nxt.line <= L.body[1];
+              if (entering) { if (!z.active) { z.count = 0; z.visited = []; } z.count += 1; z.active = true; z.depth = depth(k); }
+              else { z.active = false; }
+            } else if (z.active && depth(k) <= z.depth && !(st.line >= L.body[0] && st.line <= L.body[1])) z.active = false;   // left the loop another way (break)
+            const len = (topItems((st.after || {})[structure]) || []).length, idx = z.count - 1;
+            if (z.active && idx >= 0 && idx < len) { if (!z.visited.includes(idx)) z.visited.push(idx); out.push({ name: L.name, kind: L.kind, index: idx, visited: [...z.visited] }); }
+            else if (z.visited.length) out.push({ name: L.name, kind: L.kind, index: null, visited: [...z.visited] });
+          }
+          return out;
+        });
+        return { loops: usable.map((L) => ({ line: L.line, name: L.name, kind: L.kind })), frames };
+      }
       function drawPointers(k) {
         const P = window.scratchRun && window.scratchRun.pointers, row = $('scratch-cells');
         const old = $('scratch-ptr-toggles'); if (old) old.remove();
         if (!P || !row || !row.classList.contains('sp-live')) return;
         const S = pointerState(k);
         const live = [...row.querySelectorAll('.sp-cell:not(.gone)')];
+        // anim-2: fixed label slots. Every name that is ever a pointer in this run owns one slot row, in the S10 label
+        // order (hinted first, then alphabetical), and every cell reserves all the slots. So a label never moves up or
+        // down when another pointer arrives at / leaves its cell, and a pointer gliding along the row stays on its own
+        // slot line (a straight path over the cells in between).
+        // anim-ic: cursors (one per iterating loop) take their own fixed slots in the same label order. An index loop
+        // whose variable is already drawn as an S10 pointer on the same box doesn't get a second label — the pointer
+        // IS the cursor there; the box still gets the visiting / visited marks.
+        const CU = (window.scratchRun.cursor && window.scratchRun.cursor.frames[k]) || [];
+        const cursorNames = (window.scratchRun.cursor ? window.scratchRun.cursor.loops.map((L) => L.name) : []).filter((n) => !P.names.includes(n)).map((n) => 'cursor:' + n);
+        const slotOrder = [...P.names, ...cursorNames].sort((a, b) => { const A = a.replace(/^cursor:/, ''), B = b.replace(/^cursor:/, ''); return (HINTS.has(B) - HINTS.has(A)) || (A < B ? -1 : A > B ? 1 : 0); });
         live.forEach((cell, i) => {
-          const here = Object.entries(S.pointers).filter(([, p]) => p.index === i)
-            .sort(([a, pa], [b, pb]) => (pb.hinted - pa.hinted) || (a < b ? -1 : a > b ? 1 : 0));
           const marks = el('div', 'sp-ptrs');
-          for (const [name, p] of here) { const m = el('span', 'sp-ptr' + (p.hinted ? ' hinted' : ''), '▲ ' + noAddress(name)); m.dataset.ptr = name; marks.append(m); }
+          for (const name of slotOrder) {
+            if (name.startsWith('cursor:')) {
+              const c = CU.find((x) => 'cursor:' + x.name === name && x.index === i);
+              if (c) { const m = el('span', 'sp-cursor', '▲ ' + noAddress(c.name)); m.dataset.cursor = c.name; m.dataset.motion = `ptr:${name}`; marks.append(m); }
+              else { const gap = el('span', 'sp-slot'); gap.setAttribute('aria-hidden', 'true'); marks.append(gap); }
+              continue;
+            }
+            const p = S.pointers[name];
+            if (p && p.index === i) { const m = el('span', 'sp-ptr' + (p.hinted ? ' hinted' : ''), '▲ ' + noAddress(name)); m.dataset.ptr = name; m.dataset.motion = `ptr:${name}`; marks.append(m); }
+            else { const gap = el('span', 'sp-slot'); gap.setAttribute('aria-hidden', 'true'); marks.append(gap); }
+          }
           cell.append(marks);
+          if (CU.some((c) => c.index === i)) cell.classList.add('iter-cur');
+          else if (CU.some((c) => c.visited.includes(i))) cell.classList.add('iter-seen');
           if (S.window && i >= S.window[0] && i <= S.window[1]) cell.classList.add('in-window', ...(i === S.window[0] ? ['win-lo'] : []), ...(i === S.window[1] ? ['win-hi'] : []));
         });
         row.dataset.window = S.window ? S.window.join(',') : '';
+        // anim-1: the band is one element per wrapped line of the row (keyed band:<line>), positioned behind the cells,
+        // so a step change can tween its x and width instead of re-painting cell backgrounds. Geometry only.
+        if (S.window) {
+          const inWin = live.filter((c, i) => i >= S.window[0] && i <= S.window[1]), lines = [];
+          for (const c of inWin) { const last = lines[lines.length - 1]; if (last && last.top === c.offsetTop) last.cells.push(c); else lines.push({ top: c.offsetTop, cells: [c] }); }
+          lines.forEach((ln, li) => {
+            const a = ln.cells[0], z = ln.cells[ln.cells.length - 1], b = el('div', 'sp-band'); b.dataset.motion = `band:${li}`; b.dataset.motionSize = '1'; b.setAttribute('aria-hidden', 'true');
+            b.style.setProperty('--band-x', `${a.offsetLeft}px`); b.style.setProperty('--band-y', `${a.offsetTop}px`);
+            b.style.setProperty('--band-w', `${z.offsetLeft + z.offsetWidth - a.offsetLeft}px`); b.style.setProperty('--band-h', `${a.offsetHeight}px`);
+            row.prepend(b);
+          });
+        }
         if (!P.names.length) return;
         const bar = el('div', 'sp-ptr-toggles'); bar.id = 'scratch-ptr-toggles';
         bar.append(el('span', 'muted', 'Pointers:'));
@@ -417,13 +526,233 @@
         const sec = el('div', 'sp-dict'); sec.id = 'scratch-dict'; sec.dataset.name = D.name; sec.dataset.step = k;
         const head = el('p', 'muted'); head.id = 'scratch-dict-head';
         if (!f.entries) { head.textContent = `${D.name} isn't a dict at this step${(run.steps[k].after || {})[D.name] === undefined ? ' — not defined yet' : ''}.`; sec.append(head); box.append(sec); return; }
+        if (f.entries.length > CAP) { overCap(head, D.name, f.entries.length, CAP, 'key'); sec.append(head); box.append(sec); return; }   // S14: run-time cap
         head.textContent = `${D.name} — ${f.entries.length} key${f.entries.length === 1 ? '' : 's'}` + (run.list ? '' : ` · step ${k + 1}`) + (f.cappedFrom ? ' · animations off (400-event cap)' : '');
         const grid = el('div', 'sp-cards'); grid.id = 'scratch-cards';
         const a = f.animate;
-        const card = (key, val, cls) => { const c = el('div', 'sp-card' + cls); c.dataset.key = key; c.append(el('div', 'sp-key', key), el('div', 'sp-cv', val)); return c; };
+        const card = (key, val, cls) => { const c = el('div', 'sp-card' + cls); c.dataset.key = key; if (!cls.includes('gone')) c.dataset.motion = `card:${key}`; c.append(el('div', 'sp-key', key), el('div', 'sp-cv', val)); return c; };
         for (const [key, val] of f.entries) grid.append(card(key, val, (a && f.added.includes(key) ? ' added' : '') + (a && f.updated.includes(key) ? ' updated' : '')));
         if (a) for (const [key, val] of f.removed) { const g = card(key, val, ' gone'); g.setAttribute('aria-hidden', 'true'); grid.append(g); }
         sec.append(head, grid); box.append(sec);
+      }
+      // ---- Scratch S12: the graph device — assembly + traversal, from the stored stream only. Roles (all from the
+      // trace + the worker's static walk, routes.py _index_users / _walk_roles; no problem-specific names):
+      //   graph     — the pasted graph's name (S5 contract: `graph`); at step k, after[graph] as a dict of lists.
+      //               Nodes = keys ∪ targets; a node/edge is "present" once the run has defined it (assembly).
+      //   current   — an index user of graph[...] (`graph[node]` → node) holding a node value. A change of
+      //               current is an ARRIVAL (a visit) when it happens on a function's first body line (a call) or
+      //               when that variable is reassigned on the step (`node = todo.pop()`); any other change is a
+      //               return — backtracking, shown as current but not counted as a visit.
+      //   visited   — every node arrived at so far ∪ the members of any set of nodes in scope (a seen set).
+      //   revisit   — arriving at a node already arrived at: the node gets a ×N badge and the revisit mark.
+      //   skipped   — the emitter's rule (stage_emitter._graph_events): a loop neighbour (`for nxt in graph[...]`)
+      //               that is already visited and ≠ current is pending; if the walk then moves on without
+      //               arriving there, that edge is skipped (from then on).
+      // Every frame also emits stage-contract v2 events (node_add, edge_add, node_current, node_visit, edge_skip)
+      // into run.graph.events, framed by scene_open … scene_close, so the stream can be checked by stage_check.py.
+      const nodeLabel = (r) => noAddress(/^'.*'$|^".*"$/.test(r) ? r.slice(1, -1) : r);
+      function adjacency(repr) {      // dict-of-lists repr → Map(node → [targets]) of reprs, or null
+        const es = dictEntries(repr); if (!es) return null;
+        const m = new Map();
+        for (const [k, v] of es) { const t = topItems(v); if (!t) return null; m.set(k, t); }
+        return m;
+      }
+      function setItems(repr) {        // "{'a', 'b'}" / "set()" → reprs, or null
+        if (repr === 'set()') return [];
+        if (typeof repr !== 'string' || repr[0] !== '{' || repr[repr.length - 1] !== '}' || dictEntries(repr) !== null) return null;
+        return splitTop(repr.slice(1, -1), ',').map((x) => noAddress(x.trim())).filter((x) => x !== '');
+      }
+      function buildGraphFrames(run, G, roles, pasted) {
+        const order = [...(pasted || [])], known = new Set(order), edgeOrder = [], edgeKnown = new Set();
+        const adj = run.steps.map((st) => adjacency((st.after || {})[G]));
+        for (const m of adj) if (m) for (const [a, outs] of m) for (const n of [a, ...outs]) if (!known.has(n)) { known.add(n); order.push(n); }
+        for (const m of adj) if (m) for (const [a, outs] of m) for (const b of outs) { const e = `${a}>${b}`; if (!edgeKnown.has(e)) { edgeKnown.add(e); edgeOrder.push([a, b]); } }
+        const isNode = (r) => typeof r === 'string' && known.has(r);
+        const curVars = (roles.index_users || []).filter((n) => n !== G), candVars = roles.loop_users || [], entry = new Set(roles.entry_lines || []);
+        const ev = [{ type: 'scene_open', title: 'Scratch Pad', job: 'your code, on the map' }];
+        const nid = (n) => `node:${nodeLabel(n)}`, M = `map:${G}`;
+        const added = new Set(), addedE = new Set(), visited = new Set(), counts = new Map(), skipped = new Set();
+        let curVar = null, prevCur = null, lastNode = null, pending = null, lastCand = null, events = 0, capped = false;
+        const frames = run.steps.map((st, k) => {
+          const after = st.after || {}, before = st.before || {}, m = adj[k], n0 = ev.length;
+          const f = { present: [], edges: [], newNodes: [], newEdges: [], cur: null, arrival: false, walked: null, cand: null, animate: false };
+          if (m) {
+            for (const [a, outs] of m) for (const n of [a, ...outs]) if (!f.present.includes(n)) f.present.push(n);
+            for (const [a, outs] of m) for (const b of outs) f.edges.push([a, b]);
+            for (const n of order) if (f.present.includes(n) && !added.has(n)) { added.add(n); f.newNodes.push(n); ev.push({ type: 'node_add', map: M, id: nid(n), label: nodeLabel(n) }); }
+            for (const [a, b] of f.edges) { const e = `${a}>${b}`; if (!addedE.has(e)) { addedE.add(e); f.newEdges.push(e); ev.push({ type: 'edge_add', map: M, from: nid(a), to: nid(b) }); } }
+          }
+          if (!(curVar && isNode(after[curVar]))) curVar = curVars.find((v) => isNode(after[v])) || null;
+          const cur = curVar ? after[curVar] : null;
+          f.cur = cur;
+          const moved = !!(cur && cur !== prevCur && added.has(cur));
+          if (moved) {
+            if (pending && pending[1] !== cur && !skipped.has(pending.join('>'))) { skipped.add(pending.join('>')); ev.push({ type: 'edge_skip', map: M, from: nid(pending[0]), to: nid(pending[1]) }); }
+            pending = null;
+            ev.push({ type: 'node_current', map: M, id: nid(cur) });
+            if (entry.has(st.line) || before[curVar] !== after[curVar]) {
+              f.arrival = true; counts.set(cur, (counts.get(cur) || 0) + 1);
+              if (lastNode && m && (m.get(lastNode) || []).includes(cur)) f.walked = `${lastNode}>${cur}`;
+            }
+            else f.returned = true;   // current changed with no call / reassignment: a return (backtracking)
+            lastNode = cur;
+          }
+          if (cur) prevCur = cur;
+          const nowVisited = new Set(counts.keys());
+          for (const v of Object.values(after)) { const xs = setItems(v); if (xs && xs.length && xs.every(isNode)) xs.forEach((x) => nowVisited.add(x)); }
+          for (const n of order) if (nowVisited.has(n) && !visited.has(n) && added.has(n)) { visited.add(n); ev.push({ type: 'node_visit', map: M, id: nid(n) }); }
+          const cv = candVars.find((v) => isNode(after[v])); const cand = cv ? after[cv] : null; f.cand = cand;
+          // a neighbour is only "considered" when the loop advances IN THIS FRAME (current unchanged, the loop variable
+          // changed on this step) — a return also changes the loop variable (it shows the caller's), and that's not a choice
+          if (cand && cand !== lastCand && !moved && before[cv] !== after[cv]) {
+            if (pending && pending[1] !== cand && prevCur === pending[0] && !skipped.has(pending.join('>'))) { skipped.add(pending.join('>')); ev.push({ type: 'edge_skip', map: M, from: nid(pending[0]), to: nid(pending[1]) }); pending = null; }
+            if (prevCur && cand !== prevCur && visited.has(cand) && m && (m.get(prevCur) || []).includes(cand) && !skipped.has(`${prevCur}>${cand}`)) pending = [prevCur, cand];
+          }
+          if (cand) lastCand = cand;
+          f.visited = [...visited]; f.counts = Object.fromEntries(counts); f.skipped = [...skipped];
+          const n = ev.length - n0;
+          if (!capped && events + n <= EVENT_CAP) { events += n; f.animate = n > 0 || f.arrival; } else if (n) capped = true;
+          f.cappedFrom = capped;
+          return f;
+        });
+        if (run.error) ev.push({ type: 'error_flash', text: `${run.error.type}: ${run.error.message}`, ...(prevCur && added.has(prevCur) ? { at: nid(prevCur) } : {}) });
+        else ev.push({ type: 'caption', role: 'final', text: (run.stdout || '').trim() });
+        ev.push({ type: 'scene_close' });
+        // S14: the map's slots = the nodes the run actually builds (the pasted ones only while nothing is built yet),
+        // at most NODE_CAP of them, in first-seen order — so the layout is stable at every step that's within the cap
+        // and pasted-but-unused nodes don't linger as pending slots.
+        const ever = new Set(); frames.forEach((fr) => fr.present.forEach((n) => ever.add(n)));
+        const slots = (ever.size ? order.filter((n) => ever.has(n)) : order).slice(0, NODE_CAP);
+        return { name: G, order: slots, allOrder: order, edgeOrder, frames, events: ev, animated: events };
+      }
+      function drawGraph(k) {
+        const run = window.scratchRun; if (!run || !run.graph) return;
+        const Gr = run.graph, f = Gr.frames[k], box = $('scratch-render');
+        const NS = 'http://www.w3.org/2000/svg', W = 400, H = 340, CX = 200, CY = 160, RAD = 118, R = 18;
+        const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('class', 'sp-graph sp-graph-live'); svg.id = 'scratch-graph'; svg.dataset.step = k;
+        const mk = (tag, attrs, parent = svg) => { const n = document.createElementNS(NS, tag); for (const [a, v] of Object.entries(attrs)) n.setAttribute(a, v); parent.append(n); return n; };
+        const pos = {}; Gr.order.forEach((n, i) => { const a = -Math.PI / 2 + 2 * Math.PI * i / Math.max(1, Gr.order.length); pos[n] = [CX + RAD * Math.cos(a), CY + RAD * Math.sin(a)]; });
+        const present = new Set(f.present), live = new Set(f.edges.map(([a, b]) => `${a}>${b}`)), skipped = new Set(f.skipped), visited = new Set(f.visited), an = f.animate;
+        const gE = mk('g', { class: 'sp-edges' }), gN = mk('g', { class: 'sp-nodes' });
+        for (const [a, b] of Gr.edgeOrder) {
+          if (!(a in pos) || !(b in pos)) continue;   // S14: an edge to a node outside the drawn slots
+          const e = `${a}>${b}`, cls = ['sp-edge', live.has(e) ? '' : 'pending', skipped.has(e) ? 'skipped' : '', an && f.walked === e ? 'walked' : '', an && f.newEdges.includes(e) ? 'added' : ''].filter(Boolean).join(' ');
+          const [x1, y1] = pos[a], [x2, y2] = pos[b];
+          if (a === b) { mk('circle', { cx: x1, cy: y1 - R - 8, r: 9, class: cls + ' sp-loop', 'data-edge': e }, gE); continue; }
+          const d = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / d, uy = (y2 - y1) / d;
+          mk('line', { x1: x1 + ux * (R + 3), y1: y1 + uy * (R + 3), x2: x2 - ux * (R + 3), y2: y2 - uy * (R + 3), class: cls, 'data-edge': e }, gE);
+          mk('circle', { cx: x2 - ux * (R + 7), cy: y2 - uy * (R + 7), r: 4, class: 'sp-head' + (live.has(e) ? '' : ' pending') + (skipped.has(e) ? ' skipped' : '') }, gE);
+        }
+        for (const n of Gr.order) {
+          const c = f.counts[n] || 0, isCur = f.cur === n;
+          const cls = ['sp-node', present.has(n) ? '' : 'pending', visited.has(n) ? 'visited' : '', isCur ? 'current' : '', c >= 2 ? 'revisited' : '', isCur && an && f.arrival && c >= 2 ? 'revisit-now' : '', an && f.newNodes.includes(n) ? 'added' : ''].filter(Boolean).join(' ');
+          const [x, y] = pos[n]; const g = mk('g', { class: cls, 'data-node': nodeLabel(n), 'data-visits': c, 'data-motion': `node:${nodeLabel(n)}` }, gN);
+          mk('circle', { cx: x, cy: y, r: R }, g);
+          const t = mk('text', { x, y: y + R + 14, 'text-anchor': 'middle', class: 'sp-label' }, g); t.textContent = nodeLabel(n);
+          if (c >= 2) { const b = mk('text', { x: x + R + 2, y: y - R + 2, class: 'sp-badge' }, g); b.textContent = `×${c}`; }
+        }
+        if (f.present.length > NODE_CAP) {   // S14: run-time cap
+          const h = el('p', 'muted'); h.id = 'scratch-graph-head'; overCap(h, Gr.name, f.present.length, NODE_CAP, 'node');
+          const keep = $('scratch-dict'); box.replaceChildren(h); if (keep) box.append(keep); return;
+        }
+        const curTxt = f.cur ? ` · at ${nodeLabel(f.cur)}${f.counts[f.cur] >= 2 ? ` (visit ${f.counts[f.cur]} — again)` : ''}${f.returned ? ' (back)' : ''}` : '';
+        const head = el('p', 'muted', `${Gr.name} — ${f.present.length} node${f.present.length === 1 ? '' : 's'}, ${f.edges.length} edge${f.edges.length === 1 ? '' : 's'} · step ${k + 1}${curTxt}` + (f.cappedFrom ? ' · animations off (400-event cap)' : ''));
+        head.id = 'scratch-graph-head';
+        const prev = $('scratch-dict');
+        box.replaceChildren(head, svg);
+        if (prev) box.append(prev);
+      }
+      // ---- Scratch S13: the call-stack strip. The worker records the stack at every step (routes.py _stack_recorder:
+      // run.stacks[k] = {depth, frames: innermost first}) and the calls that RETURN after step k (run.returns[k],
+      // innermost first, with their values). Step k shows the stack as line k runs: the current frame on top and
+      // marked; functions returning during this step are listed above it as "↩ returns …" (they're gone next step).
+      // Scrubbing back simply shows that step's stack again. Display cap 50 frames, the rest fold into "and N more".
+      // A RecursionError gets a plain-language card and the run freezes on its deepest step — never a traceback.
+      const STACK_SHOW = 50;
+      const fnName = (fn) => (fn === '<module>' ? 'main program' : fn);
+      const callText = (f) => `${fnName(f.fn)}${f.fn === '<module>' ? '' : `(${(f.args || []).map(([a, v]) => `${a}=${noAddress(v)}`).join(', ')})`}`;
+      function drawStack(k) {
+        const wrap = $('scratch-stackwrap'); wrap.replaceChildren();
+        const run = window.scratchRun; if (!run) return;
+        if (run.stopped === 'step_limit') {   // S14: the step-cap freeze — the loop card (distinct from the recursion card)
+          const card = el('div', 'sp-fixit sp-card-loud'); card.id = 'scratch-loop-card'; card.setAttribute('role', 'alert');
+          card.append(el('strong', '', `Still running at step ${STEP_CAP.toLocaleString()} — this looks like a loop.`),
+            el('p', '', `The run was stopped so the page can't freeze. Everything above shows where things stood at step ${run.steps.length.toLocaleString()} — scrub back to watch it go round.`));
+          wrap.append(card);
+        }
+        if (run.recursion) {
+          const card = el('div', 'sp-fixit sp-card-loud'); card.id = 'scratch-recursion-card'; card.setAttribute('role', 'alert');
+          card.append(el('strong', '', 'The calls kept piling up — recursion depth exceeded.'),
+            el('p', '', `Python stopped the run with ${run.recursion.depth.toLocaleString()} calls stacked up, all waiting on the next one. That usually means the base case is missing or never reached.`));
+          wrap.append(card);
+        }
+        if (!run.stacks || !run.stackUsed) return;   // no function was ever called: no strip
+        const st = run.stacks[k]; if (!st) return;
+        const sec = el('div', 'sp-stack'); sec.id = 'scratch-callstack'; sec.dataset.depth = st.depth;
+        sec.append(el('p', 'muted', `Call stack — ${st.depth} frame${st.depth === 1 ? '' : 's'} · step ${k + 1}`));
+        const list = el('ol', 'sp-frames'); list.id = 'scratch-frames';
+        const last = k === run.steps.length - 1;
+        const rets = (last && (run.error || run.stopped)) ? [] : ((run.returns || {})[String(k)] || []);
+        for (const r of rets) { const li = el('li', 'sp-frame returning'); li.dataset.fn = r.fn; li.append(el('span', 'sp-fn', '↩ ' + callText(r)), el('span', 'sp-fline', `returns ${noAddress(r.value)}`)); list.append(li); }
+        st.frames.slice(0, STACK_SHOW).forEach((f, i) => {
+          const li = el('li', 'sp-frame' + (i === 0 ? ' current' : '')); li.dataset.fn = f.fn; li.dataset.line = f.line;
+          li.append(el('span', 'sp-fn', callText(f)), el('span', 'sp-fline', `line ${f.line}`)); list.append(li);
+        });
+        sec.append(list);
+        if (st.depth > STACK_SHOW) { const more = el('p', 'muted sp-more', `… and ${(st.depth - STACK_SHOW).toLocaleString()} more frame${st.depth - STACK_SHOW === 1 ? '' : 's'} below`); more.id = 'scratch-stack-more'; sec.append(more); }
+        wrap.append(sec);
+      }
+      // ---- anim-1: the motion foundation. Every device draws a fresh frame from the stream (stream first, renderer
+      // second); this layer makes the CHANGE between two frames move instead of jump. Before a step is drawn, every
+      // keyed element (data-motion="box:3", "ptr:left", "band:0", "card:'tea'", "node:depot") has its box measured;
+      // after the new frame is drawn, each key that still exists is animated FROM its old box TO its new one (FLIP):
+      // translate for position, scale for size (the band stretching), on the shared tokens --motion-dur /
+      // --motion-ease (style.css). Manual steps, scrubbing and Play all go through showStep, so they all move the
+      // same way. An in-flight move is measured where it is, so a fast scrub or Play continues smoothly. With
+      // prefers-reduced-motion the token is 0ms and nothing animates — state changes are instant.
+      const motionToken = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      const motionMs = () => { const v = motionToken('--motion-dur'); return v.endsWith('ms') ? parseFloat(v) : v.endsWith('s') ? parseFloat(v) * 1000 : 0; };
+      function motionSnapshot() {
+        const m = new Map();
+        for (const n of document.querySelectorAll('#scratch-render [data-motion]')) m.set(n.dataset.motion, n.getBoundingClientRect());
+        return m;
+      }
+      function motionPlay(first) {
+        const dur = motionMs(); if (!first || !first.size || dur <= 0) return;
+        const easing = motionToken('--motion-ease') || 'ease';
+        const moves = new Map();
+        for (const n of document.querySelectorAll('#scratch-render [data-motion]')) {
+          const f = first.get(n.dataset.motion); if (!f) continue;   // new this step: its own entrance (anim-3)
+          const l = n.getBoundingClientRect(); if (!l.width || !l.height) continue;
+          // only elements that opt in (the band) tween their SIZE; everything else only moves — a box that changes
+          // width because a pointer label widened it must not squash its children
+          const sized = n.dataset.motionSize === '1';
+          moves.set(n, { dx: f.left - l.left, dy: f.top - l.top, sx: sized ? f.width / l.width : 1, sy: sized ? f.height / l.height : 1 });
+        }
+        for (const [n, m] of moves) {
+          // nested keyed elements (a pointer inside a box that also moves): the ancestor's move already carries the
+          // child, so the child only animates its own part. Same duration + easing, so the sum is exact at every frame.
+          let p = n.parentElement;
+          while (p && p.id !== 'scratch-render' && !moves.has(p)) p = p.parentElement;
+          const up = p && moves.get(p), ux = up ? up.dx : 0, uy = up ? up.dy : 0;
+          const dx = m.dx - ux, dy = m.dy - uy;
+          if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5 && Math.abs(m.sx - 1) < 0.01 && Math.abs(m.sy - 1) < 0.01) continue;
+          const T = (x, y) => `translate(${x}px, ${y}px) scale(${m.sx}, ${m.sy})`;
+          let frames = [{ transform: T(dx, dy), transformOrigin: '0 0' }, { transform: 'none', transformOrigin: '0 0' }];
+          // anim-2: a pointer whose move crosses a wrapped line travels ALONG the row — to the end of its old line, then
+          // in from the start of the new line — instead of cutting diagonally across the boxes. Offsets are split by
+          // distance so the speed is even; the ancestor's share is subtracted at each keyframe (it is linear in progress).
+          const row = /^(ptr|val):/.test(n.dataset.motion) && n.closest('.sp-cells');   // anim-3: value tiles travel along the row too
+          if (row && Math.abs(m.dy) > 4) {
+            const R = row.getBoundingClientRect(), l = n.getBoundingClientRect(), w = l.width, down = m.dy < 0;   // old line above the new one
+            const oldX = l.left + m.dx;
+            const exitX = down ? R.right - w : R.left, entryX = down ? R.left : R.right - w;
+            const d1 = Math.abs(exitX - oldX), d2 = Math.abs(l.left - entryX), o = d1 + d2 > 0 ? d1 / (d1 + d2) : 0.5;
+            const K = (x, y, off) => ({ transform: T(x - ux * (1 - off), y - uy * (1 - off)), transformOrigin: '0 0', offset: off });
+            frames = [K(m.dx, m.dy, 0), K(exitX - l.left, m.dy, o), K(entryX - l.left, 0, o), K(0, 0, 1)];
+          }
+          n.animate(frames, { duration: dur, easing, id: 'sp-motion' });
+        }
       }
       function showStep(k) {
         const run = window.scratchRun, body = $('scratch-vars-body');
@@ -452,10 +781,14 @@
           tr.append(el('td', 'sp-var-name', n), v); table.append(tr);
         }
         const list = el('div', 'vars sp-vars'); list.append(table);
-        const head = `Step ${k + 1} of ${run.steps.length} · line ${st.line}` + (isErr ? ` · ${run.errorStep.kind} here` : '') + (k === run.steps.length - 1 && run.stopped === 'step_limit' ? ' · stopped at the step limit' : '');
+        const head = `Step ${k + 1} of ${run.steps.length} · line ${st.line}` + (isErr ? (run.recursion ? ' · the calls piled up too deep here' : ` · ${run.errorStep.kind} here`) : '') + (k === run.steps.length - 1 && run.stopped === 'step_limit' ? ' · stopped at the step limit' : '');
         body.replaceChildren(el('p', 'muted', head), names.length ? list : el('p', 'muted', 'No variables yet.'));
+        const motionFirst = motionSnapshot();   // anim-1: measure before the new frame
         drawList(k);
+        drawGraph(k);  // S12
         drawDict(k);   // S11
+        drawStack(k);  // S13
+        motionPlay(motionFirst);   // anim-1: move from the old frame to the new one
         $('scratch-scrub').value = String(k); $('scratch-stepno').textContent = `${k + 1} / ${run.steps.length}`;
         $('ctl-back').disabled = k === 0; $('ctl-fwd').disabled = k === run.steps.length - 1;
       }
@@ -471,6 +804,7 @@
         pause(); window.scratchRun = null; showEditor();
         $('scratch-scrubber').hidden = true; $('ctl-back').disabled = false; $('ctl-fwd').disabled = false;
         $('scratch-vars-body').replaceChildren(el('p', 'muted', 'Run your code to see every variable, step by step.'));
+        $('scratch-stackwrap').replaceChildren();   // S13
         if (lastShown) render(lastShown, false);   // S9: the stage goes back to the pasted structure (never touches the editor)
       }
       async function run() {
@@ -482,7 +816,8 @@
         let go;
         try { go = await shim(); } catch { $('ctl-run').disabled = false; status('Run works in the web build of GOAT Mode for now — this Mac app build has no in-browser Python.'); return; }
         try {
-          const structure = current() === 'list' ? ((lastShown && lastShown.type === 'list' && lastShown.name) || 'nums') : null;
+          const structure = current() === 'list' ? ((lastShown && lastShown.type === 'list' && lastShown.name) || 'nums')
+            : current() === 'graph' ? ((lastShown && lastShown.type === 'graph' && lastShown.name) || 'graph') : null;   // S12
           const r = await go('api/scratch-trace', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(structure ? { code, structure } : { code }) });
           const res = await r.json();
           if (token !== runToken) return;                      // Stop (or a newer Run) took over while this ran
@@ -492,18 +827,31 @@
           window.scratchRun = { code, steps: res.steps, stdout: res.stdout, error: err, stopped: res.stopped || null, timeout: !!res.timeout, cap: STEP_CAP, current: 0,
             errorStep: errStep == null ? null : { index: errStep, line: err.line ?? res.steps[errStep].line, kind: err.type, message: err.message, variables: res.steps[errStep].after || res.steps[errStep].before || {} } };
           const n = res.steps.length;
+          window.scratchRun.stacks = res.stacks || null; window.scratchRun.returns = res.returns || {};   // S13
+          window.scratchRun.stackUsed = !!(res.stacks && res.stacks.some((x) => x.depth > 1));
+          if (err && err.type === 'RecursionError' && res.stacks && n) {
+            const deepest = res.stacks.reduce((m, x, i) => (x.depth > res.stacks[m].depth ? i : m), 0);
+            window.scratchRun.recursion = { depth: res.stacks[deepest].depth, step: deepest };
+          }
           // S9: the list device runs for the List type, on the pasted list's name (S4 contract: nums)
           window.scratchRun.dict = buildDictFrames(window.scratchRun);   // S11: null when no dict is built
-          if (structure) {
+          if (structure && current() === 'graph') {   // S12: the graph device (the dict device skips the graph itself)
+            window.scratchRun.graph = buildGraphFrames(window.scratchRun, structure, res, lastShown && lastShown.type === 'graph' ? lastShown.nodes.map(pyStr) : []);
+            if (window.scratchRun.dict && window.scratchRun.dict.name === structure) window.scratchRun.dict = null;
+          } else if (structure) {
             window.scratchRun.list = buildListFrames(window.scratchRun, structure);
+            if (!window.scratchRun.list.frames.some((f) => f.values)) window.scratchRun.list = null;   // S13: code that never builds the list keeps the static stage
             window.scratchRun.pointers = buildPointers(window.scratchRun, structure, res.index_users || []);   // S10
+            window.scratchRun.cursor = buildCursor(window.scratchRun, structure);   // anim-ic
           }
-          if (res.stopped === 'step_limit') status(`Stopped at step ${n.toLocaleString()} — the run hit the ${STEP_CAP.toLocaleString()}-step limit.`);
+          if (res.stopped === 'step_limit') status(`Still running at step ${n.toLocaleString()} — this looks like a loop. Frozen there; scrub back to watch it.`);
           else if (res.timeout) status('Stopped after 2 seconds — probably a loop that never ends.');
+          else if (window.scratchRun.recursion) status(`The calls kept piling up — stopped at ${window.scratchRun.recursion.depth.toLocaleString()} calls deep. Showing the deepest step.`);
           else if (err) status(`${err.type} on line ${err.line ?? '?'}: ${err.message} — ${n} step${n === 1 ? '' : 's'} ran.`);
           else status(`Ran ${n} step${n === 1 ? '' : 's'}.`);
           if (n) { showListing(code); $('scratch-scrub').max = String(n - 1); $('scratch-scrubber').hidden = false; }
-          showStep(0);
+          // S13: a RecursionError freezes at max depth; S14: a step-cap run freezes on its cap step (the structure stuck mid-loop)
+          showStep(window.scratchRun.recursion ? window.scratchRun.recursion.step : res.stopped === 'step_limit' ? n - 1 : 0);
         } finally { if (token === runToken) $('ctl-run').disabled = false; }
       }
       // Stop: always live. Ends playback, kills the worker mid-run if one is running (fresh worker via the shim),
