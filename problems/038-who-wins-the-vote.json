@@ -16,29 +16,7 @@
     ]
   },
   "intro": {
-    "job": "One number shows up more than half the time. Which one?",
-    "idea": {
-      "rule": "max over a dict asks for the biggest KEY — to find the biggest VALUE you have to look at the counts.",
-      "detail": "Count first: a dict from each number to how many times it appears. Then you want the key whose COUNT is biggest. max(counts) compares the keys themselves; max(counts, key=counts.get) compares each key by its count and hands back the key that wins."
-    },
-    "watch": {
-      "code": "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts, key=counts.get)\nprint(winner)",
-      "data": {
-        "name": "nums",
-        "value": [
-          1,
-          1,
-          2,
-          1,
-          3
-        ]
-      },
-      "trace_watch": [
-        "x",
-        "counts",
-        "winner"
-      ]
-    }
+    "job": "One number shows up more than half the time. Which one?"
   },
   "model_restatement": "Find the number that appears most — more than half the time — and print it.",
   "clarify": [
@@ -73,40 +51,18 @@
     }
   ],
   "clarify_fallback": "Good question — assume the simple case.",
-  "blueprint": "Count how often each number appears. Then take the biggest one from the counts and print it.",
+  "blueprint": "Count how often each number appears. Then walk the counts, keeping whichever number has the most votes so far. Print the leader.",
   "draft_code": "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = max(counts)\nprint(winner)",
   "checkpoints": [
     {
-      "id": "P1",
-      "phase": "draft",
-      "at": {
-        "line": 3,
-        "iteration": 7
-      },
-      "prompt": "After the counting loop (iteration 7), what is counts?",
-      "kind": "value",
-      "var": "counts"
-    },
-    {
       "id": "P2",
-      "phase": "draft",
-      "at": {
-        "line": 4,
-        "iteration": "after"
-      },
-      "prompt": "After line 4, what is winner?",
-      "kind": "value",
-      "var": "winner"
-    },
-    {
-      "id": "P3",
       "phase": "draft",
       "at": "end",
       "prompt": "What gets printed?",
       "kind": "value"
     },
     {
-      "id": "P4",
+      "id": "P3",
       "phase": "fixed",
       "at": {
         "line": 4,
@@ -117,7 +73,7 @@
       "var": "winner"
     },
     {
-      "id": "P5",
+      "id": "P4",
       "phase": "fixed",
       "at": "end",
       "prompt": "What gets printed?",
@@ -227,5 +183,160 @@
     "x",
     "counts",
     "winner"
-  ]
+  ],
+  "flow": "blocks",
+  "dissect": {
+    "restate": true,
+    "questions": [
+      {
+        "id": "D1",
+        "kind": "outcome",
+        "prompt": "What's inside nums?",
+        "choices": [
+          {
+            "label": "A list of votes — each number is one vote"
+          },
+          {
+            "label": "The vote totals, already counted"
+          },
+          {
+            "label": "A list of different numbers, no repeats"
+          }
+        ],
+        "answer": 0
+      },
+      {
+        "id": "D2",
+        "kind": "outcome",
+        "prompt": "What must come out?",
+        "choices": [
+          {
+            "label": "The biggest number in the list"
+          },
+          {
+            "label": "The number that got the most votes, printed"
+          },
+          {
+            "label": "How many votes the winner got"
+          }
+        ],
+        "answer": 1
+      },
+      {
+        "id": "D3",
+        "kind": "by_hand",
+        "prompt": "With THIS list, which number wins? Work it out by hand.",
+        "expected_from": "fix"
+      },
+      {
+        "id": "D4",
+        "kind": "outcome",
+        "prompt": "3 is the biggest number in nums. Does it win?",
+        "choices": [
+          {
+            "label": "Yes — it's the biggest number"
+          },
+          {
+            "label": "No — winning is about how many votes, and 3 got just one"
+          }
+        ],
+        "answer": 1
+      }
+    ]
+  },
+  "instinct": {
+    "scaffold": "winner = None\n\nprint(winner)",
+    "code": "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = None\nfor x in counts:\n    if winner is None or counts[x] > counts[winner]:\n        winner = x\nprint(winner)",
+    "hints": [
+      "Count each number's votes first, then find the number with the most.",
+      "Tally into a dict with counts.get(x, 0) + 1. Then loop over counts and keep x whenever counts[x] beats counts[winner].",
+      "counts = {}\nfor x in nums:\n    counts[x] = counts.get(x, 0) + 1\nwinner = None\nfor x in counts:\n    if winner is None or counts[x] > counts[winner]:\n        winner = x\nprint(winner)"
+    ],
+    "why": {
+      "this_data": "Your version is right — it walks the counts and keeps the leader by hand: 4 lines for the choice.",
+      "real_size": "max can make that exact comparison for you in one line — same work, same speed, just shorter. Let's build it."
+    }
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "title": "Count the votes",
+      "teaches": "counts[x] = counts.get(x, 0) + 1 adds one vote for x — starting from 0 the first time.",
+      "code": "counts = {}\nfor x in [5, 7, 5]:\n    counts[x] = counts.get(x, 0) + 1\nprint(counts)",
+      "checkpoints": [
+        {
+          "id": "B1a",
+          "at": {
+            "line": 3,
+            "iteration": 2
+          },
+          "kind": "value",
+          "var": "counts",
+          "prompt": "Iteration 2, after line 3: what is counts?"
+        },
+        {
+          "id": "B1b",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "for x in nums:\n    counts[x] = counts.get(x, 0) + 1"
+    },
+    {
+      "id": "B2",
+      "title": "max picks the biggest",
+      "teaches": "max(things) hands back the biggest one.",
+      "code": "print(max([4, 9, 2]))",
+      "checkpoints": [
+        {
+          "id": "B2a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B3",
+      "title": "Biggest by what?",
+      "teaches": "max(things, key=f) compares f(thing) instead of the thing — here the length — and hands back the thing that wins.",
+      "code": "print(max(['bb', 'a', 'ccc'], key=len))",
+      "checkpoints": [
+        {
+          "id": "B3a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B4",
+      "title": "Biggest number isn't most votes",
+      "teaches": "max(counts) compares the KEYS — the numbers themselves. key=counts.get compares each number by its vote count.",
+      "code": "counts = {3: 1, 2: 5, 1: 1}\nprint(max(counts), max(counts, key=counts.get))",
+      "checkpoints": [
+        {
+          "id": "B4a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "3 got 1 vote, 2 got 5. What gets printed?"
+        }
+      ],
+      "tile": "winner = max(counts, key=counts.get)"
+    }
+  ],
+  "assembly": {
+    "skeleton": "counts = {}\n{1}\n{2}\nprint(winner)",
+    "answer": [
+      "B1",
+      "B4"
+    ],
+    "hints": [
+      "Can you pick a winner before any votes are counted?",
+      "B1's lines fill counts; B4's line reads it — so B1 goes first.",
+      "Order: B1's lines first, then B4's line."
+    ]
+  }
 }

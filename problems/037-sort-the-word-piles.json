@@ -15,27 +15,7 @@
     ]
   },
   "intro": {
-    "job": "Sort these words into piles where each pile holds words made of the same letters.",
-    "idea": {
-      "rule": "The pile isn't the first letter — it's the whole handful of letters, sorted.",
-      "detail": "Anagrams use the same letters in a different order, so sorting their letters makes them identical: 'eat', 'tea' and 'ate' all sort to 'aet'. Use that sorted string as the dict key and group words under it — the grouping trick from 003, with a smarter key."
-    },
-    "watch": {
-      "code": "groups = {}\nfor w in words:\n    key = ''.join(sorted(w))\n    groups.setdefault(key, []).append(w)\nprint(groups)",
-      "data": {
-        "name": "words",
-        "value": [
-          "cat",
-          "act",
-          "dog"
-        ]
-      },
-      "trace_watch": [
-        "w",
-        "key",
-        "groups"
-      ]
-    }
+    "job": "Sort these words into piles where each pile holds words made of the same letters."
   },
   "model_restatement": "Group the words so that words made of exactly the same letters end up together.",
   "clarify": [
@@ -81,40 +61,18 @@
     }
   ],
   "clarify_fallback": "Good question — assume the simple case.",
-  "blueprint": "For each word, work out which pile it goes in from its letters — the first letter — and add it to that pile. Print the piles.",
+  "blueprint": "Make a dict whose piles start themselves. For each word, sort its letters into a key and add the word to that key's pile. Print the piles.",
   "draft_code": "groups = {}\nfor w in words:\n    key = w[0]\n    groups.setdefault(key, []).append(w)\nprint(groups)",
   "checkpoints": [
     {
-      "id": "P1",
-      "phase": "draft",
-      "at": {
-        "line": 3,
-        "iteration": 1
-      },
-      "prompt": "Iteration 1 ('eat'): what is key?",
-      "kind": "value",
-      "var": "key"
-    },
-    {
       "id": "P2",
-      "phase": "draft",
-      "at": {
-        "line": 4,
-        "iteration": 3
-      },
-      "prompt": "Iteration 3 is 'tan'. After it, what is groups?",
-      "kind": "value",
-      "var": "groups"
-    },
-    {
-      "id": "P3",
       "phase": "draft",
       "at": "end",
       "prompt": "What gets printed?",
       "kind": "value"
     },
     {
-      "id": "P4",
+      "id": "P3",
       "phase": "fixed",
       "at": {
         "line": 3,
@@ -125,7 +83,7 @@
       "var": "key"
     },
     {
-      "id": "P5",
+      "id": "P4",
       "phase": "fixed",
       "at": "end",
       "prompt": "What gets printed?",
@@ -229,5 +187,160 @@
     "w",
     "key",
     "groups"
-  ]
+  ],
+  "flow": "blocks",
+  "dissect": {
+    "restate": true,
+    "questions": [
+      {
+        "id": "D1",
+        "kind": "outcome",
+        "prompt": "What's inside words?",
+        "choices": [
+          {
+            "label": "A list of short words"
+          },
+          {
+            "label": "One long sentence"
+          },
+          {
+            "label": "A dict of piles"
+          }
+        ],
+        "answer": 0
+      },
+      {
+        "id": "D2",
+        "kind": "outcome",
+        "prompt": "What must come out?",
+        "choices": [
+          {
+            "label": "The words in alphabetical order"
+          },
+          {
+            "label": "A dict: each key holds the words made of the same letters"
+          },
+          {
+            "label": "How many piles there are"
+          }
+        ],
+        "answer": 1
+      },
+      {
+        "id": "D3",
+        "kind": "by_hand",
+        "prompt": "With THIS list, what gets printed? Work out the piles by hand — each key is the pile's letters in a-to-z order.",
+        "expected_from": "fix"
+      },
+      {
+        "id": "D4",
+        "kind": "outcome",
+        "prompt": "'tea' and 'ate' start with different letters. Do they go in the same pile?",
+        "choices": [
+          {
+            "label": "No — different first letters, different piles"
+          },
+          {
+            "label": "Yes — they use the same letters, so the first letter doesn't decide the pile"
+          }
+        ],
+        "answer": 1
+      }
+    ]
+  },
+  "instinct": {
+    "scaffold": "from collections import defaultdict\ngroups = defaultdict(list)\n\nprint(dict(groups))",
+    "code": "from collections import defaultdict\ngroups = defaultdict(list)\nfor w in words:\n    groups[''.join(sorted(w))].append(w)\nprint(dict(groups))",
+    "hints": [
+      "Words made of the same letters line up the same once their letters are sorted — use that as the pile's name.",
+      "''.join(sorted(w)) turns 'tea' into 'aet'. Loop over words and append each one to groups[that key].",
+      "from collections import defaultdict\ngroups = defaultdict(list)\nfor w in words:\n    groups[''.join(sorted(w))].append(w)\nprint(dict(groups))"
+    ],
+    "why": {
+      "this_data": "Your version is right — defaultdict makes each pile appear the first time it's used.",
+      "real_size": "A plain dict can do the same with setdefault: same piles, same speed, nothing to import. Let's build it that way and see what defaultdict was doing for you."
+    }
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "title": "A pile that starts itself",
+      "teaches": "groups.setdefault(key, []) hands back key's pile — making an empty one the first time — and .append(w) adds w to it.",
+      "code": "groups = {}\nkey = 'x'\nfor w in ['tea', 'tan']:\n    groups.setdefault(key, []).append(w)\nprint(groups)",
+      "checkpoints": [
+        {
+          "id": "B1a",
+          "at": {
+            "line": 4,
+            "iteration": 1
+          },
+          "kind": "value",
+          "var": "groups",
+          "prompt": "Iteration 1, after line 4: what is groups?"
+        },
+        {
+          "id": "B1b",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "    groups.setdefault(key, []).append(w)"
+    },
+    {
+      "id": "B2",
+      "title": "Sort the letters",
+      "teaches": "sorted(word) hands back its letters as a list, a to z.",
+      "code": "print(sorted('tea'))",
+      "checkpoints": [
+        {
+          "id": "B2a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B3",
+      "title": "Glue them back",
+      "teaches": "''.join(letters) glues a list of letters back into one string.",
+      "code": "print(''.join(['a', 'e', 't']))",
+      "checkpoints": [
+        {
+          "id": "B3a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B4",
+      "title": "Same letters, same key",
+      "teaches": "The first letter splits 'tea' from 'ate'; the sorted letters give both the key 'aet'. The pile is the whole handful of letters, sorted.",
+      "code": "for w in ['tea', 'ate']:\n    print(w[0], ''.join(sorted(w)))",
+      "checkpoints": [
+        {
+          "id": "B4a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "    key = ''.join(sorted(w))"
+    }
+  ],
+  "assembly": {
+    "skeleton": "groups = {}\nfor w in words:\n{1}\n{2}\nprint(groups)",
+    "answer": [
+      "B4",
+      "B1"
+    ],
+    "hints": [
+      "Which line makes key, and which line uses it?",
+      "A line can only use key after key has been set.",
+      "Order: B4's line first, then B1's."
+    ]
+  }
 }

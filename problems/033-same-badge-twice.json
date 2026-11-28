@@ -13,26 +13,7 @@
     ]
   },
   "intro": {
-    "job": "Did anyone sign in twice?",
-    "idea": {
-      "rule": "Check every name against ALL the names before it, not just the one next door.",
-      "detail": "A set remembers everyone you've seen so far, and 'name in seen' asks it in one step. Walk the list once: if the name is already in the set, that's a repeat; otherwise add it. A repeat can be anywhere earlier — not just right next door."
-    },
-    "watch": {
-      "code": "dup = False\nseen = set()\nfor name in log:\n    if name in seen:\n        dup = True\n    seen.add(name)\nprint(dup)",
-      "data": {
-        "name": "log",
-        "value": [
-          "di",
-          "ev",
-          "di"
-        ]
-      },
-      "trace_watch": [
-        "name",
-        "dup"
-      ]
-    }
+    "job": "Did anyone sign in twice?"
   },
   "model_restatement": "Say True if any name appears more than once, otherwise False.",
   "clarify": [
@@ -68,20 +49,9 @@
     }
   ],
   "clarify_fallback": "Good question — assume the simple case.",
-  "blueprint": "Go down the sign-in sheet comparing each name with the next one. If they match, someone signed in twice. Print the answer.",
+  "blueprint": "Compare every name with every name after it. If any two match, someone signed in twice. Print the answer.",
   "draft_code": "dup = False\nfor i in range(len(names) - 1):\n    if names[i] == names[i + 1]:\n        dup = True\nprint(dup)",
   "checkpoints": [
-    {
-      "id": "P1",
-      "phase": "draft",
-      "at": {
-        "line": 2,
-        "iteration": 3
-      },
-      "prompt": "Iteration 3 is the last comparison. What is i?",
-      "kind": "value",
-      "var": "i"
-    },
     {
       "id": "P2",
       "phase": "draft",
@@ -147,6 +117,10 @@
       {
         "code": "print(len(set(names)) < len(names))",
         "note": "A set drops repeats, so it's shorter if there was one — the shortcut."
+      },
+      {
+        "code": "dup = False\nfor i in range(len(names)):\n    for j in range(i + 1, len(names)):\n        if names[i] == names[j]:\n            dup = True\nprint(dup)",
+        "note": "Your first version: correct, but checks every pair; slow on long lists."
       }
     ],
     "hints": [
@@ -212,5 +186,152 @@
     "i",
     "name",
     "dup"
-  ]
+  ],
+  "flow": "blocks",
+  "dissect": {
+    "restate": true,
+    "questions": [
+      {
+        "id": "D1",
+        "kind": "outcome",
+        "prompt": "What's inside names?",
+        "choices": [
+          {
+            "label": "A list of the names that signed in, in order"
+          },
+          {
+            "label": "One name"
+          },
+          {
+            "label": "How many people signed in"
+          }
+        ],
+        "answer": 0
+      },
+      {
+        "id": "D2",
+        "kind": "outcome",
+        "prompt": "What must come out?",
+        "choices": [
+          {
+            "label": "The name that signed in twice"
+          },
+          {
+            "label": "True or False: did anyone sign in twice"
+          },
+          {
+            "label": "How many names there are"
+          }
+        ],
+        "answer": 1
+      },
+      {
+        "id": "D3",
+        "kind": "by_hand",
+        "prompt": "On THIS list, did anyone sign in twice? Work it out by hand: True or False.",
+        "expected_from": "fix"
+      },
+      {
+        "id": "D4",
+        "kind": "outcome",
+        "prompt": "Do the two sign-ins have to be next to each other to count?",
+        "choices": [
+          {
+            "label": "Yes — only neighbours count"
+          },
+          {
+            "label": "No — a match anywhere earlier in the list counts"
+          }
+        ],
+        "answer": 1
+      }
+    ]
+  },
+  "instinct": {
+    "scaffold": "dup = False\n\nprint(dup)",
+    "code": "dup = False\nfor i in range(len(names)):\n    for j in range(i + 1, len(names)):\n        if names[i] == names[j]:\n            dup = True\nprint(dup)",
+    "hints": [
+      "Try every pair: each name against every name after it.",
+      "Two loops: for i in range(len(names)): and inside it for j in range(i + 1, len(names)):",
+      "dup = False\nfor i in range(len(names)):\n    for j in range(i + 1, len(names)):\n        if names[i] == names[j]:\n            dup = True\nprint(dup)"
+    ],
+    "why": {
+      "this_data": "Your version compares every pair: 4 names → 6 pairs.",
+      "real_size": "With 10,000 names that's ~50 million comparisons. Let's build a version that walks the list once."
+    }
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "title": "A flag that stays up",
+      "teaches": "Start with dup = False; the first match flips it to True, and nothing flips it back.",
+      "code": "dup = False\nfor x in [1, 2, 2, 3]:\n    if x == 2:\n        dup = True\nprint(dup)",
+      "checkpoints": [
+        {
+          "id": "B1a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "        dup = True"
+    },
+    {
+      "id": "B2",
+      "title": "A set remembers who came by",
+      "teaches": "A set keeps every name you add, once — a repeat doesn't add a second copy.",
+      "code": "seen = set()\nfor name in ['ana', 'ben', 'ana']:\n    seen.add(name)\nprint(len(seen))",
+      "checkpoints": [
+        {
+          "id": "B2a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "Three names went in. What gets printed?"
+        }
+      ],
+      "tile": "    seen.add(name)"
+    },
+    {
+      "id": "B3",
+      "title": "One question to the set",
+      "teaches": "name in seen asks the set in one step: is this name already in there?",
+      "code": "seen = {'ana', 'ben'}\nprint('ana' in seen, 'cy' in seen)",
+      "checkpoints": [
+        {
+          "id": "B3a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B4",
+      "title": "Look first, then add",
+      "teaches": "Ask whether the name is in seen BEFORE you add it — otherwise every name finds itself.",
+      "code": "seen = set()\nname = 'ana'\nseen.add(name)\nprint(name in seen)",
+      "checkpoints": [
+        {
+          "id": "B4a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "Only ONE ana signed in here. What gets printed?"
+        }
+      ],
+      "tile": "    if name in seen:"
+    }
+  ],
+  "assembly": {
+    "skeleton": "dup = False\nseen = set()\nfor name in names:\n{1}\n{2}\n{3}\nprint(dup)",
+    "answer": [
+      "B4",
+      "B1",
+      "B2"
+    ],
+    "hints": [
+      "Which block showed what goes wrong if you add first?",
+      "B4's line has to come before B2's.",
+      "Order: B4's line, then B1's line, then B2's line."
+    ]
+  }
 }

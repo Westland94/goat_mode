@@ -11,26 +11,7 @@
     ]
   },
   "intro": {
-    "job": "Can the note be built from the magazine's letters, each used at most once?",
-    "idea": {
-      "rule": "Being in the magazine once isn't enough — each letter can only be spent once.",
-      "detail": "Think of the magazine as a wallet of letters. Count how many of each letter it holds, then 'spend' one for every letter the note needs. If you try to spend a letter whose count is already 0, the note can't be built — even though that letter IS in the magazine."
-    },
-    "watch": {
-      "code": "note, magazine = pair\nok = True\nleft = {}\nfor ch in magazine:\n    left[ch] = left.get(ch, 0) + 1\nfor ch in note:\n    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1\nprint(ok)",
-      "data": {
-        "name": "pair",
-        "value": [
-          "mom",
-          "mo"
-        ]
-      },
-      "trace_watch": [
-        "ch",
-        "left",
-        "ok"
-      ]
-    }
+    "job": "Can the note be built from the magazine's letters, each used at most once?"
   },
   "model_restatement": "Check whether the magazine has enough of every letter the note needs, counting repeats.",
   "clarify": [
@@ -66,20 +47,9 @@
     }
   ],
   "clarify_fallback": "Good question — assume the simple case.",
-  "blueprint": "Note and magazine come as a pair. For each letter in the note, check it's in the magazine; if one isn't, the note can't be built. Print the answer.",
+  "blueprint": "Note and magazine come as a pair. Make a list of the magazine's letters. For each note letter: if it's in the list, take it out; if not, the note can't be built. Print the answer.",
   "draft_code": "note, magazine = pair\nok = True\nfor ch in note:\n    if ch not in magazine:\n        ok = False\nprint(ok)",
   "checkpoints": [
-    {
-      "id": "P1",
-      "phase": "draft",
-      "at": {
-        "line": 3,
-        "iteration": 5
-      },
-      "prompt": "The note's second 'l' has just been checked — the loop moves on to 'o'. What is ok?",
-      "kind": "value",
-      "var": "ok"
-    },
     {
       "id": "P2",
       "phase": "draft",
@@ -108,7 +78,7 @@
   ],
   "why_line": "'l' in magazine only asks whether there's AN 'l' — it's True both times, so the second 'l' gets waved through even though the magazine has just one.",
   "explain": {
-    "checkpoint": "P1",
+    "checkpoint": "P2",
     "rule": "'in' checks the wallet has that coin — it doesn't take the coin out, so you can spend the same 'l' forever.",
     "bridge": "So how could you keep track of how many of each letter are left to spend?",
     "fix": {
@@ -205,5 +175,160 @@
     "ch",
     "ok",
     "left"
-  ]
+  ],
+  "flow": "blocks",
+  "dissect": {
+    "restate": true,
+    "questions": [
+      {
+        "id": "D1",
+        "kind": "outcome",
+        "prompt": "What's inside pair?",
+        "choices": [
+          {
+            "label": "Two words: the note, then the magazine"
+          },
+          {
+            "label": "One long word"
+          },
+          {
+            "label": "A list of letters"
+          }
+        ],
+        "answer": 0
+      },
+      {
+        "id": "D2",
+        "kind": "outcome",
+        "prompt": "What must come out?",
+        "choices": [
+          {
+            "label": "The letters the note is missing"
+          },
+          {
+            "label": "True or False: can the note be built"
+          },
+          {
+            "label": "How many letters the magazine has"
+          }
+        ],
+        "answer": 1
+      },
+      {
+        "id": "D3",
+        "kind": "by_hand",
+        "prompt": "With THIS pair, can the note be built? Work it out by hand.",
+        "expected_from": "fix"
+      },
+      {
+        "id": "D4",
+        "kind": "outcome",
+        "prompt": "The note needs two l's, and 'l' is in the magazine. Is that enough?",
+        "choices": [
+          {
+            "label": "Yes — 'l' is in the magazine, so every l is covered"
+          },
+          {
+            "label": "No — the magazine has only one l, so the second l has nothing to use"
+          }
+        ],
+        "answer": 1
+      }
+    ]
+  },
+  "instinct": {
+    "scaffold": "note, magazine = pair\nok = True\n\nprint(ok)",
+    "code": "note, magazine = pair\nok = True\nletters = list(magazine)\nfor ch in note:\n    if ch in letters:\n        letters.remove(ch)\n    else:\n        ok = False\nprint(ok)",
+    "hints": [
+      "Each magazine letter can be used once — so when you use one, take it away.",
+      "Put the magazine's letters in a list. For each note letter: if it's in the list, remove it; if not, set ok = False.",
+      "note, magazine = pair\nok = True\nletters = list(magazine)\nfor ch in note:\n    if ch in letters:\n        letters.remove(ch)\n    else:\n        ok = False\nprint(ok)"
+    ],
+    "why": {
+      "this_data": "Your version searches the list for every note letter: 5 note letters × up to 4 magazine letters = up to 20 looks.",
+      "real_size": "With a 10,000-letter note and a 100,000-letter magazine that's up to a billion looks. Let's tally the magazine once, then just look each letter up."
+    }
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "title": "Tally the magazine",
+      "teaches": "left[ch] = left.get(ch, 0) + 1 adds one to that letter's tally — starting from 0 the first time.",
+      "code": "left = {}\nfor ch in 'aab':\n    left[ch] = left.get(ch, 0) + 1\nprint(left)",
+      "checkpoints": [
+        {
+          "id": "B1a",
+          "at": {
+            "line": 3,
+            "iteration": 2
+          },
+          "kind": "value",
+          "var": "left",
+          "prompt": "Iteration 2, after line 3: what is left?"
+        },
+        {
+          "id": "B1b",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "    left[ch] = left.get(ch, 0) + 1"
+    },
+    {
+      "id": "B2",
+      "title": "Spend one",
+      "teaches": "left[ch] -= 1 uses up one of that letter.",
+      "code": "left = {'a': 2}\nleft['a'] -= 1\nprint(left)",
+      "checkpoints": [
+        {
+          "id": "B2a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B3",
+      "title": "Any left?",
+      "teaches": "left.get(ch, 0) == 0 asks 'none left?' — a letter that was never there counts as 0 too.",
+      "code": "left = {'a': 0, 'b': 1}\nprint(left.get('a', 0) == 0, left.get('z', 0) == 0)",
+      "checkpoints": [
+        {
+          "id": "B3a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B4",
+      "title": "In isn't the same as left",
+      "teaches": "'in' asks 'is there one at all?' — not 'is there one left to spend?'. Spend from the tally, and 0 means you're out.",
+      "code": "ok = True\nleft = {'l': 1}\nfor ch in 'll':\n    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1\nprint('l' in 'helo', ok)",
+      "checkpoints": [
+        {
+          "id": "B4a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "The magazine 'helo' has one l; the note needs two. What gets printed?"
+        }
+      ],
+      "tile": "    if left.get(ch, 0) == 0:\n        ok = False\n    else:\n        left[ch] -= 1"
+    }
+  ],
+  "assembly": {
+    "skeleton": "note, magazine = pair\nok = True\nleft = {}\nfor ch in magazine:\n{1}\nfor ch in note:\n{2}\nprint(ok)",
+    "answer": [
+      "B1",
+      "B4"
+    ],
+    "hints": [
+      "Which loop fills the tally, and which one spends from it?",
+      "B1's line tallies — it belongs in the magazine loop, before anything is spent.",
+      "Order: B1's line in the magazine loop, then B4's lines in the note loop."
+    ]
+  }
 }

@@ -60,6 +60,12 @@
       <h3>Variables</h3>
       <div id="scratch-vars-body"><p class="muted">Run your code to see every variable, step by step.</p></div>
     </section>
+
+    <section id="scratch-output" class="card mt" aria-label="Output" hidden>
+      <h3>Output</h3>
+      <pre id="scratch-stdout" class="sp-output"></pre>
+      <p id="scratch-stdout-empty" class="muted">Nothing printed yet.</p>
+    </section>
   </main>
   <script>
     // Scratch S3: static shell. The type picker marks one type active; the controls only log (S6/S7 wire them).
@@ -417,7 +423,10 @@
           if (!items) return { length: null, pointers: ptrs };
           for (const [name, rep] of Object.entries(after)) {
             if (name === structure || !U.has(name) || typeof rep !== 'string' || !/^-?\d+$/.test(rep)) continue;
-            const v = FE.has(name) ? items.length - Number(rep) : Number(rep);   // sp28: from-the-end users resolve to len − value
+            // sp28: from-the-end users (`s[-k]`) read index −value; sp31 (fix): a NEGATIVE effective index resolves the way
+            // Python reads it — len + index (`k = -1` → the last cell), in any expression context. Rule 1(b) then applies
+            // to the resolved cell (so −len … −1 draw; below −len stays off, as Python would raise IndexError).
+            const eff = FE.has(name) ? -Number(rep) : Number(rep), v = eff < 0 ? items.length + eff : eff;
             if (v >= 0 && v < items.length) { ptrs[name] = { index: v, hinted: HINTS.has(name), ...(FE.has(name) ? { fromEnd: true } : {}) }; seen.add(name); }
           }
           return { length: items.length, pointers: Object.fromEntries(Object.entries(ptrs).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) };
@@ -881,6 +890,18 @@
           n.animate(frames, { duration: dur, easing, id: 'sp-motion' });
         }
       }
+      // sp24: the Output panel — what the program has PRINTED up to this step (each step carries the run's stdout so
+      // far), shown like the Variables panel: it grows as you step and scrub. Nothing printed yet → a quiet line.
+      // The S8 rule applies (an object's address is stripped). Shown only while a run is loaded.
+      function drawOutput(k) {
+        const run = window.scratchRun, st = run && run.steps[k], sec = $('scratch-output');
+        if (!run || !st) { sec.hidden = true; return; }
+        // the last step shows the run's whole output: a print on the final line (e.g. print(f(...)) after a recursion)
+        // only lands in run.stdout, after the last traced line event
+        const text = noAddress((k === run.steps.length - 1 ? run.stdout : st.stdout) || '');
+        sec.hidden = false; $('scratch-stdout').textContent = text.replace(/\n$/, '');
+        $('scratch-stdout').hidden = !text; $('scratch-stdout-empty').hidden = !!text;
+      }
       function showStep(k) {
         const run = window.scratchRun, body = $('scratch-vars-body');
         if (!run || !run.steps.length) { body.replaceChildren(el('p', 'muted', run && run.error ? 'No step ran.' : 'Nothing ran.')); return; }
@@ -915,6 +936,7 @@
         drawGraph(k);  // S12
         drawDict(k);   // S11
         drawStack(k);  // S13
+        drawOutput(k); // sp24
         motionPlay(motionFirst);   // anim-1: move from the old frame to the new one
         $('scratch-scrub').value = String(k); $('scratch-stepno').textContent = `${k + 1} / ${run.steps.length}`;
         $('ctl-back').disabled = k === 0; $('ctl-fwd').disabled = k === run.steps.length - 1;
@@ -932,6 +954,7 @@
         $('scratch-scrubber').hidden = true; $('ctl-back').disabled = false; $('ctl-fwd').disabled = false;
         $('scratch-vars-body').replaceChildren(el('p', 'muted', 'Run your code to see every variable, step by step.'));
         $('scratch-stackwrap').replaceChildren();   // S13
+        $('scratch-output').hidden = true; $('scratch-stdout').textContent = '';   // sp24: no stale output after Stop / Edit / a new Run
         if (lastShown) render(lastShown, false);   // S9: the stage goes back to the pasted structure (never touches the editor)
       }
       // sp18: the first top-level `name = [` / `name = '` / `name = "` line in the code — the worker's first guess

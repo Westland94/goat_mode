@@ -363,3 +363,5 @@ button.btn.opt[aria-pressed="true"] { animation: pick 160ms ease-out; }
 .sp-past-box { min-width: 40px; min-height: 40px; display: flex; align-items: center; justify-content: center; border: 2px dashed var(--split); border-radius: var(--r-sm); color: var(--split); font-family: var(--mono); }
 .sp-past-label { font-family: var(--mono); font-size: var(--fs-xs); color: var(--split); font-weight: 700; margin-top: 2px; white-space: nowrap; }
 .sp-past-note { font-size: var(--fs-xs); color: var(--soft); white-space: nowrap; }
+/* sp24: the Scratch Pad Output panel — the printed text, as the code would show it. Existing tokens only. */
+.sp-output { margin: 8px 0 0; padding: 10px 12px; font-family: var(--mono); font-size: var(--fs-base); color: var(--code-ink); background: var(--code-bg); border-radius: var(--r-md); white-space: pre-wrap; overflow-wrap: anywhere; }

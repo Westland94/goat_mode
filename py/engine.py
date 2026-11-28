@@ -5,6 +5,7 @@ Shared by server.py (and any later test harness). Pure Python stdlib.
 import ast
 import datetime as dt
 import json
+import re
 import os
 import subprocess
 import sys
@@ -68,7 +69,10 @@ def validate_problem(p):
     elif not isinstance(p["intro"], dict):
         errors.append("missing field 'intro' (must be an object)")
     else:
-        for path in ["job", "idea.rule", "idea.detail", "watch.code", "watch.data.name", "watch.data.value"]:
+        # Task 194 (FLOW-REWORK-R1 §3g): a blocks-flow problem's intro is { job } only — beatIntro is skipped on that
+        # path, so intro.idea / intro.watch are optional there. Every other problem keeps the full intro.
+        paths = ["job"] if p.get("flow") == "blocks" else ["job", "idea.rule", "idea.detail", "watch.code", "watch.data.name", "watch.data.value"]
+        for path in paths:
             errors += [f"missing field 'intro.{m}'" for m in _missing_paths(p["intro"], path)]
     if "explain" in p:
         ex = p["explain"] if isinstance(p["explain"], dict) else {}
@@ -95,6 +99,127 @@ def validate_problem(p):
             for j, ch in enumerate(cp.get("choices") or [None]):
                 if not isinstance(ch, dict) or "label" not in ch or "match" not in ch:
                     errors.append(f"missing field 'checkpoints[{i}].choices[{j}].label/match'")
+    errors += validate_flow(p)
+    return errors
+
+
+FLOW_SECTIONS = ("dissect", "instinct", "blocks", "assembly")
+
+
+def assemble_flow(p):
+    """Task 193 (FLOW-REWORK-R1 §2): assembly.skeleton with slot {n} replaced by the tile of assembly.answer[n-1].
+    Returns the assembled code, or None when an answer id names no block with a tile."""
+    asm = p.get("assembly") or {}
+    tiles = {b.get("id"): b.get("tile") for b in p.get("blocks") or [] if isinstance(b, dict)}
+    code = asm.get("skeleton") or ""
+    for n, bid in enumerate(asm.get("answer") or [], 1):
+        if not tiles.get(bid):
+            return None
+        code = code.replace("{" + str(n) + "}", tiles[bid])
+    return code
+
+
+def validate_flow(p):
+    """Task 193: the optional blocks flow (FLOW-REWORK-R1 §2, enforcement level 1 — the schema).
+    A problem without `flow` and without any flow section is untouched (returns [])."""
+    present = [s for s in FLOW_SECTIONS if s in p]
+    if "flow" not in p:
+        return [f"'{s}' is a flow section — it needs \"flow\": \"blocks\"" for s in present]
+    errors = []
+    if p["flow"] != "blocks":
+        return [f"flow is {p['flow']!r} — the only flow is 'blocks'"]
+    for s in FLOW_SECTIONS:
+        if s not in p:
+            errors.append(f"missing field '{s}' (required with flow: blocks)")
+    if errors:
+        return errors
+    # dissect: 2–4 questions in the checkpoint shapes, plus the optional restate flag
+    dq = (p["dissect"] or {}).get("questions") if isinstance(p["dissect"], dict) else None
+    if not isinstance(dq, list) or not dq:
+        errors.append("missing field 'dissect.questions'")
+    else:
+        for i, q in enumerate(dq):
+            q = q if isinstance(q, dict) else {}
+            kind = q.get("kind")
+            if not q.get("id") or not q.get("prompt"):
+                errors.append(f"missing field 'dissect.questions[{i}].id/prompt'")
+            if kind == "outcome":
+                ch = q.get("choices")
+                if not isinstance(ch, list) or not ch or not all(isinstance(c, dict) and "label" in c for c in ch):
+                    errors.append(f"missing field 'dissect.questions[{i}].choices[].label'")
+                elif not isinstance(q.get("answer"), int) or not 0 <= q["answer"] < len(ch):
+                    errors.append(f"dissect.questions[{i}].answer must index one of its choices")
+            elif kind == "value":
+                if "expected" not in q:
+                    errors.append(f"missing field 'dissect.questions[{i}].expected'")
+            elif kind == "by_hand":
+                if q.get("expected_from") != "fix" and "expected" not in q:
+                    errors.append(f"dissect.questions[{i}] (by_hand) needs expected_from: 'fix' or an expected value")
+            else:
+                errors.append(f"dissect.questions[{i}].kind is {kind!r} — must be outcome, value or by_hand")
+    # instinct: a scaffold and an authored solution
+    ins = p["instinct"] if isinstance(p["instinct"], dict) else {}
+    for f in ("scaffold", "code"):
+        if not isinstance(ins.get(f), str) or not ins.get(f):
+            errors.append(f"missing field 'instinct.{f}'")
+    # blocks: unique ids; each has a title, the one idea it teaches, its own code and 1+ checkpoints
+    blocks = p["blocks"] if isinstance(p["blocks"], list) else []
+    if not blocks:
+        errors.append("missing field 'blocks' (at least one block)")
+    seen_ids = set()
+    for i, b in enumerate(blocks):
+        b = b if isinstance(b, dict) else {}
+        for f in ("id", "title", "teaches", "code"):
+            if not b.get(f):
+                errors.append(f"missing field 'blocks[{i}].{f}'")
+        if b.get("id") in seen_ids:
+            errors.append(f"duplicate block id '{b.get('id')}'")
+        seen_ids.add(b.get("id"))
+        cps = b.get("checkpoints")
+        if not isinstance(cps, list) or not cps:
+            errors.append(f"missing field 'blocks[{i}].checkpoints' (at least one)")
+        else:
+            for j, cp in enumerate(cps):
+                cp = cp if isinstance(cp, dict) else {}
+                if not cp.get("id") or "at" not in cp or cp.get("kind") not in ("value", "outcome"):
+                    errors.append(f"blocks[{i}].checkpoints[{j}] needs id, at and kind (value|outcome)")
+                elif cp.get("kind") == "value" and cp.get("at") != "end" and not cp.get("var"):
+                    errors.append(f"missing field 'blocks[{i}].checkpoints[{j}].var' (needed for a value checkpoint)")
+        if "data" in b and not (isinstance(b["data"], dict) and "name" in b["data"] and "value" in b["data"]):
+            errors.append(f"blocks[{i}].data needs name and value")
+        if "tile" in b and (not isinstance(b["tile"], str) or not b["tile"]):
+            errors.append(f"blocks[{i}].tile must be non-empty text")
+    # assembly: every answer id is a block WITH a tile; slots and answer agree; skeleton + tiles == fix.recommended
+    asm = p["assembly"] if isinstance(p["assembly"], dict) else {}
+    skel, answer = asm.get("skeleton"), asm.get("answer")
+    if not isinstance(skel, str) or not skel:
+        errors.append("missing field 'assembly.skeleton'")
+    if not isinstance(answer, list) or not answer:
+        errors.append("missing field 'assembly.answer'")
+    if errors:
+        return errors
+    tiles = {b["id"]: b.get("tile") for b in blocks}
+    for bid in answer:
+        if bid not in tiles:
+            errors.append(f"assembly.answer names '{bid}', which is not a block")
+        elif not tiles[bid]:
+            errors.append(f"assembly.answer names '{bid}', a block with no tile")
+    slots = sorted(int(m) for m in re.findall(r"\{(\d+)\}", skel))
+    if slots != list(range(1, len(answer) + 1)):
+        errors.append(f"assembly.skeleton has slots {slots} but assembly.answer has {len(answer)} tiles")
+    if errors:
+        return errors
+    fix = (p.get("fix") or {}).get("recommended") or ""
+    built = assemble_flow(p)
+    if built != fix:
+        errors.append("assembly: skeleton + answer tiles does not equal fix.recommended exactly")
+    # every line of the fix comes from the skeleton or a tile — no line of the solution comes from nowhere
+    allowed = {ln for ln in skel.split("\n") if not re.fullmatch(r"\{\d+\}", ln)}
+    for bid in answer:
+        allowed |= set(tiles[bid].split("\n"))
+    for n, ln in enumerate(fix.split("\n"), 1):
+        if ln not in allowed:
+            errors.append(f"fix.recommended line {n} ({ln.strip()!r}) is neither a skeleton line nor a tile")
     return errors
 
 

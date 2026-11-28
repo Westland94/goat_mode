@@ -11,24 +11,7 @@
     ]
   },
   "intro": {
-    "job": "Same letters, just rearranged?",
-    "idea": {
-      "rule": "Same letters isn't the same word — the COUNTS have to match too.",
-      "detail": "Two words are anagrams when they use exactly the same letters the same number of times. A set throws the counts away — {'a', 'b'} could be 'ab', 'aab' or 'abbb'. Sorting keeps every letter, so two anagrams sort into the identical list."
-    },
-    "watch": {
-      "code": "a, b = pair\nsame = sorted(a) == sorted(b)\nprint(same)",
-      "data": {
-        "name": "pair",
-        "value": [
-          "mood",
-          "mod"
-        ]
-      },
-      "trace_watch": [
-        "same"
-      ]
-    }
+    "job": "Same letters, just rearranged?"
   },
   "model_restatement": "Say True if the two words use exactly the same letters, the same number of times.",
   "clarify": [
@@ -62,20 +45,9 @@
     }
   ],
   "clarify_fallback": "Good question — assume the simple case.",
-  "blueprint": "Take both words. Compare the letters each one uses. Print whether they match.",
+  "blueprint": "Take both words. Tally how many of each letter the first word has, then do the same for the second. Print whether the two tallies match.",
   "draft_code": "a, b = pair\nsame = set(a) == set(b)\nprint(same)",
   "checkpoints": [
-    {
-      "id": "P1",
-      "phase": "draft",
-      "at": {
-        "line": 2,
-        "iteration": 0
-      },
-      "prompt": "After line 2, what is same?",
-      "kind": "value",
-      "var": "same"
-    },
     {
       "id": "P2",
       "phase": "draft",
@@ -104,7 +76,7 @@
   ],
   "why_line": "set('aab') and set('abb') are both {'a', 'b'} — a set keeps which letters, not how many, so the counts difference vanishes.",
   "explain": {
-    "checkpoint": "P1",
+    "checkpoint": "P2",
     "rule": "A set is a guest list with no headcount — 'aab' and 'abb' both invite a and b, so they look like the same party.",
     "bridge": "So what keeps every letter, repeats and all, so you can compare them?",
     "fix": {
@@ -186,5 +158,150 @@
   "one_liner": "Same letters isn't the same word — the COUNTS have to match too.",
   "trace_watch": [
     "same"
-  ]
+  ],
+  "flow": "blocks",
+  "dissect": {
+    "restate": true,
+    "questions": [
+      {
+        "id": "D1",
+        "kind": "outcome",
+        "prompt": "What's inside pair?",
+        "choices": [
+          {
+            "label": "Two words to compare"
+          },
+          {
+            "label": "One word, split in half"
+          },
+          {
+            "label": "A list of letters"
+          }
+        ],
+        "answer": 0
+      },
+      {
+        "id": "D2",
+        "kind": "outcome",
+        "prompt": "What must come out?",
+        "choices": [
+          {
+            "label": "The letters both words share"
+          },
+          {
+            "label": "True or False: is one word the other with its letters rearranged"
+          },
+          {
+            "label": "How many letters differ"
+          }
+        ],
+        "answer": 1
+      },
+      {
+        "id": "D3",
+        "kind": "by_hand",
+        "prompt": "With THIS pair, is one word the other rearranged? Work it out by hand.",
+        "expected_from": "fix"
+      },
+      {
+        "id": "D4",
+        "kind": "outcome",
+        "prompt": "'aab' and 'abb' both use only a and b. Is that enough to be the same letters rearranged?",
+        "choices": [
+          {
+            "label": "Yes — they use the same letters"
+          },
+          {
+            "label": "No — aab has two a's and abb has two b's; how many of each must match too"
+          }
+        ],
+        "answer": 1
+      }
+    ]
+  },
+  "instinct": {
+    "scaffold": "a, b = pair\nca, cb = {}, {}\n\nprint(ca == cb)",
+    "code": "a, b = pair\nca, cb = {}, {}\nfor ch in a:\n    ca[ch] = ca.get(ch, 0) + 1\nfor ch in b:\n    cb[ch] = cb.get(ch, 0) + 1\nprint(ca == cb)",
+    "hints": [
+      "Rearranged means the same letters, each the same number of times — so tally each word.",
+      "Loop over a adding one to ca[ch] (start from 0 with ca.get(ch, 0)); do the same for b into cb. Then compare ca and cb.",
+      "a, b = pair\nca, cb = {}, {}\nfor ch in a:\n    ca[ch] = ca.get(ch, 0) + 1\nfor ch in b:\n    cb[ch] = cb.get(ch, 0) + 1\nprint(ca == cb)"
+    ],
+    "why": {
+      "this_data": "Your version is right — it builds two tallies in two loops: 7 lines.",
+      "real_size": "Python can line up both words' letters for you in one line: if they line up identically, every count matches. Let's build that."
+    }
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "title": "Split the pair",
+      "teaches": "a, b = pair puts the first word in a and the second in b.",
+      "code": "a, b = ['rat', 'tar']\nprint(b, a)",
+      "checkpoints": [
+        {
+          "id": "B1a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "a, b = pair"
+    },
+    {
+      "id": "B2",
+      "title": "Line the letters up",
+      "teaches": "sorted(word) hands back a list of its letters in order — every letter kept, repeats too.",
+      "code": "print(sorted('tar'))",
+      "checkpoints": [
+        {
+          "id": "B2a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B3",
+      "title": "Same list, same order",
+      "teaches": "Two lists are == only when they hold the same items in the same order.",
+      "code": "print(sorted('rat') == sorted('tar'), ['a', 'b'] == ['b', 'a'])",
+      "checkpoints": [
+        {
+          "id": "B3a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B4",
+      "title": "A set forgets how many",
+      "teaches": "A set keeps each letter once and throws the counts away; sorted keeps every letter, so the counts have to match too.",
+      "code": "a, b = 'aab', 'abb'\nprint(set(a) == set(b), sorted(a) == sorted(b))",
+      "checkpoints": [
+        {
+          "id": "B4a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "'aab' vs 'abb' — what gets printed?"
+        }
+      ],
+      "tile": "same = sorted(a) == sorted(b)"
+    }
+  ],
+  "assembly": {
+    "skeleton": "{1}\n{2}\nprint(same)",
+    "answer": [
+      "B1",
+      "B4"
+    ],
+    "hints": [
+      "Which line makes a and b exist?",
+      "A line can only use a and b after they've been set.",
+      "Order: B1's line first, then B4's."
+    ]
+  }
 }

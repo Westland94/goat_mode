@@ -16,30 +16,7 @@
     ]
   },
   "intro": {
-    "job": "Two prices on a gift card must add up to exactly the card's value. Which two?",
-    "idea": {
-      "rule": "Check for the partner BEFORE you file the number — otherwise a number can pair with itself.",
-      "detail": "The hashmap trick: walk the list once, and keep a dict of every price you've already seen and where it was. For each new price, the partner you need is target - price — one dict lookup tells you whether you've met it. Look first, then file: the dict should only ever hold numbers from BEFORE this one."
-    },
-    "watch": {
-      "code": "prices, target = card\nseen = {}\npair = None\nfor i, price in enumerate(prices):\n    if target - price in seen:\n        pair = (seen[target - price], i)\n        break\n    seen[price] = i\nprint(pair)",
-      "data": {
-        "name": "card",
-        "value": [
-          [
-            3,
-            5,
-            1
-          ],
-          6
-        ]
-      },
-      "trace_watch": [
-        "price",
-        "seen",
-        "pair"
-      ]
-    }
+    "job": "Two prices on a gift card must add up to exactly the card's value. Which two?"
   },
   "model_restatement": "Find the positions of two different prices that add up to the card's value.",
   "clarify": [
@@ -90,7 +67,7 @@
     }
   ],
   "clarify_fallback": "Good question — assume the simple case.",
-  "blueprint": "Card holds the prices and the target. Walk the prices; file each one in seen, then check whether its partner is in seen. Print the first pair you find.",
+  "blueprint": "Unpack the card into the prices and the target. Try every pair of positions, earlier one first; the first pair that adds up to the target is the answer.",
   "draft_code": "prices, target = card\nseen = {}\npair = None\nfor i, price in enumerate(prices):\n    seen[price] = i\n    if target - price in seen:\n        pair = (seen[target - price], i)\n        break\nprint(pair)",
   "checkpoints": [
     {
@@ -179,7 +156,7 @@
     "alternatives": [
       {
         "code": "prices, target = card\npair = None\nfor i in range(len(prices)):\n    for j in range(i + 1, len(prices)):\n        if prices[i] + prices[j] == target and pair is None:\n            pair = (i, j)\nprint(pair)",
-        "note": "Check every pair — correct, but it looks again and again (slow on long lists)."
+        "note": "Your first version: correct, but checks every pair; slow on long lists."
       }
     ],
     "hints": [
@@ -245,5 +222,162 @@
     "price",
     "seen",
     "pair"
-  ]
+  ],
+  "flow": "blocks",
+  "dissect": {
+    "restate": true,
+    "questions": [
+      {
+        "id": "D1",
+        "kind": "outcome",
+        "prompt": "What's inside card?",
+        "choices": [
+          {
+            "label": "A list of prices, then the card's value"
+          },
+          {
+            "label": "Two prices"
+          },
+          {
+            "label": "A price and its position"
+          }
+        ],
+        "answer": 0
+      },
+      {
+        "id": "D2",
+        "kind": "outcome",
+        "prompt": "What must come out — positions or prices?",
+        "choices": [
+          {
+            "label": "The two prices that add up"
+          },
+          {
+            "label": "The two positions, earlier first: (i, j)"
+          },
+          {
+            "label": "True or False"
+          }
+        ],
+        "answer": 1
+      },
+      {
+        "id": "D3",
+        "kind": "by_hand",
+        "prompt": "On THIS card, which two positions add up to 8? Work it out by hand, as (i, j).",
+        "expected_from": "fix"
+      },
+      {
+        "id": "D4",
+        "kind": "outcome",
+        "prompt": "Could the 4 pair with itself to make 8?",
+        "choices": [
+          {
+            "label": "Yes — 4 + 4 is 8"
+          },
+          {
+            "label": "No — it's one price, used once"
+          }
+        ],
+        "answer": 1
+      }
+    ]
+  },
+  "instinct": {
+    "scaffold": "prices, target = card\npair = None\n\nprint(pair)",
+    "code": "prices, target = card\npair = None\nfor i in range(len(prices)):\n    for j in range(i + 1, len(prices)):\n        if prices[i] + prices[j] == target and pair is None:\n            pair = (i, j)\nprint(pair)",
+    "hints": [
+      "Try every pair: each price with every price after it.",
+      "Two loops: for i in range(len(prices)): and inside it for j in range(i + 1, len(prices)):",
+      "prices, target = card\npair = None\nfor i in range(len(prices)):\n    for j in range(i + 1, len(prices)):\n        if prices[i] + prices[j] == target and pair is None:\n            pair = (i, j)\nprint(pair)"
+    ],
+    "why": {
+      "this_data": "Your version checks every pair: 4 prices → 6 pairs.",
+      "real_size": "With 10,000 prices that's ~50 million pairs. Let's build a version that walks the list once."
+    }
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "title": "Partner math",
+      "teaches": "For each price, the partner you need is target - price.",
+      "code": "target = 8\nfor price in [4, 1, 7]:\n    print(target - price)",
+      "checkpoints": [
+        {
+          "id": "B1a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "        pair = (seen[target - price], i)\n        break"
+    },
+    {
+      "id": "B2",
+      "title": "A notebook of what you've passed",
+      "teaches": "A dict can remember every price you've walked past — and where it was.",
+      "code": "seen = {}\nfor i, price in enumerate([4, 1, 7]):\n    seen[price] = i\nprint(seen)",
+      "checkpoints": [
+        {
+          "id": "B2a",
+          "at": {
+            "line": 3,
+            "iteration": 2
+          },
+          "kind": "value",
+          "var": "seen",
+          "prompt": "Iteration 2, after line 3: what is seen?"
+        },
+        {
+          "id": "B2b",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "    seen[price] = i"
+    },
+    {
+      "id": "B4",
+      "title": "One question to the notebook",
+      "teaches": "x in seen asks the dict in one step; seen[x] hands back the position.",
+      "code": "seen = {4: 0, 1: 1}\nprint(7 in seen, 1 in seen)\nprint(seen[1])",
+      "checkpoints": [
+        {
+          "id": "B4a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B3",
+      "title": "Look first, then file",
+      "teaches": "Ask for the partner BEFORE you add this price to seen — otherwise a price can find itself.",
+      "code": "target = 8\nseen = {}\nprice = 4\nseen[price] = 0\nprint(target - price in seen)",
+      "checkpoints": [
+        {
+          "id": "B3a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "There's only ONE 4 here. What gets printed?"
+        }
+      ],
+      "tile": "    if target - price in seen:"
+    }
+  ],
+  "assembly": {
+    "skeleton": "prices, target = card\nseen = {}\npair = None\nfor i, price in enumerate(prices):\n{1}\n{2}\n{3}\nprint(pair)",
+    "answer": [
+      "B3",
+      "B1",
+      "B2"
+    ],
+    "hints": [
+      "Which block showed what goes wrong if you file first?",
+      "B3's line has to come before B2's.",
+      "Order: B3's line, then B1's two lines, then B2's line."
+    ]
+  }
 }

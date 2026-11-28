@@ -8,22 +8,7 @@
     "value": "swiss"
   },
   "intro": {
-    "job": "The first letter that appears exactly once.",
-    "idea": {
-      "rule": "Count the whole word first — the first letter you haven't seen yet isn't the first letter that appears once.",
-      "detail": "Whether a letter appears once depends on the WHOLE word — a letter can look lonely at the start and repeat later. So make two passes: first count every letter, then walk the word again and stop at the first letter whose count is 1."
-    },
-    "watch": {
-      "code": "counts = {}\nfor ch in text:\n    counts[ch] = counts.get(ch, 0) + 1\nfor ch in text:\n    if counts[ch] == 1:\n        print(ch)\n        break",
-      "data": {
-        "name": "text",
-        "value": "aabbc"
-      },
-      "trace_watch": [
-        "ch",
-        "counts"
-      ]
-    }
+    "job": "The first letter that appears exactly once."
   },
   "model_restatement": "Find the first letter in the word that occurs exactly once, and print it.",
   "clarify": [
@@ -58,20 +43,9 @@
     }
   ],
   "clarify_fallback": "Good question — assume the simple case.",
-  "blueprint": "Walk the word keeping a set of letters seen. The first letter that isn't in the set is the answer — print it and stop.",
+  "blueprint": "For each letter, check how many times it shows up in the whole word. The first letter that shows up exactly once is the answer — print it and stop.",
   "draft_code": "seen = set()\nfor ch in word:\n    if ch not in seen:\n        print(ch)\n        break\n    seen.add(ch)",
   "checkpoints": [
-    {
-      "id": "P1",
-      "phase": "draft",
-      "at": {
-        "line": 2,
-        "iteration": 1
-      },
-      "prompt": "First time through the loop — what is ch?",
-      "kind": "value",
-      "var": "ch"
-    },
     {
       "id": "P2",
       "phase": "draft",
@@ -178,5 +152,160 @@
   "trace_watch": [
     "ch",
     "counts"
-  ]
+  ],
+  "flow": "blocks",
+  "dissect": {
+    "restate": true,
+    "questions": [
+      {
+        "id": "D1",
+        "kind": "outcome",
+        "prompt": "What's inside word?",
+        "choices": [
+          {
+            "label": "One word — a string of letters"
+          },
+          {
+            "label": "A list of words"
+          },
+          {
+            "label": "A single letter"
+          }
+        ],
+        "answer": 0
+      },
+      {
+        "id": "D2",
+        "kind": "outcome",
+        "prompt": "What must come out?",
+        "choices": [
+          {
+            "label": "Every letter that shows up once"
+          },
+          {
+            "label": "The first letter that shows up exactly once, printed"
+          },
+          {
+            "label": "How many letters show up once"
+          }
+        ],
+        "answer": 1
+      },
+      {
+        "id": "D3",
+        "kind": "by_hand",
+        "prompt": "In THIS word, which letter is the first to show up exactly once? Work it out by hand.",
+        "expected_from": "fix"
+      },
+      {
+        "id": "D4",
+        "kind": "outcome",
+        "prompt": "The first letter, s — is it the answer just because nothing came before it?",
+        "choices": [
+          {
+            "label": "Yes — it's first and nothing matched it yet"
+          },
+          {
+            "label": "No — s shows up again later, so it isn't alone"
+          }
+        ],
+        "answer": 1
+      }
+    ]
+  },
+  "instinct": {
+    "scaffold": "for ch in word:\n    pass",
+    "code": "for ch in word:\n    if word.count(ch) == 1:\n        print(ch)\n        break",
+    "hints": [
+      "For each letter, ask how many times it shows up in the whole word.",
+      "word.count(ch) says how many times ch is in word — stop at the first letter where that's 1.",
+      "for ch in word:\n    if word.count(ch) == 1:\n        print(ch)\n        break"
+    ],
+    "why": {
+      "this_data": "Your version re-reads the whole word for every letter: 5 letters → 25 looks.",
+      "real_size": "With a 10,000-letter word that's 100 million looks. Let's count every letter once, then just look it up."
+    }
+  },
+  "blocks": [
+    {
+      "id": "B1",
+      "title": "Count every letter once",
+      "teaches": "counts[ch] = counts.get(ch, 0) + 1 adds one to that letter's count — starting from 0 the first time.",
+      "code": "counts = {}\nfor ch in 'aba':\n    counts[ch] = counts.get(ch, 0) + 1\nprint(counts)",
+      "checkpoints": [
+        {
+          "id": "B1a",
+          "at": {
+            "line": 3,
+            "iteration": 2
+          },
+          "kind": "value",
+          "var": "counts",
+          "prompt": "Iteration 2, after line 3: what is counts?"
+        },
+        {
+          "id": "B1b",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ],
+      "tile": "    counts[ch] = counts.get(ch, 0) + 1"
+    },
+    {
+      "id": "B2",
+      "title": "Stop at the first one",
+      "teaches": "break leaves the loop right away — so only the FIRST match is printed.",
+      "code": "for x in [3, 8, 5, 8]:\n    if x == 8:\n        print(x)\n        break",
+      "checkpoints": [
+        {
+          "id": "B2a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "There are two 8s. What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B3",
+      "title": "Ask the counts",
+      "teaches": "counts[ch] hands back how many times ch showed up; == 1 asks 'exactly once?'",
+      "code": "counts = {'s': 3, 'w': 1, 'i': 1}\nprint(counts['s'], counts['w'] == 1)",
+      "checkpoints": [
+        {
+          "id": "B3a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "What gets printed?"
+        }
+      ]
+    },
+    {
+      "id": "B4",
+      "title": "Count it all, then look",
+      "teaches": "Look only after the WHOLE word is counted — mid-count, a letter that repeats later still looks like it shows up once.",
+      "code": "counts = {}\nfor ch in 'aba':\n    counts[ch] = counts.get(ch, 0) + 1\n    if counts[ch] == 1:\n        print(ch)\n        break",
+      "checkpoints": [
+        {
+          "id": "B4a",
+          "at": "end",
+          "kind": "value",
+          "prompt": "'a' shows up twice in 'aba'. What gets printed?"
+        }
+      ],
+      "tile": "    if counts[ch] == 1:\n        print(ch)\n        break"
+    }
+  ],
+  "assembly": {
+    "skeleton": "counts = {}\nfor ch in word:\n{1}\nfor ch in word:\n{2}",
+    "answer": [
+      "B1",
+      "B4"
+    ],
+    "hints": [
+      "Which block showed what goes wrong if you look before the counting is done?",
+      "B1's line belongs in the first loop — every letter is counted before anything is looked up.",
+      "Order: B1's line in the first loop, then B4's lines in the second."
+    ]
+  }
 }
